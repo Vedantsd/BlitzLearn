@@ -33,6 +33,16 @@ function toggleTheme() {
     const isDark = document.body.classList.toggle('dark');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     updateThemeIcon(isDark);
+    updateHeaderLogo(isDark);
+}
+
+function updateHeaderLogo(isDark) {
+    const logo = document.getElementById('header-logo');
+    if (!logo) return;
+
+    logo.src = !isDark
+        ? "/static/logo/blitz-logo-light.png"
+        : "/static/logo/blitz-logo-dark.png";
 }
 
 function updateThemeIcon(isDark) {

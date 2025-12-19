@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <title>BlitzLearn - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login-style.css') }}">
 </head>
 <body>
 <header>
-    <h1 onclick="window.location.reload()">BlitzLearn</h1>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1 onclick="window.location.reload()">BlitzLearn</h1>
+    </div>
     <div class="header-actions">
         <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
             <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

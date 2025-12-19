@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <title>BlitzLearn</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-style.css') }}">
 </head>
 
 <body>
 <header>
-    <h1>BlitzLearn</h1>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
     <div class="header-actions">
         <div id="user-profile" class="profile-circle" title="User Profile">
             <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">

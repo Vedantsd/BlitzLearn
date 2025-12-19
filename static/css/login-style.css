@@ -95,6 +95,19 @@ header h1 {
     height: 20px;
 }
 
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-logo {
+    height: 40px;
+    width: auto;
+    border-radius: 100%;
+}
+
 .main-container {
     flex: 1;
     display: flex;
