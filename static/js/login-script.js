@@ -129,4 +129,12 @@ function handleForgotPassword(e) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const isDark = localStorage.getItem('theme') === 'dark';
+    document.body.classList.toggle('dark', isDark);
+    updateThemeIcon(isDark);
+    updateHeaderLogo(isDark);
+});
+
+
 initTheme();

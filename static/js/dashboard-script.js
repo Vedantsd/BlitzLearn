@@ -55,7 +55,6 @@ function updateThemeIcon(isDark) {
     }
 }
 
-
 function updateFileCount() {
     const fileInput = document.getElementById('pdf-upload');
     const fileCount = document.getElementById('file-count');
@@ -128,5 +127,13 @@ async function askQuestion() {
 document.getElementById('user-input').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') askQuestion();
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const isDark = localStorage.getItem('theme') === 'dark';
+    document.body.classList.toggle('dark', isDark);
+    updateThemeIcon(isDark);
+    updateHeaderLogo(isDark);
+});
+
 
 updateThemeIcon();
