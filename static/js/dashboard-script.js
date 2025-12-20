@@ -221,5 +221,49 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeaderLogo(isDark);
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const headerLeft = document.querySelector('.header-left');
+    const hamburger = document.createElement('button');
+    hamburger.className = 'hamburger-menu';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    headerLeft.insertBefore(hamburger, headerLeft.firstChild);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    const profileCircle = document.getElementById('user-profile');
+    const themeToggle = document.getElementById('theme-toggle');
+    const logoutBtn = document.querySelector('.icon-button[onclick="logout()"]');
+    
+    const dropdown = document.createElement('div');
+    dropdown.className = 'profile-dropdown';
+    dropdown.appendChild(themeToggle.cloneNode(true));
+    dropdown.appendChild(logoutBtn.cloneNode(true));
+    document.querySelector('.header-actions').appendChild(dropdown);
+
+    hamburger.addEventListener('click', function() {
+        hamburger.classList.toggle('active');
+        document.querySelector('.sidebar').classList.toggle('active');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', function() {
+        hamburger.classList.remove('active');
+        document.querySelector('.sidebar').classList.remove('active');
+        overlay.classList.remove('active');
+    });
+
+    profileCircle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!profileCircle.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+        }
+    });
+});
 
 updateThemeIcon();
