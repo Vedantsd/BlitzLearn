@@ -56,10 +56,32 @@ function updateThemeIcon(isDark) {
 }
 
 function updateFileCount() {
+    const MAX_FILE_SIZE = 20 * 1024 * 1024; 
     const fileInput = document.getElementById('pdf-upload');
     const fileCount = document.getElementById('file-count');
+
+    let validFiles = [];
+    let hasOversizedFile = false;
+
+    for (const file of fileInput.files) {
+        if (file.size > MAX_FILE_SIZE) {
+            hasOversizedFile = true;
+        } else {
+            validFiles.push(file);
+        }
+    }
+
+    if (hasOversizedFile) {
+        alert("One or more files exceed the 20MB limit and were removed.");
+    }
+
+    const dataTransfer = new DataTransfer();
+    validFiles.forEach(file => dataTransfer.items.add(file));
+    fileInput.files = dataTransfer.files;
+
     const count = fileInput.files.length;
-    fileCount.textContent = count > 0 ? `${count} file${count > 1 ? 's' : ''} selected` : '';
+    fileCount.textContent =
+        count > 0 ? `${count} file${count > 1 ? 's' : ''} selected` : '';
 }
 
 async function processContent() {
@@ -76,6 +98,16 @@ async function processContent() {
     if (fileInput.files.length === 0) {
         showProgressMessage('Please select at least one PDF file.', 'error');
         return;
+    }
+
+    for (const file of fileInput.files) {
+        if (file.size > MAX_FILE_SIZE) {
+            showProgressMessage(
+                `File "${file.name}" exceeds 20MB limit.`,
+                'error'
+            );
+            return;
+        }
     }
 
     processBtn.textContent = "Processing...";
