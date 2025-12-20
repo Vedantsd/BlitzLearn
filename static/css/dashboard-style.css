@@ -117,9 +117,25 @@ header h1 {
     width: 340px;
     background: var(--card-bg);
     border-right: 2px solid var(--border-color);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 12px var(--shadow);
+}
+
+.sidebar-content {
+    flex: 1;
     padding: 24px;
     overflow-y: auto;
-    box-shadow: 2px 0 12px var(--shadow);
+    scrollbar-width: none;
+}
+
+.sidebar-footer {
+    padding: 16px 24px 24px;
+    border-top: 2px solid var(--border-color);
+    background: var(--card-bg);
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.25);
+    border-radius: 36px 36px 0 0;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -226,7 +242,6 @@ header h1 {
 
 .sidebar button {
     width: 100%;
-    margin-top: 8px;
     padding: 14px;
     border-radius: 10px;
     border: none;
