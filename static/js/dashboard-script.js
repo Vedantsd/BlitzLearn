@@ -85,11 +85,14 @@ function updateFileCount() {
 }
 
 async function processContent() {
+    const MAX_FILE_SIZE = 20 * 1024 * 1024;
+
     const fileInput = document.getElementById('pdf-upload');
     const ytUrl = document.getElementById('yt-url').value;
     const outcomes = document.getElementById('course-outcomes').value;
     const bloomLevel = document.getElementById('bloom-level').value;
     const weightage = document.getElementById('topic-weightage').value;
+    const language = document.getElementById('language').value;
     const processBtn = document.querySelector('.sidebar button');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
@@ -124,6 +127,7 @@ async function processContent() {
     formData.append('course_outcomes', outcomes);
     formData.append('bloom_level', bloomLevel);
     formData.append('weightage', weightage);
+    formData.append('language', language)
 
     progressBar.style.width = '30%';
     progressText.textContent = 'Extracting text from PDFs...';

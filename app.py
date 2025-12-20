@@ -19,6 +19,7 @@ session_context = {
     "course_outcomes": "",
     "bloom_level": "Understand",
     "weightage": "",
+    "language": "",
     "yt_url": ""
 }
 
@@ -41,7 +42,7 @@ def get_vector_store(text_chunks):
     store = FAISS.from_texts(text_chunks, embedding=embeddings)
     return store
 
-def get_conversational_chain(bloom_level, outcomes, weightage):
+def get_conversational_chain(bloom_level, outcomes, weightage, language):
     prompt_template = f"""
     You are an academic tutor. Answer the question based on the provided context, 
     keeping the learner's Goal, Cognitive Level, and Topic Weightage in mind.
@@ -49,6 +50,8 @@ def get_conversational_chain(bloom_level, outcomes, weightage):
     Learner's Course Outcomes: {outcomes}
     Target Bloom's Taxonomy Level: {bloom_level}
     Topic Weightage in Exam: {weightage} marks
+    Preferred output language: {language}
+    ** Strictly give the text output in the preferred language
 
     Instructions:
     1. Use the provided context to answer.
@@ -91,6 +94,7 @@ def process_content():
     outcomes = request.form.get("course_outcomes", "")
     bloom_index = request.form.get("bloom_level", "2")
     weightage = request.form.get('weightage', "4")
+    language = request.form.get('language', "English")
     
     bloom_map = {
         "1": "Remember (Define, list, memorize)",
@@ -104,6 +108,7 @@ def process_content():
     session_context["course_outcomes"] = outcomes
     session_context["bloom_level"] = bloom_map.get(bloom_index, "Understand")
     session_context["weightage"] = weightage
+    session_context["language"] = language
     session_context["yt_url"] = yt_url
 
     if not pdf_files or pdf_files[0].filename == '':
@@ -132,7 +137,8 @@ def ask_question():
     chain = get_conversational_chain(
         session_context["bloom_level"], 
         session_context["course_outcomes"],
-        session_context["weightage"]
+        session_context["weightage"],
+        session_context["language"]
     )
     
     response = chain({"input_documents": docs, "question": user_question}, return_only_outputs=True)
