@@ -183,6 +183,24 @@ function showProgressMessage(message, type) {
     }, 3000);
 }
 
+function parseMarkdown(text) {
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    text = text.replace(/`(.+?)`/g, '<code>$1</code>');
+    
+    text = text.replace(/\n/g, '<br>');
+    
+    text = text.replace(/^(\d+)\.\s(.+)$/gm, '<div class="list-item">$1. $2</div>');
+    
+    text = text.replace(/^[-*]\s(.+)$/gm, '<div class="list-item">• $1</div>');
+    
+    text = text.replace(/^##\s(.+)$/gm, '<h4>$1</h4>');
+    
+    return text;
+}
+
 async function askQuestion() {
     const input = document.getElementById('user-input');
     const chatBox = document.getElementById('chat-box');
@@ -203,7 +221,8 @@ async function askQuestion() {
             body: JSON.stringify({ question: query })
         });
         const data = await response.json();
-        chatBox.innerHTML += `<div class="message ai-message">${data.answer}</div>`;
+        const formattedAnswer = parseMarkdown(data.answer);
+        chatBox.innerHTML += `<div class="message ai-message">${formattedAnswer}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
     } catch (error) {
         chatBox.innerHTML += `<div class="message ai-message">Error connecting to server.</div>`;
@@ -265,5 +284,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function parseMarkdown(text) {
+    // Convert **bold** to <strong>
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert *italic* to <em>
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Convert `code` to <code>
+    text = text.replace(/`(.+?)`/g, '<code>$1</code>');
+    
+    // Convert newlines to <br>
+    text = text.replace(/\n/g, '<br>');
+    
+    // Convert numbered lists (1. item)
+    text = text.replace(/^(\d+)\.\s(.+)$/gm, '<div class="list-item">$1. $2</div>');
+    
+    // Convert bullet points (- item or * item)
+    text = text.replace(/^[-*]\s(.+)$/gm, '<div class="list-item">• $1</div>');
+    
+    // Convert headers (## Header)
+    text = text.replace(/^##\s(.+)$/gm, '<h4>$1</h4>');
+    
+    return text;
+}
 
 updateThemeIcon();
