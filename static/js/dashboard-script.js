@@ -285,29 +285,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function parseMarkdown(text) {
-    // Convert **bold** to <strong>
-    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+function toggleDropdown() {
+    const content = document.getElementById('dropdown-content');
+    const arrow = document.getElementById('dropdown-arrow');
     
-    // Convert *italic* to <em>
-    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-    
-    // Convert `code` to <code>
-    text = text.replace(/`(.+?)`/g, '<code>$1</code>');
-    
-    // Convert newlines to <br>
-    text = text.replace(/\n/g, '<br>');
-    
-    // Convert numbered lists (1. item)
-    text = text.replace(/^(\d+)\.\s(.+)$/gm, '<div class="list-item">$1. $2</div>');
-    
-    // Convert bullet points (- item or * item)
-    text = text.replace(/^[-*]\s(.+)$/gm, '<div class="list-item">• $1</div>');
-    
-    // Convert headers (## Header)
-    text = text.replace(/^##\s(.+)$/gm, '<h4>$1</h4>');
-    
-    return text;
+    content.classList.toggle('collapsed');
+    arrow.classList.toggle('collapsed');
 }
 
 updateThemeIcon();
