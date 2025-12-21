@@ -119,6 +119,40 @@
                     </div>
                 </div>
             </div>
+
+            <div class="sidebar-dropdown">
+                <div class="dropdown-header" onclick="toggleDropdown2()">
+                    <h3>Study Modes</h3>
+                    <svg class="dropdown-arrow" id="dropdown-arrow-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+
+                <div class="dropdown-content" id="dropdown-content-2">
+                    <div class="form-group">
+                        <label class="radio-label">
+                            <input type="radio" name="study-mode" value="normal" checked>
+                            <span>Normal Mode</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="radio-label">
+                            <input type="radio" name="study-mode" value="professor">
+                            <span>Professor Mode</span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="radio-label">
+                            <input type="radio" name="study-mode" value="vibe">
+                            <span>Vibe Mode</span>
+                        </label>
+                    </div>
+
+                    <button onclick="setStudyMode()" class="mode-button">Set Mode</button>
+                </div>
+            </div>
         </div>
 
         <div class="sidebar-footer">

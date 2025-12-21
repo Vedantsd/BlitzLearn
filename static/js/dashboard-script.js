@@ -293,4 +293,18 @@ function toggleDropdown() {
     arrow.classList.toggle('collapsed');
 }
 
+function toggleDropdown2() {
+    const content = document.getElementById('dropdown-content-2');
+    const arrow = document.getElementById('dropdown-arrow-2');
+    
+    content.classList.toggle('collapsed');
+    arrow.classList.toggle('collapsed');
+}
+
+function setStudyMode() {
+    const selectedMode = document.querySelector('input[name="study-mode"]:checked').value;
+    console.log('Study mode set to:', selectedMode);
+    alert('mode set');
+}
+
 updateThemeIcon();
