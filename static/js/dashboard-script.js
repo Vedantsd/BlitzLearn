@@ -93,7 +93,7 @@ async function processContent() {
     const bloomLevel = document.getElementById('bloom-level').value;
     const weightage = document.getElementById('topic-weightage').value;
     const language = document.getElementById('language').value;
-    const processBtn = document.getElementById('progress-text');
+    const processBtn = document.getElementById('process-content');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
@@ -392,4 +392,4 @@ function getSelectedTopics() {
     return Array.from(checkboxes).map(cb => cb.value);
 }
 
-updateThemeIcon();
+updateThemeIcon();  
