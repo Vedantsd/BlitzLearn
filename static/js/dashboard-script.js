@@ -93,7 +93,7 @@ async function processContent() {
     const bloomLevel = document.getElementById('bloom-level').value;
     const weightage = document.getElementById('topic-weightage').value;
     const language = document.getElementById('language').value;
-    const processBtn = document.querySelector('.sidebar button');
+    const processBtn = document.getElementById('progress-text');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
@@ -305,6 +305,91 @@ function setStudyMode() {
     const selectedMode = document.querySelector('input[name="study-mode"]:checked').value;
     console.log('Study mode set to:', selectedMode);
     alert('mode set');
+}
+
+function toggleDropdown3() {
+    const content = document.getElementById('dropdown-content-3');
+    const arrow = document.getElementById('dropdown-arrow-3');
+    
+    content.classList.toggle('collapsed');
+    arrow.classList.toggle('collapsed');
+}
+
+async function prioritizeTopics() {
+    const prioritizeBtn = document.getElementById('prioritize-btn');
+    const topicsLoading = document.getElementById('topics-loading');
+    const topicsList = document.getElementById('topics-list');
+    
+    prioritizeBtn.style.display = 'none';
+    topicsLoading.style.display = 'block';
+    
+    try {
+        const response = await fetch('/prioritize_topics', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            alert(data.error);
+            prioritizeBtn.style.display = 'flex';
+            topicsLoading.style.display = 'none';
+            return;
+        }
+        
+        topicsLoading.style.display = 'none';
+        
+        displayTopics(data.topics);
+        
+    } catch (error) {
+        console.error('Error prioritizing topics:', error);
+        alert('Failed to prioritize topics. Please try again.');
+        prioritizeBtn.style.display = 'flex';
+        topicsLoading.style.display = 'none';
+    }
+}
+
+function displayTopics(topics) {
+    const topicsList = document.getElementById('topics-list');
+    topicsList.innerHTML = '';
+    
+    topics.forEach((topic, index) => {
+        const topicItem = document.createElement('div');
+        topicItem.className = 'topic-item';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `topic-${index}`;
+        checkbox.name = 'topics';
+        checkbox.value = topic;
+        checkbox.checked = false; 
+        
+        const label = document.createElement('label');
+        label.htmlFor = `topic-${index}`;
+        label.className = 'topic-label';
+        
+        const priorityBadge = document.createElement('span');
+        priorityBadge.className = 'priority-badge';
+        priorityBadge.textContent = `#${index + 1}`;
+        
+        const topicText = document.createElement('span');
+        topicText.textContent = topic;
+        
+        label.appendChild(checkbox);
+        label.appendChild(priorityBadge);
+        label.appendChild(topicText);
+        
+        topicItem.appendChild(label);
+        topicsList.appendChild(topicItem);
+    });
+}
+
+function getSelectedTopics() {
+    const checkboxes = document.querySelectorAll('input[name="topics"]:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
 }
 
 updateThemeIcon();

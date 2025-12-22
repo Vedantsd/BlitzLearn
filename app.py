@@ -148,5 +148,56 @@ def ask_question():
     response = chain({"input_documents": docs, "question": user_question}, return_only_outputs=True)
     return jsonify({"answer": response["output_text"]})
 
+@app.route('/prioritize_topics', methods=['POST'])
+def prioritize_topics():
+    global vector_store, session_context
+    
+    if vector_store is None:
+        return jsonify({"error": "Please process a PDF first."}), 400
+    
+    try:
+        prompt = f"""
+        Based on the course content provided, identify and list the main topics covered.
+        Prioritize them in ascending order of importance for exam preparation, considering:
+        - Course outcomes: {session_context.get('course_outcomes', 'Not specified')}
+        - Bloom's level: {session_context.get('bloom_level', 'Not specified')}
+        - Topic weightage: {session_context.get('weightage', 'Not specified')} marks
+        
+        Return ONLY a numbered list of topics, one per line, starting with the LEAST important 
+        and ending with the MOST important. Format: just the topic names, no explanations.
+        Maximum 10-15 topics.
+        """
+        
+        docs = vector_store.similarity_search("main topics covered in this course", k=10)
+        
+        model = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash", 
+            google_api_key=api_key, 
+            temperature=0.3
+        )
+        
+        context = "\n".join([doc.page_content for doc in docs])
+        full_prompt = f"Context:\n{context}\n\n{prompt}"
+        
+        response = model.invoke(full_prompt)
+        
+        topics_text = response.content
+        topics = []
+        
+        for line in topics_text.split('\n'):
+            line = line.strip()
+            if line and not line.startswith('#'):
+                cleaned = line.lstrip('0123456789.- )')
+                if cleaned:
+                    topics.append(cleaned)
+        
+        topics = topics[:15]
+        
+        return jsonify({"topics": topics})
+        
+    except Exception as e:
+        print(f"Error in prioritize_topics: {str(e)}")
+        return jsonify({"error": "Failed to prioritize topics. Please try again."}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False, port=5000, host='0.0.0.0')
