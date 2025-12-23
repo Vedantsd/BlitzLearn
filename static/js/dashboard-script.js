@@ -301,10 +301,32 @@ function toggleDropdown2() {
     arrow.classList.toggle('collapsed');
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    const radioButtons = document.querySelectorAll('input[name="study-mode"]');
+    const vibeOptions = document.getElementById('vibe-options');
+    
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'vibe' && this.checked) {
+                vibeOptions.style.display = 'block';
+            } else {
+                vibeOptions.style.display = 'none';
+            }
+        });
+    });
+});
+
 function setStudyMode() {
     const selectedMode = document.querySelector('input[name="study-mode"]:checked').value;
-    console.log('Study mode set to:', selectedMode);
-    alert('mode set');
+    let modeMessage = 'Study mode set to: ' + selectedMode;
+    
+    if (selectedMode === 'vibe') {
+        const vibeType = document.getElementById('vibe-select').value;
+        modeMessage += ' (' + document.getElementById('vibe-select').options[document.getElementById('vibe-select').selectedIndex].text + ')';
+    }
+    
+    console.log(modeMessage);
+    alert(modeMessage);
 }
 
 function toggleDropdown3() {
