@@ -142,6 +142,29 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
 def index():
     return render_template('index.html')
 
+import os
+from flask import Response
+
+@app.route("/static/js/firebase-config.js")
+def firebase_config_js():
+    js = f"""
+    const firebaseConfig = {{
+        apiKey: "{os.environ['FIREBASE_API_KEY']}",
+        authDomain: "{os.environ['FIREBASE_AUTH_DOMAIN']}",
+        projectId: "{os.environ['FIREBASE_PROJECT_ID']}",
+        storageBucket: "{os.environ['FIREBASE_STORAGE_BUCKET']}",
+        messagingSenderId: "{os.environ['FIREBASE_MESSAGING_SENDER_ID']}",
+        appId: "{os.environ['FIREBASE_APP_ID']}",
+        measurementId: "{os.environ.get('FIREBASE_MEASUREMENT_ID', '')}"
+    }};
+
+    if (!firebase.apps.length) {{
+        firebase.initializeApp(firebaseConfig);
+    }}
+    const auth = firebase.auth();
+    """
+    return Response(js, mimetype="application/javascript")
+
 @app.route('/login')
 def login():
     return render_template('login.html')
