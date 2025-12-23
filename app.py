@@ -78,6 +78,16 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
             'baigan', 'potti', 'kiraak', 'scene kya hai', 'dimaag ka dahi', etc.
             Keep it friendly and conversational. Example: "Arre mia, yeh topic toh ekdum kiraak hai..."
             """
+        elif vibe_type == "punjabi":
+            language = "Hinglish (Punjabi slang)"
+            mode_instruction = """
+            PUNJAB DA PUTTAR MODE: Explain concepts in energetic Punjabi style. 
+            Use Punjabi slang naturally - words like 'veer', 'paaji', 'yaar', 'oye', 'chak de', 
+            'kiddan', 'sohneyo', 'balle balle', 'vadiya', 'chakkar', 'fatte chak', 'jhakaas', 
+            'ghaint', 'kamaal', 'pappe', etc.
+            Keep it enthusiastic and brotherly. Example: "Oye paaji, yeh concept toh bilkul vadiya hai, 
+            chak de phatte saari theory..."
+            """
         else:  
             language = "Hinglish"
             mode_instruction = """
