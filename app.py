@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, jsonify
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
@@ -40,7 +40,10 @@ def get_text_chunks(text):
     return text_splitter.split_text(text)
 
 def get_vector_store(text_chunks):
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEndpointEmbeddings(
+        huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_TOKEN"),
+        repo_id="sentence-transformers/all-MiniLM-L6-v2"
+    )
     store = FAISS.from_texts(text_chunks, embedding=embeddings)
     return store
 
