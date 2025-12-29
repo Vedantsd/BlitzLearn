@@ -59,7 +59,7 @@ header {
     height: 40px;
     width: auto;
     border-radius: 100%;
-    border: 2px solid var(--primary);
+    border: 2px solid var(--text-color);
 }
 
 header h1 {

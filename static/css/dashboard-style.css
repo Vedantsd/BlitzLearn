@@ -104,7 +104,7 @@ header h1 {
     height: 40px;
     width: auto;
     border-radius: 100%;
-    border: 2px solid black;
+    border: 2px solid var(--text-color);
 }
 
 .container {
