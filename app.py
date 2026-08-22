@@ -1,6 +1,7 @@
 import os
+import io
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from PyPDF2 import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -23,9 +24,59 @@ session_context = {
     "yt_url": "",
     "study_mode": "normal",
     "vibe_type": "default"
-}   
+}
+
+# ---------------------------------------------------------------------------
+# Staged files: files picked/uploaded on the Dashboard (either the user's own
+# PDFs, or an admin-provided pre-uploaded book) are held here until the user
+# hits "Process Content" on the Chat page.
+# NOTE: this is a simple in-memory, single-session store (mirrors the rest of
+# this app, which also keeps `vector_store` / `session_context` in memory).
+# For a real multi-user deployment this should be moved to a per-user session
+# or database.
+# ---------------------------------------------------------------------------
+staged_files = []  # list of {"filename": str, "bytes": bytes, "source": "upload"|"book", "title": str}
+
+# ---------------------------------------------------------------------------
+# Pre-uploaded books: added by the admin, common to every user. Drop the
+# actual PDF file into static/books/<filename> for each entry below.
+# ---------------------------------------------------------------------------
+PREUPLOADED_BOOKS = [
+    {
+        "id": "os-stallings",
+        "title": "Operating Systems: Internals and Design Principles",
+        "author": "William Stallings",
+        "subject": "Operating Systems",
+        "filename": "os_stallings.pdf",
+    },
+    {
+        "id": "dbms-korth",
+        "title": "Database System Concepts",
+        "author": "Silberschatz, Korth & Sudarshan",
+        "subject": "DBMS",
+        "filename": "dbms_korth.pdf",
+    },
+    {
+        "id": "cn-forouzan",
+        "title": "Data Communications and Networking",
+        "author": "Behrouz A. Forouzan",
+        "subject": "Computer Networks",
+        "filename": "cn_forouzan.pdf",
+    },
+    {
+        "id": "ai-russell",
+        "title": "Artificial Intelligence: A Modern Approach",
+        "author": "Stuart Russell & Peter Norvig",
+        "subject": "Artificial Intelligence",
+        "filename": "ai_russell.pdf",
+    },
+]
+
+BOOKS_DIR = os.path.join(app.root_path, "static", "books")
+
 
 def get_pdf_text(pdf_files):
+    """Extract text from Werkzeug FileStorage objects (direct upload)."""
     text = ""
     for pdf in pdf_files:
         pdf_reader = PdfReader(pdf)
@@ -35,9 +86,23 @@ def get_pdf_text(pdf_files):
                 text += content
     return text
 
+
+def get_pdf_text_from_staged(staged):
+    """Extract text from the in-memory staged files (bytes)."""
+    text = ""
+    for item in staged:
+        pdf_reader = PdfReader(io.BytesIO(item["bytes"]))
+        for page in pdf_reader.pages:
+            content = page.extract_text()
+            if content:
+                text += content
+    return text
+
+
 def get_text_chunks(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     return text_splitter.split_text(text)
+
 
 def get_vector_store(text_chunks):
     embeddings = HuggingFaceEndpointEmbeddings(
@@ -47,13 +112,14 @@ def get_vector_store(text_chunks):
     store = FAISS.from_texts(text_chunks, embedding=embeddings)
     return store
 
+
 def get_conversational_chain(bloom_level, outcomes, weightage, language, study_mode="normal", vibe_type="default"):
 
     base_instruction = """
     You are an academic tutor. Answer the question based on the provided context, 
     keeping the learner's Goal, Cognitive Level, and Topic Weightage in mind.
     """
-    
+
     if study_mode == "professor":
         language = "English"
         mode_instruction = """
@@ -91,7 +157,7 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
             Keep it enthusiastic and brotherly. Example: "Oye paaji, yeh concept toh bilkul vadiya hai, 
             chak de phatte saari theory..."
             """
-        else:  
+        else:
             language = "Hinglish"
             mode_instruction = """
             HINGLISH MODE: Explain in a mix of Hindi and English (Hinglish). 
@@ -99,12 +165,12 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
             Mix Hindi and English naturally like friends talking. 
             Example: "Dekho, yeh concept basically yeh hai ki..."
             """
-    else:  
+    else:
         mode_instruction = """
         NORMAL MODE: Provide clear, comprehensive answers in the user's preferred language.
         Balance between being informative and accessible.
         """
-    
+
     prompt_template = f"""
     {base_instruction}
     
@@ -132,21 +198,63 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
 
     Answer:
     """
-    
+
     model = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash", 
-        google_api_key=api_key, 
+        model="gemini-2.5-flash",
+        google_api_key=api_key,
         temperature=0.3
     )
     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-import os
-from flask import Response
+# ---------------------------------------------------------------------------
+# Page routes
+# ---------------------------------------------------------------------------
+
+@app.route('/')
+def dashboard():
+    """Landing page after login."""
+    return render_template('dashboard.html')
+
+
+@app.route('/dashboard')
+def dashboard_alias():
+    return render_template('dashboard.html')
+
+
+@app.route('/chat')
+def chat():
+    return render_template('chat.html')
+
+
+@app.route('/tests')
+def tests():
+    # Placeholder until tests.html is built
+    return render_template('dashboard.html')
+
+
+@app.route('/evaluate')
+def evaluate():
+    # Placeholder until evaluate.html is built
+    return render_template('dashboard.html')
+
+
+@app.route('/roadmap')
+def roadmap():
+    # Placeholder until roadmap.html is built
+    return render_template('dashboard.html')
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
 
 @app.route("/static/js/firebase-config.js")
 def firebase_config_js():
@@ -168,25 +276,98 @@ def firebase_config_js():
     """
     return Response(js, mimetype="application/javascript")
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
 
-@app.route('/terms')
-def terms():
-    return render_template('terms.html')
+# ---------------------------------------------------------------------------
+# Dashboard APIs: pre-uploaded books + staging uploads
+# ---------------------------------------------------------------------------
+
+@app.route('/api/books', methods=['GET'])
+def api_books():
+    """Admin-provided books, common to every user."""
+    return jsonify(PREUPLOADED_BOOKS)
+
+
+@app.route('/upload_stage', methods=['POST'])
+def upload_stage():
+    """Stage the user's own PDF(s) from the Dashboard's Upload Notes button."""
+    global staged_files
+
+    files = request.files.getlist("pdf_files")
+    if not files or files[0].filename == '':
+        return jsonify({"error": "No files received"}), 400
+
+    added = []
+    for f in files:
+        staged_files.append({
+            "filename": f.filename,
+            "bytes": f.read(),
+            "source": "upload",
+            "title": f.filename,
+        })
+        added.append(f.filename)
+
+    return jsonify({"message": f"{len(added)} file(s) added to your notes", "files": added})
+
+
+@app.route('/select_book', methods=['POST'])
+def select_book():
+    """Stage a pre-uploaded (admin) book chosen from the fullscreen picker."""
+    global staged_files
+
+    data = request.json or {}
+    book_id = data.get("book_id")
+    book = next((b for b in PREUPLOADED_BOOKS if b["id"] == book_id), None)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    path = os.path.join(BOOKS_DIR, book["filename"])
+    if not os.path.exists(path):
+        return jsonify({
+            "error": f"'{book['title']}' isn't available on the server yet. Please contact your admin."
+        }), 404
+
+    with open(path, "rb") as fh:
+        data_bytes = fh.read()
+
+    staged_files.append({
+        "filename": book["filename"],
+        "bytes": data_bytes,
+        "source": "book",
+        "title": book["title"],
+    })
+
+    return jsonify({"message": f"'{book['title']}' added to your notes", "title": book["title"]})
+
+
+@app.route('/staged_files', methods=['GET'])
+def get_staged_files():
+    return jsonify([
+        {"filename": f["filename"], "source": f["source"], "title": f.get("title", f["filename"])}
+        for f in staged_files
+    ])
+
+
+@app.route('/staged_files', methods=['DELETE'])
+def clear_staged_files():
+    global staged_files
+    staged_files = []
+    return jsonify({"message": "cleared"})
+
+
+# ---------------------------------------------------------------------------
+# Chat / processing APIs
+# ---------------------------------------------------------------------------
 
 @app.route('/process', methods=['POST'])
 def process_content():
-    global vector_store, session_context
-    
-    pdf_files = request.files.getlist("pdf_files")
+    global vector_store, session_context, staged_files
+
     yt_url = request.form.get("yt_url", "")
     outcomes = request.form.get("course_outcomes", "")
     bloom_index = request.form.get("bloom_level", "2")
     weightage = request.form.get('weightage', "4")
     language = request.form.get('language', "")
-    
+
     bloom_map = {
         "1": "Remember (Define, list, memorize)",
         "2": "Understand (Explain, classify, discuss)",
@@ -195,45 +376,48 @@ def process_content():
         "5": "Evaluate (Argue, judge, critique)",
         "6": "Create (Design, construct, develop)"
     }
-    
+
     session_context["course_outcomes"] = outcomes
     session_context["bloom_level"] = bloom_map.get(bloom_index, "Understand")
     session_context["weightage"] = weightage
     session_context["language"] = language
     session_context["yt_url"] = yt_url
 
-    if not pdf_files or pdf_files[0].filename == '':
-        return jsonify({"error": "No PDF files uploaded"}), 400
+    if not staged_files:
+        return jsonify({
+            "error": "No notes to process yet. Go to the Dashboard and upload notes or pick a book first."
+        }), 400
 
-    raw_text = get_pdf_text(pdf_files)
-    
+    raw_text = get_pdf_text_from_staged(staged_files)
+
     if yt_url:
         raw_text += f"\nNote: User also provided a YouTube lecture at {yt_url}."
 
     text_chunks = get_text_chunks(raw_text)
     vector_store = get_vector_store(text_chunks)
-    
+
     return jsonify({"message": f"Content processed at {session_context['bloom_level']} level!"})
+
 
 @app.route('/ask', methods=['POST'])
 def ask_question():
     global vector_store, session_context
     user_question = request.json.get("question")
-    
+
     if vector_store is None:
-        return jsonify({"answer": "Please process a PDF first."})
+        return jsonify({"answer": "Please process your notes first (Dashboard → upload/pick a book → Process Content)."})
 
     docs = vector_store.similarity_search(user_question)
-    
+
     chain = get_conversational_chain(
-        session_context["bloom_level"], 
+        session_context["bloom_level"],
         session_context["course_outcomes"],
         session_context["weightage"],
         session_context["language"],
         session_context["study_mode"],
         session_context["vibe_type"]
     )
-    
+
     response = chain({"input_documents": docs, "question": user_question}, return_only_outputs=True)
     return jsonify({"answer": response["output_text"]})
 
@@ -241,27 +425,28 @@ def ask_question():
 @app.route('/mode-change', methods=['POST'])
 def mode_change():
     global session_context
-    
+
     data = request.json
     study_mode = data.get("study_mode", "normal")
     vibe_type = data.get("vibe_type", "default")
-    
+
     session_context["study_mode"] = study_mode
     session_context["vibe_type"] = vibe_type
-    
+
     return jsonify({
         "message": f"Mode changed to {study_mode}",
         "study_mode": study_mode,
         "vibe_type": vibe_type
     })
 
+
 @app.route('/prioritize_topics', methods=['POST'])
 def prioritize_topics():
     global vector_store, session_context
-    
+
     if vector_store is None:
         return jsonify({"error": "Please process a PDF first."}), 400
-    
+
     try:
         prompt = f"""
         Based on the course content provided, identify and list the main topics covered.
@@ -274,37 +459,38 @@ def prioritize_topics():
         and ending with the MOST important. Format: just the topic names, no explanations.
         Maximum 10-15 topics.
         """
-        
+
         docs = vector_store.similarity_search("main topics covered in this course", k=10)
-        
+
         model = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash", 
-            google_api_key=api_key, 
+            model="gemini-2.5-flash",
+            google_api_key=api_key,
             temperature=0.3
         )
-        
+
         context = "\n".join([doc.page_content for doc in docs])
         full_prompt = f"Context:\n{context}\n\n{prompt}"
-        
+
         response = model.invoke(full_prompt)
-        
+
         topics_text = response.content
         topics = []
-        
+
         for line in topics_text.split('\n'):
             line = line.strip()
             if line and not line.startswith('#'):
                 cleaned = line.lstrip('0123456789.- )')
                 if cleaned:
                     topics.append(cleaned)
-        
+
         topics = topics[:15]
-        
+
         return jsonify({"topics": topics})
-        
+
     except Exception as e:
         print(f"Error in prioritize_topics: {str(e)}")
         return jsonify({"error": "Failed to prioritize topics. Please try again."}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False, port=5000, host='0.0.0.0')
