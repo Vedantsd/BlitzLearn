@@ -75,16 +75,29 @@
             </div>
 
         </div>
+
+        <div class="sidebar-footer">
+
+            <button onclick="processContent()" id="process-content">Process Content</button>
+
+            <div id="progress-container" style="display: none;">
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Processing...</div>
+            </div>
+
+        </div>
     </div>
 
     <div class="main">
         <div class="main-heading">
-            <h2>Welcome back 👋</h2>
+            <h2>Welcome back</h2>
             <p>Pick where you want to go. Upload notes or a book from the sidebar first if you plan to chat.</p>
         </div>
 
         <div class="tiles-grid">
-            <div class="tile tile-active" onclick="window.location.href='/chat'">
+            <div class="tile tile-active" id="chat-tile" onclick="goToTile('chat')">
                 <div class="tile-icon" style="background: linear-gradient(135deg, #2563eb, #7c3aed);">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -95,7 +108,7 @@
                 <span class="tile-cta">Open Chat →</span>
             </div>
 
-            <div class="tile tile-disabled" onclick="comingSoon('Tests')">
+            <div class="tile tile-disabled" id="tests-tile" onclick="goToTile('tests')">
                 <div class="tile-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -106,7 +119,7 @@
                 <span class="tile-badge">Coming soon</span>
             </div>
 
-            <div class="tile tile-disabled" onclick="comingSoon('Evaluate')">
+            <div class="tile tile-disabled" id="evaluate-tile" onclick="goToTile('evaluate')">
                 <div class="tile-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -117,7 +130,7 @@
                 <span class="tile-badge">Coming soon</span>
             </div>
 
-            <div class="tile tile-disabled" onclick="comingSoon('Roadmap')">
+            <div class="tile tile-disabled" id="roadmap-tile" onclick="goToTile('roadmap')">
                 <div class="tile-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>

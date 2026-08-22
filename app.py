@@ -315,6 +315,11 @@ def select_book():
     })
 
 
+@app.route('/processed_status', methods=['GET'])
+def processed_status():
+    return jsonify({"processed": vector_store is not None})
+
+
 @app.route('/staged_files', methods=['GET'])
 def get_staged_files():
     return jsonify([
@@ -337,15 +342,17 @@ def remove_staged_file(filename):
     removed = before - len(staged_files)
     return jsonify({"message": "removed" if removed else "not found", "removed": removed > 0})
 
-@app.route('/process', methods=['POST'])
-def process_content():
-    global vector_store, session_context, staged_files
 
-    yt_url = request.form.get("yt_url", "")
-    outcomes = request.form.get("course_outcomes", "")
-    bloom_index = request.form.get("bloom_level", "2")
-    weightage = request.form.get('weightage', "4")
-    language = request.form.get('language', "")
+@app.route('/update_settings', methods=['POST'])
+def update_settings():
+    global session_context
+
+    data = request.json or {}
+    yt_url = data.get("yt_url", "")
+    outcomes = data.get("course_outcomes", "")
+    bloom_index = data.get("bloom_level", "2")
+    weightage = data.get("weightage", "4")
+    language = data.get("language", "")
 
     bloom_map = {
         "1": "Remember (Define, list, memorize)",
@@ -362,13 +369,21 @@ def process_content():
     session_context["language"] = language
     session_context["yt_url"] = yt_url
 
+    return jsonify({"message": "Settings updated!"})
+
+
+@app.route('/process', methods=['POST'])
+def process_content():
+    global vector_store, session_context, staged_files
+
     if not staged_files:
         return jsonify({
-            "error": "No notes to process yet. Go to the Dashboard and upload notes or pick a book first."
+            "error": "No notes to process yet. Upload notes or pick a book first."
         }), 400
 
     raw_text = get_pdf_text_from_staged(staged_files)
 
+    yt_url = session_context.get("yt_url", "")
     if yt_url:
         raw_text += f"\nNote: User also provided a YouTube lecture at {yt_url}."
 

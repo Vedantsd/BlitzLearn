@@ -1,4 +1,5 @@
 let currentUserEmail = null;
+let notesProcessed = false;
 
 firebase.auth().onAuthStateChanged(user => {
     if (!user) {
@@ -21,6 +22,7 @@ firebase.auth().onAuthStateChanged(user => {
         }
 
         renderLearningHistory();
+        refreshProcessedStatus();
     }
 });
 
@@ -248,6 +250,63 @@ async function handleFileUpload() {
     }
 }
 
+async function processContent() {
+    const processBtn = document.getElementById('process-content');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    processBtn.textContent = "Processing...";
+    processBtn.disabled = true;
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressBar.style.background = '';
+    progressText.textContent = 'Preparing your notes...';
+
+    progressBar.style.width = '30%';
+    progressText.textContent = 'Extracting text from your notes...';
+
+    try {
+        setTimeout(() => {
+            progressBar.style.width = '60%';
+            progressText.textContent = 'Creating embeddings...';
+        }, 500);
+
+        const response = await fetch('/process', { method: 'POST' });
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to process content.');
+        }
+
+        progressBar.style.width = '100%';
+        progressText.textContent = data.message || 'Processing complete!';
+        progressText.style.color = '#10b981';
+
+        setTilesEnabled(true);
+
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressText.style.color = '';
+        }, 2000);
+
+    } catch (error) {
+        progressBar.style.width = '100%';
+        progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+        progressText.textContent = error.message || 'Failed to process content. Please try again.';
+        progressText.style.color = '#ef4444';
+
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            progressBar.style.background = '';
+            progressText.style.color = '';
+        }, 3000);
+    } finally {
+        processBtn.textContent = "Process Content";
+        processBtn.disabled = false;
+    }
+}
+
 function openBooksModal() {
     document.getElementById('books-modal-overlay').classList.add('active');
     loadBooks();
@@ -311,6 +370,36 @@ async function selectBook(bookId, buttonEl) {
         buttonEl.disabled = false;
         buttonEl.textContent = 'Add to My Notes';
         alert(error.message || 'Failed to add this book. Please try again.');
+    }
+}
+
+async function refreshProcessedStatus() {
+    try {
+        const response = await fetch('/processed_status');
+        const data = await response.json();
+        setTilesEnabled(data.processed);
+    } catch (error) {
+        setTilesEnabled(false);
+    }
+}
+
+function setTilesEnabled(enabled) {
+    notesProcessed = enabled;
+    document.querySelectorAll('.tile').forEach(tile => {
+        tile.classList.toggle('tile-locked', !enabled);
+    });
+}
+
+function goToTile(target) {
+    if (!notesProcessed) {
+        alert('Please process your notes first using "Process Content" at the bottom of the sidebar.');
+        return;
+    }
+
+    if (target === 'chat') {
+        window.location.href = '/chat';
+    } else {
+        comingSoon(target.charAt(0).toUpperCase() + target.slice(1));
     }
 }
 

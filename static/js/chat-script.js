@@ -55,10 +55,6 @@ function updateThemeIcon(isDark) {
     }
 }
 
-// ---------------- Staged files banner ----------------
-// Files are uploaded / picked from the Dashboard. This just shows how many
-// are ready to be processed here, with a shortcut back to the Dashboard.
-
 async function refreshStagedFilesBanner() {
     const textEl = document.getElementById('staged-files-text');
     try {
@@ -76,70 +72,46 @@ async function refreshStagedFilesBanner() {
     }
 }
 
-async function processContent() {
+async function updateSettings() {
     const ytUrl = document.getElementById('yt-url').value;
     const outcomes = document.getElementById('course-outcomes').value;
     const bloomLevel = document.getElementById('bloom-level').value;
     const weightage = document.getElementById('topic-weightage').value;
     const language = document.getElementById('language').value;
-    const processBtn = document.getElementById('process-content');
-    const progressContainer = document.getElementById('progress-container');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
+    const updateBtn = document.getElementById('update-settings-btn');
+    const statusEl = document.getElementById('settings-status');
 
-    processBtn.textContent = "Processing...";
-    processBtn.disabled = true;
-    progressContainer.style.display = 'block';
-    progressBar.style.width = '0%';
-    progressBar.style.background = '';
-    progressText.textContent = 'Preparing your notes...';
-
-    const formData = new FormData();
-    formData.append('yt_url', ytUrl);
-    formData.append('course_outcomes', outcomes);
-    formData.append('bloom_level', bloomLevel);
-    formData.append('weightage', weightage);
-    formData.append('language', language);
-
-    progressBar.style.width = '30%';
-    progressText.textContent = 'Extracting text from your notes...';
+    updateBtn.textContent = 'Updating...';
+    updateBtn.disabled = true;
+    statusEl.textContent = '';
+    statusEl.className = 'upload-status';
 
     try {
-        setTimeout(() => {
-            progressBar.style.width = '60%';
-            progressText.textContent = 'Creating embeddings...';
-        }, 500);
-
-        const response = await fetch('/process', { method: 'POST', body: formData });
+        const response = await fetch('/update_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                yt_url: ytUrl,
+                course_outcomes: outcomes,
+                bloom_level: bloomLevel,
+                weightage: weightage,
+                language: language
+            })
+        });
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Failed to process content.');
+            throw new Error(data.error || 'Failed to update settings.');
         }
 
-        progressBar.style.width = '100%';
-        progressText.textContent = data.message || 'Processing complete!';
-        progressText.style.color = '#10b981';
-
-        setTimeout(() => {
-            progressContainer.style.display = 'none';
-            progressText.style.color = '';
-        }, 2000);
-
+        statusEl.textContent = data.message || 'Settings updated!';
+        statusEl.className = 'upload-status success';
     } catch (error) {
-        progressBar.style.width = '100%';
-        progressBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
-        progressText.textContent = error.message || 'Failed to process content. Please try again.';
-        progressText.style.color = '#ef4444';
-
-        setTimeout(() => {
-            progressContainer.style.display = 'none';
-            progressBar.style.background = '';
-            progressText.style.color = '';
-        }, 3000);
+        statusEl.textContent = error.message || 'Failed to update settings. Please try again.';
+        statusEl.className = 'upload-status error';
     } finally {
-        processBtn.textContent = "Process Content";
-        processBtn.disabled = false;
+        updateBtn.textContent = 'Update Settings';
+        updateBtn.disabled = false;
     }
 }
 

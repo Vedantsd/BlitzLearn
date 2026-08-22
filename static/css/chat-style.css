@@ -875,6 +875,16 @@ body.dark .profile-circle {
     margin-top: 10px;
 }
 
+.upload-status {
+    font-size: 12px;
+    margin-top: 8px;
+    font-weight: 500;
+    min-height: 16px;
+}
+
+.upload-status.success { color: #10b981; }
+.upload-status.error { color: #ef4444; }
+
 .radio-label {
     display: flex;
     align-items: center;

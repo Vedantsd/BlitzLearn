@@ -115,6 +115,9 @@
                             <option value="कोंकणी">Konkani</option>
                         </select>
                     </div>
+
+                    <button onclick="updateSettings()" id="update-settings-btn" class="mode-button">Update Settings</button>
+                    <div id="settings-status" class="upload-status"></div>
                 </div>
             </div>
 
@@ -185,18 +188,6 @@
             </div>
         </div>
 
-        <div class="sidebar-footer">
-
-            <button onclick="processContent()" id="process-content">Process Content</button>
-
-            <div id="progress-container" style="display: none;">
-                <div class="progress-bar-wrapper">
-                    <div class="progress-bar" id="progress-bar"></div>
-                </div>
-                <div class="progress-text" id="progress-text">Processing...</div>
-            </div>
-
-        </div>
     </div>
 
     <div class="main">
