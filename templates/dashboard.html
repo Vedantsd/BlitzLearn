@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1 onclick="window.location.reload()">BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="User Profile">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+
+        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="sidebar-content">
+
+            <div class="sidebar-section">
+                <h3>Upload Notes</h3>
+                <div class="form-group">
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="pdf-upload" accept=".pdf" multiple onchange="handleFileUpload()">
+                        <label for="pdf-upload" class="file-upload-label">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            Choose PDF Files
+                        </label>
+                    </div>
+                    <div id="file-count" class="file-count"></div>
+                    <div id="upload-status" class="upload-status"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Library</h3>
+                <p class="sidebar-hint">No notes of your own yet? Start with a course book added by your admin.</p>
+                <button class="books-button" onclick="openBooksModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    Browse Pre-uploaded Books
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Learning History</h3>
+                <div id="learning-history" class="history-list">
+                    <div class="history-empty" id="history-empty">No notes or books added yet.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="main-heading">
+            <h2>Welcome back 👋</h2>
+            <p>Pick where you want to go. Upload notes or a book from the sidebar first if you plan to chat.</p>
+        </div>
+
+        <div class="tiles-grid">
+            <div class="tile tile-active" onclick="window.location.href='/chat'">
+                <div class="tile-icon" style="background: linear-gradient(135deg, #2563eb, #7c3aed);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                </div>
+                <h3>Chat</h3>
+                <p>Ask questions from your uploaded notes and get answers tuned to your Bloom's level.</p>
+                <span class="tile-cta">Open Chat →</span>
+            </div>
+
+            <div class="tile tile-disabled" onclick="comingSoon('Tests')">
+                <div class="tile-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h3>Tests</h3>
+                <p>Auto-generated practice tests from your notes, matched to your exam weightage.</p>
+                <span class="tile-badge">Coming soon</span>
+            </div>
+
+            <div class="tile tile-disabled" onclick="comingSoon('Evaluate')">
+                <div class="tile-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <h3>Evaluate</h3>
+                <p>Get your answers graded and see where you stand before the real exam.</p>
+                <span class="tile-badge">Coming soon</span>
+            </div>
+
+            <div class="tile tile-disabled" onclick="comingSoon('Roadmap')">
+                <div class="tile-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                </div>
+                <h3>Roadmap</h3>
+                <p>A personalized day-by-day study plan built from your priority topics.</p>
+                <span class="tile-badge">Coming soon</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="books-modal-overlay" id="books-modal-overlay">
+    <div class="books-modal">
+        <div class="books-modal-header">
+            <h2>Pre-uploaded Books</h2>
+            <button class="close-button" onclick="closeBooksModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <p class="books-modal-subtitle">Added by your admin, shared with every student. Pick one to add it to your notes.</p>
+        <div class="books-grid" id="books-grid">
+            <div class="books-loading">Loading books...</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/dashboard-script.js') }}"></script>
+</body>
+</html>
