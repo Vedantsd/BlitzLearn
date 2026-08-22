@@ -115,8 +115,6 @@ header h1 {
     overflow: hidden;
 }
 
-/* ---------------- Sidebar ---------------- */
-
 .sidebar {
     width: 340px;
     background: var(--card-bg);
@@ -284,6 +282,33 @@ header h1 {
     background: var(--card-bg);
 }
 
+.history-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.history-remove {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-color);
+    opacity: 0.5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.history-remove:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
 .history-icon {
     width: 32px;
     height: 32px;
@@ -319,7 +344,6 @@ header h1 {
     opacity: 0.6;
 }
 
-/* ---------------- Main / tiles ---------------- */
 
 .main {
     flex: 1;
@@ -422,7 +446,6 @@ header h1 {
     border: 1px solid var(--border-color);
 }
 
-/* ---------------- Books modal ---------------- */
 
 .books-modal-overlay {
     display: none;
@@ -565,7 +588,6 @@ header h1 {
     background: #10b981;
 }
 
-/* ---------------- Profile / mobile shell (shared) ---------------- */
 
 .profile-circle {
     width: 42px;

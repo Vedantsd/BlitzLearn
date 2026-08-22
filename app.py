@@ -26,21 +26,9 @@ session_context = {
     "vibe_type": "default"
 }
 
-# ---------------------------------------------------------------------------
-# Staged files: files picked/uploaded on the Dashboard (either the user's own
-# PDFs, or an admin-provided pre-uploaded book) are held here until the user
-# hits "Process Content" on the Chat page.
-# NOTE: this is a simple in-memory, single-session store (mirrors the rest of
-# this app, which also keeps `vector_store` / `session_context` in memory).
-# For a real multi-user deployment this should be moved to a per-user session
-# or database.
-# ---------------------------------------------------------------------------
-staged_files = []  # list of {"filename": str, "bytes": bytes, "source": "upload"|"book", "title": str}
+staged_files = [] 
 
-# ---------------------------------------------------------------------------
-# Pre-uploaded books: added by the admin, common to every user. Drop the
-# actual PDF file into static/books/<filename> for each entry below.
-# ---------------------------------------------------------------------------
+
 PREUPLOADED_BOOKS = [
     {
         "id": "os-stallings",
@@ -76,7 +64,6 @@ BOOKS_DIR = os.path.join(app.root_path, "static", "books")
 
 
 def get_pdf_text(pdf_files):
-    """Extract text from Werkzeug FileStorage objects (direct upload)."""
     text = ""
     for pdf in pdf_files:
         pdf_reader = PdfReader(pdf)
@@ -88,7 +75,6 @@ def get_pdf_text(pdf_files):
 
 
 def get_pdf_text_from_staged(staged):
-    """Extract text from the in-memory staged files (bytes)."""
     text = ""
     for item in staged:
         pdf_reader = PdfReader(io.BytesIO(item["bytes"]))
@@ -208,10 +194,6 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
     return load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
 
-# ---------------------------------------------------------------------------
-# Page routes
-# ---------------------------------------------------------------------------
-
 @app.route('/')
 def dashboard():
     """Landing page after login."""
@@ -230,19 +212,16 @@ def chat():
 
 @app.route('/tests')
 def tests():
-    # Placeholder until tests.html is built
     return render_template('dashboard.html')
 
 
 @app.route('/evaluate')
 def evaluate():
-    # Placeholder until evaluate.html is built
     return render_template('dashboard.html')
 
 
 @app.route('/roadmap')
 def roadmap():
-    # Placeholder until roadmap.html is built
     return render_template('dashboard.html')
 
 
@@ -277,19 +256,13 @@ def firebase_config_js():
     return Response(js, mimetype="application/javascript")
 
 
-# ---------------------------------------------------------------------------
-# Dashboard APIs: pre-uploaded books + staging uploads
-# ---------------------------------------------------------------------------
-
 @app.route('/api/books', methods=['GET'])
 def api_books():
-    """Admin-provided books, common to every user."""
     return jsonify(PREUPLOADED_BOOKS)
 
 
 @app.route('/upload_stage', methods=['POST'])
 def upload_stage():
-    """Stage the user's own PDF(s) from the Dashboard's Upload Notes button."""
     global staged_files
 
     files = request.files.getlist("pdf_files")
@@ -311,7 +284,6 @@ def upload_stage():
 
 @app.route('/select_book', methods=['POST'])
 def select_book():
-    """Stage a pre-uploaded (admin) book chosen from the fullscreen picker."""
     global staged_files
 
     data = request.json or {}
@@ -336,7 +308,11 @@ def select_book():
         "title": book["title"],
     })
 
-    return jsonify({"message": f"'{book['title']}' added to your notes", "title": book["title"]})
+    return jsonify({
+        "message": f"'{book['title']}' added to your notes",
+        "title": book["title"],
+        "filename": book["filename"]  
+    })
 
 
 @app.route('/staged_files', methods=['GET'])
@@ -353,10 +329,13 @@ def clear_staged_files():
     staged_files = []
     return jsonify({"message": "cleared"})
 
-
-# ---------------------------------------------------------------------------
-# Chat / processing APIs
-# ---------------------------------------------------------------------------
+@app.route('/staged_files/<path:filename>', methods=['DELETE'])
+def remove_staged_file(filename):
+    global staged_files
+    before = len(staged_files)
+    staged_files = [f for f in staged_files if f["filename"] != filename]
+    removed = before - len(staged_files)
+    return jsonify({"message": "removed" if removed else "not found", "removed": removed > 0})
 
 @app.route('/process', methods=['POST'])
 def process_content():

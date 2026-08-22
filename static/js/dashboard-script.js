@@ -30,7 +30,6 @@ function logout() {
     }).catch(err => alert("Error logging out"));
 }
 
-// ---------------- Theme ----------------
 
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
@@ -67,8 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(isDark);
     updateHeaderLogo(isDark);
 });
-
-// ---------------- Mobile shell (hamburger + profile dropdown) ----------------
 
 document.addEventListener('DOMContentLoaded', function () {
     const headerLeft = document.querySelector('.header-left');
@@ -115,8 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// ---------------- Learning history (per-user, stored locally) ----------------
-
 function historyKey() {
     return `learningHistory_${currentUserEmail || 'guest'}`;
 }
@@ -129,6 +124,24 @@ function addToLearningHistory(entry) {
     renderLearningHistory();
 }
 
+async function removeHistoryItem(index) {
+    const key = historyKey();
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    const item = list[index];
+    if (!item) return;
+
+    list.splice(index, 1);
+    localStorage.setItem(key, JSON.stringify(list));
+    renderLearningHistory();
+
+    if (item.filename) {
+        try {
+            await fetch(`/staged_files/${encodeURIComponent(item.filename)}`, { method: 'DELETE' });
+        } catch (e) {
+        }
+    }
+}
+
 function renderLearningHistory() {
     const container = document.getElementById('learning-history');
     const list = JSON.parse(localStorage.getItem(historyKey()) || '[]');
@@ -138,7 +151,7 @@ function renderLearningHistory() {
         return;
     }
 
-    container.innerHTML = list.map(item => `
+    container.innerHTML = list.map((item, index) => `
         <div class="history-item">
             <div class="history-icon ${item.type === 'book' ? 'book' : 'upload'}">
                 ${item.type === 'book' ? bookIconSvg() : uploadIconSvg()}
@@ -147,6 +160,11 @@ function renderLearningHistory() {
                 <span class="history-name">${escapeHtml(item.name)}</span>
                 <span class="history-date">${formatDate(item.date)}</span>
             </div>
+            <button class="history-remove" title="Remove / ignore for next chat" onclick="removeHistoryItem(${index})">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
     `).join('');
 }
@@ -170,8 +188,6 @@ function escapeHtml(str) {
     div.textContent = str;
     return div.innerHTML;
 }
-
-// ---------------- Upload notes ----------------
 
 async function handleFileUpload() {
     const MAX_FILE_SIZE = 20 * 1024 * 1024;
@@ -221,7 +237,7 @@ async function handleFileUpload() {
         statusEl.className = 'upload-status success';
 
         for (const file of fileInput.files) {
-            addToLearningHistory({ name: file.name, type: 'upload' });
+            addToLearningHistory({ name: file.name, type: 'upload', filename: file.name });
         }
 
         fileInput.value = '';
@@ -231,8 +247,6 @@ async function handleFileUpload() {
         statusEl.className = 'upload-status error';
     }
 }
-
-// ---------------- Pre-uploaded books modal ----------------
 
 function openBooksModal() {
     document.getElementById('books-modal-overlay').classList.add('active');
@@ -292,7 +306,7 @@ async function selectBook(bookId, buttonEl) {
         if (!response.ok) throw new Error(data.error || 'Failed to add book');
 
         buttonEl.textContent = 'Added ✓';
-        addToLearningHistory({ name: data.title, type: 'book' });
+        addToLearningHistory({ name: data.title, type: 'book', filename: data.filename });
     } catch (error) {
         buttonEl.disabled = false;
         buttonEl.textContent = 'Add to My Notes';
@@ -300,13 +314,9 @@ async function selectBook(bookId, buttonEl) {
     }
 }
 
-// ---------------- Tiles ----------------
-
 function comingSoon(featureName) {
     alert(`${featureName} is coming soon!`);
 }
-
-// ---------------- Custom cursor ----------------
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
