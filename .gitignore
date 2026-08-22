@@ -1,3 +1,4 @@
 .env
 static/js/firebase-config.js
 /.vscode
+static/books/
