@@ -1,6 +1,6 @@
 auth.onAuthStateChanged((user) => {
     if (user) {
-        window.location.href = '/'; 
+        window.location.href = '/dashboard';
     }
 });
 
@@ -100,7 +100,7 @@ function switchTab(tab) {
     const title = document.getElementById('auth-title');
 
     tabs.forEach(t => t.classList.remove('active'));
-    
+
     if (tab === 'login') {
         loginForm.classList.add('active');
         signupForm.classList.remove('active');
@@ -150,11 +150,11 @@ if (!isTouchDevice) {
         const isInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('a') || target.closest('button') || target.closest('.shadow-md');
 
         if (isInteractive) {
-            customCursor.style.transform = 'translate(-50%, -50%) scale(2.2)'; 
-            customCursor.style.backgroundColor = 'white'; 
+            customCursor.style.transform = 'translate(-50%, -50%) scale(2.2)';
+            customCursor.style.backgroundColor = 'white';
         } else {
-            customCursor.style.transform = 'translate(-50%, -50%) scale(1)'; 
-            customCursor.style.backgroundColor = '#10B981'; 
+            customCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+            customCursor.style.backgroundColor = '#10B981';
         }
     });
 }
