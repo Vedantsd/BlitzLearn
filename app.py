@@ -1,5 +1,8 @@
 import os
 import io
+import json
+import re
+import sqlite3
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
 from PyPDF2 import PdfReader
@@ -61,6 +64,64 @@ PREUPLOADED_BOOKS = [
 ]
 
 BOOKS_DIR = os.path.join(app.root_path, "static", "books")
+
+DB_PATH = os.path.join(app.root_path, "questions.db")
+
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db()
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic TEXT,
+            difficulty TEXT NOT NULL,
+            question_text TEXT NOT NULL,
+            option_a TEXT NOT NULL,
+            option_b TEXT NOT NULL,
+            option_c TEXT NOT NULL,
+            option_d TEXT NOT NULL,
+            correct_option TEXT NOT NULL,
+            explanation TEXT,
+            source_title TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS tests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            difficulty TEXT NOT NULL,
+            num_questions INTEGER NOT NULL,
+            source_title TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS test_questions (
+            test_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            question_order INTEGER,
+            FOREIGN KEY (test_id) REFERENCES tests (id),
+            FOREIGN KEY (question_id) REFERENCES questions (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS test_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            test_id INTEGER NOT NULL,
+            score INTEGER NOT NULL,
+            total INTEGER NOT NULL,
+            taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (test_id) REFERENCES tests (id)
+        );
+    """)
+    conn.commit()
+    conn.close()
+
+
+init_db()
 
 
 def get_pdf_text(pdf_files):
@@ -212,7 +273,7 @@ def chat():
 
 @app.route('/tests')
 def tests():
-    return render_template('dashboard.html')
+    return render_template('tests.html')
 
 
 @app.route('/evaluate')
@@ -342,7 +403,6 @@ def remove_staged_file(filename):
     removed = before - len(staged_files)
     return jsonify({"message": "removed" if removed else "not found", "removed": removed > 0})
 
-
 @app.route('/update_settings', methods=['POST'])
 def update_settings():
     global session_context
@@ -391,6 +451,334 @@ def process_content():
     vector_store = get_vector_store(text_chunks)
 
     return jsonify({"message": f"Content processed at {session_context['bloom_level']} level!"})
+
+
+VALID_DIFFICULTIES = ("easy", "medium", "hard")
+VALID_QUESTION_COUNTS = (10, 20, 30, 40, 50)
+
+DIFFICULTY_GUIDES = {
+    "easy": "Basic recall and definition-level questions (Bloom's Remember/Understand level). Keep wording simple and direct.",
+    "medium": "Applied, comparison, and scenario-based questions (Bloom's Apply/Analyze level).",
+    "hard": "Deep analytical, evaluative, multi-concept questions that require connecting ideas (Bloom's Analyze/Evaluate/Create level)."
+}
+
+
+def _clean_json_response(raw_text):
+    cleaned = raw_text.strip()
+    cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.MULTILINE)
+    return cleaned.strip()
+
+
+def _looks_like_front_matter(text):
+    lowered = text.lower()
+
+    strong_markers = [
+        "new to this edition", "changes in this edition", "changes to this edition",
+        "what's new in this edition", "revised in this edition",
+        "fourth edition", "third edition", "second edition", "fifth edition",
+        "sixth edition", "seventh edition", "eighth edition", "ninth edition",
+        "how to use this book", "organization of this book", "organization of the book",
+        "practice set", "review questions", "review question",
+        "end-of-chapter", "end of chapter", "supplementary material",
+        "instructor's manual", "instructor resources", "companion website",
+        "solutions manual", "study guide", "learning objectives for this chapter",
+        "chapter summary", "chapter outline", "about this book",
+    ]
+    if any(marker in lowered for marker in strong_markers):
+        return True
+
+    weak_markers = [
+        "isbn", "copyright ©", "all rights reserved", "printed in",
+        "library of congress", "about the author", "acknowledgments",
+        "acknowledgements", "preface", "table of contents",
+        "publisher", "published by", "www.",
+        "trademark", "no part of this publication"
+    ]
+    hits = sum(1 for marker in weak_markers if marker in lowered)
+    return hits >= 2
+
+
+def _gather_test_context(num_questions):
+    seed_queries = [
+        "definitions and key concepts explained",
+        "how a process, mechanism, or algorithm works step by step",
+        "real-world examples and applications",
+        "comparison or difference between two or more types, methods, or approaches",
+        "advantages, disadvantages, and limitations",
+        "important techniques, models, or structures and their uses",
+    ]
+
+    k_per_query = max(4, min(10, (num_questions // len(seed_queries)) + 3))
+
+    seen = set()
+    good_docs = []
+    for query in seed_queries:
+        for doc in vector_store.similarity_search(query, k=k_per_query):
+            key = doc.page_content[:120]
+            if key in seen:
+                continue
+            seen.add(key)
+            if _looks_like_front_matter(doc.page_content):
+                continue
+            good_docs.append(doc)
+
+    return "\n\n".join(doc.page_content for doc in good_docs)
+
+
+def _generate_questions_from_notes(difficulty, num_questions):
+    global vector_store, staged_files
+
+    if vector_store is None:
+        return None, ("Please process your notes first from the Dashboard.", 400)
+
+    context = _gather_test_context(num_questions)
+
+    if not context.strip():
+        return None, ("Couldn't find enough usable content in your notes to build a test.", 400)
+
+    generation_target = num_questions + max(3, num_questions // 3)
+
+    prompt = f"""
+    You are an exam-setter creating a multiple choice question (MCQ) test for Indian college
+    students, based ONLY on the SUBJECT MATTER in the context below.
+
+    Difficulty: {difficulty.upper()} — {DIFFICULTY_GUIDES[difficulty]}
+    Number of questions to generate: {generation_target}
+
+    STRICT RULES — read carefully:
+    1. Test the SUBJECT CONTENT only — concepts, definitions, processes, comparisons,
+       applications, examples, advantages/disadvantages, cause-and-effect, classifications.
+    2. NEVER ask about the book itself or how it is packaged/organized/taught from. This
+       includes (but is not limited to) questions like:
+       - "What is the primary purpose of 'Review questions' in a practice set?"
+       - "What do 'Exercises' in a practice set typically require from the student?"
+       - "What significant change was made to Chapter 8 in the Fourth Edition?"
+       - anything about the author, publisher, title, edition, ISBN, chapter/page numbers,
+         table of contents, preface, "review questions", "exercises", "practice sets",
+         "learning objectives", or "according to the book/author...".
+       If a piece of context is about the book's structure, pedagogy, or publishing history
+       rather than the actual subject, IGNORE that piece of context entirely — do not
+       write a question from it, even a "quick"/"easy" one.
+    3. Write questions the way a professor would ask them in a real subject exam, for example:
+       - "Which of the following is NOT a system call?"
+       - "Where can ring topology be used?"
+       - "Which of the following is not an application of reinforcement learning?"
+       - "What is the primary purpose of X?" — where X is a real technical concept
+         (e.g. "a semaphore", "a firewall", "normalization"), never a book section.
+       - "Which technique is best suited for Y?"
+       Mix straightforward "what is / which of these" questions with a good number of
+       negative-form questions ("which of the following is NOT...", "all of the following
+       EXCEPT...") and applied/scenario questions, matching the {difficulty} difficulty.
+    4. All 4 options must be plausible and in the same category as each other (e.g. don't
+       mix a real system call with three obviously made-up words) so the question actually
+       requires understanding, not guessing by elimination.
+    5. For EACH question, also give a short topic tag (2-4 words) naming the specific
+       technical concept being tested (e.g. "System Calls", "Ring Topology", "Reinforcement
+       Learning Applications") — never use the book title, "General", or "Chapter 1" as
+       the topic.
+    6. Before finalizing each question, double-check: could this question be answered by
+       someone who has never read this material but knows how textbooks are structured?
+       If yes, discard it and write a different question about the actual subject instead.
+
+    Return ONLY a valid JSON array (no markdown fences, no commentary) where every item has
+    exactly this shape:
+    {{
+      "topic": "short topic name",
+      "question": "the question text",
+      "options": {{"a": "...", "b": "...", "c": "...", "d": "..."}},
+      "correct_option": "a",
+      "explanation": "1-2 sentence explanation of why the correct answer is correct"
+    }}
+
+    Context:
+    {context}
+    """
+
+    try:
+        model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, temperature=0.5)
+        response = model.invoke(prompt)
+        questions = json.loads(_clean_json_response(response.content))
+    except Exception as e:
+        print(f"Error generating test: {str(e)}")
+        return None, ("Failed to generate the test. Please try again.", 500)
+
+    banned_phrases = (
+        "author", "publisher", "isbn", "the book", "this book", "edition",
+        "table of contents", "practice set", "review question", "exercises",
+        "exercise", "chapter", "preface", "instructor", "workbook",
+        "study guide", "companion website", "supplementary material",
+        "learning objective", "appendix"
+    )
+    questions = [
+        q for q in questions
+        if isinstance(q.get("question"), str)
+        and not any(phrase in q["question"].lower() for phrase in banned_phrases)
+    ]
+
+    if not questions:
+        return None, ("Generated questions didn't pass quality checks. Please try again.", 500)
+
+    questions = questions[:num_questions]
+
+    source_title = ", ".join(sorted({f.get("title", f["filename"]) for f in staged_files})) or "Uploaded Notes"
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO tests (difficulty, num_questions, source_title) VALUES (?, ?, ?)",
+        (difficulty, len(questions), source_title)
+    )
+    test_id = cur.lastrowid
+
+    saved_questions = []
+    for i, q in enumerate(questions):
+        try:
+            options = q["options"]
+            cur.execute(
+                """INSERT INTO questions
+                   (topic, difficulty, question_text, option_a, option_b, option_c, option_d,
+                    correct_option, explanation, source_title)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    q.get("topic", "General"), difficulty, q["question"],
+                    options["a"], options["b"], options["c"], options["d"],
+                    q["correct_option"], q.get("explanation", ""), source_title
+                )
+            )
+            question_id = cur.lastrowid
+            cur.execute(
+                "INSERT INTO test_questions (test_id, question_id, question_order) VALUES (?, ?, ?)",
+                (test_id, question_id, i)
+            )
+            saved_questions.append({
+                "id": question_id,
+                "topic": q.get("topic", "General"),
+                "question": q["question"],
+                "options": options,
+                "correct_option": q["correct_option"],
+                "explanation": q.get("explanation", "")
+            })
+        except (KeyError, TypeError):
+            continue  
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "test_id": test_id,
+        "difficulty": difficulty,
+        "source_title": source_title,
+        "questions": saved_questions
+    }, None
+
+
+def _generate_test_from_bank(difficulty, num_questions):
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM questions WHERE difficulty = ? ORDER BY RANDOM() LIMIT ?",
+        (difficulty, num_questions)
+    ).fetchall()
+
+    if not rows:
+        conn.close()
+        return None, (
+            f"No stored {difficulty} questions in the bank yet. "
+            "Generate a test from notes first to build up the bank.", 400
+        )
+
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO tests (difficulty, num_questions, source_title) VALUES (?, ?, ?)",
+        (difficulty, len(rows), "Question Bank")
+    )
+    test_id = cur.lastrowid
+
+    saved_questions = []
+    for i, row in enumerate(rows):
+        cur.execute(
+            "INSERT INTO test_questions (test_id, question_id, question_order) VALUES (?, ?, ?)",
+            (test_id, row["id"], i)
+        )
+        saved_questions.append({
+            "id": row["id"],
+            "topic": row["topic"],
+            "question": row["question_text"],
+            "options": {
+                "a": row["option_a"], "b": row["option_b"],
+                "c": row["option_c"], "d": row["option_d"]
+            },
+            "correct_option": row["correct_option"],
+            "explanation": row["explanation"]
+        })
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "test_id": test_id,
+        "difficulty": difficulty,
+        "source_title": "Question Bank",
+        "questions": saved_questions
+    }, None
+
+
+@app.route('/generate_test', methods=['POST'])
+def generate_test():
+    data = request.json or {}
+    difficulty = data.get("difficulty", "medium")
+    num_questions = data.get("num_questions", 10)
+    source = data.get("source", "notes")  # "notes" | "bank"
+
+    if difficulty not in VALID_DIFFICULTIES:
+        difficulty = "medium"
+    try:
+        num_questions = int(num_questions)
+    except (TypeError, ValueError):
+        num_questions = 10
+    if num_questions not in VALID_QUESTION_COUNTS:
+        num_questions = 10
+
+    if source == "bank":
+        result, error = _generate_test_from_bank(difficulty, num_questions)
+    else:
+        result, error = _generate_questions_from_notes(difficulty, num_questions)
+
+    if error:
+        message, status_code = error
+        return jsonify({"error": message}), status_code
+
+    return jsonify(result)
+
+
+@app.route('/submit_test', methods=['POST'])
+def submit_test():
+    data = request.json or {}
+    test_id = data.get("test_id")
+    score = data.get("score")
+    total = data.get("total")
+
+    if test_id is None or score is None or total is None:
+        return jsonify({"error": "Missing test_id, score, or total"}), 400
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO test_attempts (test_id, score, total) VALUES (?, ?, ?)",
+        (test_id, score, total)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Result saved!"})
+
+
+@app.route('/questions_bank', methods=['GET'])
+def questions_bank():
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT topic, difficulty, COUNT(*) as count FROM questions GROUP BY topic, difficulty ORDER BY topic"
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(row) for row in rows])
 
 
 @app.route('/ask', methods=['POST'])

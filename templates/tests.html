@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tests-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <a href="/dashboard" class="icon-button" title="Back to Dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="User Profile">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+
+        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="tests-container">
+
+    <div class="test-view active" id="setup-view">
+        <div class="setup-card">
+            <h2>Create a Test</h2>
+            <p class="setup-subtitle">Generate a fresh MCQ test from your processed notes, or pull one from the shared question bank.</p>
+
+            <div class="setup-group">
+                <label>Question Source</label>
+                <div class="pill-group" id="source-pills">
+                    <button type="button" class="pill active" data-value="notes" onclick="selectPill('source', 'notes', this)">
+                        From My Notes
+                    </button>
+                    <button type="button" class="pill" data-value="bank" onclick="selectPill('source', 'bank', this)">
+                        Question Bank
+                    </button>
+                </div>
+                <p class="setup-hint" id="source-hint">Generates new questions from your currently processed notes using AI.</p>
+            </div>
+
+            <div class="setup-group">
+                <label>Difficulty</label>
+                <div class="pill-group" id="difficulty-pills">
+                    <button type="button" class="pill difficulty-easy active" data-value="easy" onclick="selectPill('difficulty', 'easy', this)">Easy</button>
+                    <button type="button" class="pill difficulty-medium" data-value="medium" onclick="selectPill('difficulty', 'medium', this)">Medium</button>
+                    <button type="button" class="pill difficulty-hard" data-value="hard" onclick="selectPill('difficulty', 'hard', this)">Hard</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>Number of Questions</label>
+                <div class="pill-group" id="count-pills">
+                    <button type="button" class="pill active" data-value="10" onclick="selectPill('count', 10, this)">10</button>
+                    <button type="button" class="pill" data-value="20" onclick="selectPill('count', 20, this)">20</button>
+                    <button type="button" class="pill" data-value="30" onclick="selectPill('count', 30, this)">30</button>
+                    <button type="button" class="pill" data-value="40" onclick="selectPill('count', 40, this)">40</button>
+                    <button type="button" class="pill" data-value="50" onclick="selectPill('count', 50, this)">50</button>
+                </div>
+            </div>
+
+            <button id="generate-test-btn" class="primary-button" onclick="generateTest()">Generate Test</button>
+            <div id="setup-status" class="setup-status"></div>
+        </div>
+    </div>
+
+    <div class="test-view" id="quiz-view">
+        <div class="quiz-header">
+            <div>
+                <h2 id="quiz-title">Test</h2>
+                <p id="quiz-subtitle" class="setup-subtitle"></p>
+            </div>
+            <div class="quiz-progress" id="quiz-progress">0 / 0 answered</div>
+        </div>
+
+        <div id="questions-list" class="questions-list"></div>
+
+        <div class="quiz-footer">
+            <button class="secondary-button" onclick="cancelTest()">Cancel</button>
+            <button class="primary-button" id="submit-test-btn" onclick="submitTest()">Submit Test</button>
+        </div>
+    </div>
+
+    <div class="test-view" id="results-view">
+        <div class="results-summary">
+            <div class="score-ring" id="score-ring">
+                <span id="score-percent">0%</span>
+            </div>
+            <div>
+                <h2 id="results-heading">Test Complete</h2>
+                <p id="results-subheading" class="setup-subtitle"></p>
+            </div>
+        </div>
+
+        <div id="results-list" class="questions-list"></div>
+
+        <div class="quiz-footer">
+            <button class="secondary-button" onclick="resetToSetup()">Take Another Test</button>
+            <a href="/dashboard" class="primary-button" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">Back to Dashboard</a>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/tests-script.js') }}"></script>
+</body>
+</html>

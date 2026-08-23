@@ -398,6 +398,8 @@ function goToTile(target) {
 
     if (target === 'chat') {
         window.location.href = '/chat';
+    } else if (target === 'tests') {
+        window.location.href = '/tests';
     } else {
         comingSoon(target.charAt(0).toUpperCase() + target.slice(1));
     }
