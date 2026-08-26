@@ -22,31 +22,6 @@ async function handleLogin(e) {
     }
 }
 
-async function handleSignup(e) {
-    e.preventDefault();
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-password').value;
-    const confirm = document.getElementById('signup-confirm-password').value;
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-
-    if (password !== confirm) {
-        document.getElementById('signup-confirm-error').classList.add('show');
-        return;
-    }
-    document.getElementById('signup-confirm-error').classList.remove('show');
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating Account...';
-
-    try {
-        await auth.createUserWithEmailAndPassword(email, password);
-    } catch (error) {
-        alert("Signup Error: " + error.message);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Account';
-    }
-}
-
 async function handleSocialLogin(provider) {
     if (provider === 'Google') {
         const googleProvider = new firebase.auth.GoogleAuthProvider();
@@ -94,23 +69,15 @@ function updateThemeIcon(isDark) {
 }
 
 function switchTab(tab) {
-    const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
+    // Only 'login' is used now — Sign Up navigates to /signup directly.
     const tabs = document.querySelectorAll('.tab');
     const title = document.getElementById('auth-title');
 
     tabs.forEach(t => t.classList.remove('active'));
 
     if (tab === 'login') {
-        loginForm.classList.add('active');
-        signupForm.classList.remove('active');
         tabs[0].classList.add('active');
         title.textContent = "Welcome Back";
-    } else {
-        loginForm.classList.remove('active');
-        signupForm.classList.add('active');
-        tabs[1].classList.add('active');
-        title.textContent = "Join BlitzLearn";
     }
 }
 
