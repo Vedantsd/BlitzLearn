@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Skill Assessment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/competency-test-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="User Profile">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="assessment-container">
+
+    <div class="assessment-view active" id="loading-view">
+        <div class="loading-card">
+            <div class="loading-spinner-big"></div>
+            <h2>Building your personalized skill assessment...</h2>
+            <p id="loading-subtext">Reading the skills from your profile and writing questions across easy, medium, and hard difficulty.</p>
+        </div>
+    </div>
+
+    <div class="assessment-view" id="quiz-view">
+        <div class="quiz-intro">
+            <h2>Initial Skill Assessment</h2>
+            <p id="quiz-intro-text">This one-time assessment personalizes your dashboard, recommendations, and skill report.</p>
+            <div class="quiz-progress" id="quiz-progress">0 / 0 answered</div>
+        </div>
+
+        <div id="questions-list" class="questions-list"></div>
+
+        <div class="quiz-footer">
+            <button class="primary-button" id="submit-test-btn" onclick="submitSkillTest()">Submit Assessment</button>
+        </div>
+    </div>
+
+    <div class="assessment-view" id="error-view">
+        <div class="loading-card">
+            <div class="error-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="28" height="28"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </div>
+            <h2>Something went wrong</h2>
+            <p id="error-text">We couldn't generate your assessment. Please try again.</p>
+            <button class="primary-button" onclick="location.reload()">Retry</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/competency-test-script.js') }}"></script>
+</body>
+</html>
