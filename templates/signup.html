@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Sign Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup-style.css') }}">
+</head>
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <a href="/login" class="icon-button" title="Back to Login">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="signup-main">
+    <div class="signup-card">
+        <div class="signup-header">
+            <h2>Create Your Profile</h2>
+            <p>This helps us tailor an initial skill assessment and recommendations just for you.</p>
+        </div>
+
+        <div class="step-indicator" id="step-indicator">
+            <div class="step-dot active" data-step="1"><span>1</span><label>Basic</label></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="2"><span>2</span><label>Education</label></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="3"><span>3</span><label>Skills</label></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="4"><span>4</span><label>Experience</label></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="5"><span>5</span><label>Role</label></div>
+            <div class="step-line"></div>
+            <div class="step-dot" data-step="6"><span>6</span><label>Verify</label></div>
+        </div>
+
+        <form id="signup-form" onsubmit="return false;">
+
+            <div class="step-panel active" data-step="1">
+                <h3>Basic Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="basic-name">Full Name</label>
+                        <input type="text" id="basic-name" placeholder="Jane Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="basic-age">Age</label>
+                        <input type="number" id="basic-age" min="16" max="100" placeholder="28">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="basic-phone">Phone Number</label>
+                        <input type="tel" id="basic-phone" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-group">
+                        <label for="basic-email">Email</label>
+                        <input type="email" id="basic-email" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="basic-password">Password</label>
+                        <input type="password" id="basic-password" placeholder="••••••••" minlength="8" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="basic-confirm-password">Confirm Password</label>
+                        <input type="password" id="basic-confirm-password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <div class="error-message" id="basic-error"></div>
+            </div>
+
+            <div class="step-panel" data-step="2">
+                <h3>Educational Qualifications</h3>
+                <p class="step-hint">Add your degrees, starting with the most recent.</p>
+                <div id="education-list" class="dynamic-list"></div>
+                <button type="button" class="add-row-button" onclick="addEducationRow()">+ Add Qualification</button>
+            </div>
+
+            <div class="step-panel" data-step="3">
+                <h3>Skills</h3>
+                <p class="step-hint">Add the skills you'd like to be assessed on — these drive your initial skill test.</p>
+                <div class="skill-input-row">
+                    <input type="text" id="skill-name-input" placeholder="e.g. Python, SQL, Data Visualization">
+                    <select id="skill-level-input">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate" selected>Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                    <button type="button" class="add-chip-button" onclick="addSkill()">+ Add</button>
+                </div>
+                <div id="skills-chips" class="chips-list"></div>
+                <div class="error-message" id="skills-error"></div>
+            </div>
+
+            <div class="step-panel" data-step="4">
+                <h3>Previous Assignments &amp; Learning Experience</h3>
+                <p class="step-hint">Optional — add any relevant roles, projects, or trainings.</p>
+                <div id="experience-list" class="dynamic-list"></div>
+                <button type="button" class="add-row-button" onclick="addExperienceRow()">+ Add Experience</button>
+            </div>
+
+            <div class="step-panel" data-step="5">
+                <h3>Department &amp; Designation</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="role-department">Department</label>
+                        <select id="role-department">
+                            <option value="">Select department</option>
+                            <option value="Official Statistics">Official Statistics</option>
+                            <option value="Information Technology">Information Technology</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Human Resources">Human Resources</option>
+                            <option value="Operations">Operations</option>
+                            <option value="Research">Research</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="role-designation">Designation</label>
+                        <input type="text" id="role-designation" placeholder="e.g. Statistical Officer">
+                    </div>
+                </div>
+                <div class="error-message" id="role-error"></div>
+            </div>
+
+            <div class="step-panel" data-step="6">
+                <h3>Verify Your Number</h3>
+                <p class="step-hint">OTP verification is coming in a future release. For now, this step is skipped automatically.</p>
+                <div class="otp-row">
+                    <input type="text" class="otp-box" maxlength="1" disabled>
+                    <input type="text" class="otp-box" maxlength="1" disabled>
+                    <input type="text" class="otp-box" maxlength="1" disabled>
+                    <input type="text" class="otp-box" maxlength="1" disabled>
+                    <input type="text" class="otp-box" maxlength="1" disabled>
+                    <input type="text" class="otp-box" maxlength="1" disabled>
+                </div>
+                <span class="otp-disabled-badge">Not implemented yet</span>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="secondary-button" id="prev-btn" onclick="prevStep()" style="visibility: hidden;">Back</button>
+                <button type="button" class="primary-button" id="next-btn" onclick="nextStep()">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/signup-script.js') }}"></script>
+</body>
+</html>
