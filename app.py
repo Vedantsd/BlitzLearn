@@ -3,8 +3,9 @@ import io
 import json
 import re
 import sqlite3
+from functools import wraps
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, session, redirect, url_for
 from PyPDF2 import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -15,6 +16,9 @@ from langchain.prompts import PromptTemplate
 
 load_dotenv()
 app = Flask(__name__)
+
+ADMIN_USERNAME = "Admin"
+ADMIN_PASSWORD = "Password"
 
 api_key = os.getenv("GEMINI_API_KEY")
 
@@ -116,9 +120,69 @@ def init_db():
             taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (test_id) REFERENCES tests (id)
         );
+
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            uid TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            age INTEGER,
+            phone TEXT,
+            email TEXT NOT NULL,
+            department TEXT,
+            designation TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS user_education (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            degree TEXT,
+            institution TEXT,
+            year TEXT,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS user_skills (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            skill_name TEXT NOT NULL,
+            self_rated_level TEXT,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS user_experience (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            role TEXT,
+            organization TEXT,
+            duration TEXT,
+            description TEXT,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS skill_reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            test_id INTEGER,
+            overall_score INTEGER NOT NULL,
+            overall_total INTEGER NOT NULL,
+            skills_breakdown TEXT,
+            generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            FOREIGN KEY (test_id) REFERENCES tests (id)
+        );
     """)
     conn.commit()
+
+    _ensure_column(conn, "users", "status", "TEXT DEFAULT 'active'")
+    conn.commit()
     conn.close()
+
+
+def _ensure_column(conn, table, column, coltype_and_default):
+    existing_cols = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in existing_cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {coltype_and_default}")
 
 
 init_db()
@@ -286,6 +350,64 @@ def roadmap():
     return render_template('dashboard.html')
 
 
+def admin_required(view_func):
+    @wraps(view_func)
+    def wrapped(*args, **kwargs):
+        if not session.get("is_admin"):
+            if request.path.startswith("/admin/api/"):
+                return jsonify({"error": "Unauthorized"}), 401
+            return redirect(url_for("admin_login_page"))
+        return view_func(*args, **kwargs)
+    return wrapped
+
+
+@app.route('/admin/login')
+def admin_login_page():
+    if session.get("is_admin"):
+        return redirect(url_for("admin_dashboard_page"))
+    return render_template('admin-login.html')
+
+
+@app.route('/admin/api/login', methods=['POST'])
+def admin_api_login():
+    data = request.json or {}
+    username = data.get("username", "")
+    password = data.get("password", "")
+
+    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        session["is_admin"] = True
+        return jsonify({"message": "Logged in"})
+
+    return jsonify({"error": "Invalid username or password"}), 401
+
+
+@app.route('/admin/api/logout', methods=['POST'])
+def admin_api_logout():
+    session.pop("is_admin", None)
+    return jsonify({"message": "Logged out"})
+
+
+@app.route('/admin/dashboard')
+@admin_required
+def admin_dashboard_page():
+    return render_template('admin-dashboard.html')
+
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+
+@app.route('/competency-test')
+def competency_test_page():
+    return render_template('competency-test.html')
+
+
+@app.route('/report')
+def report_page():
+    return render_template('report.html')
+
+
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -373,6 +495,110 @@ def select_book():
         "message": f"'{book['title']}' added to your notes",
         "title": book["title"],
         "filename": book["filename"]  
+    })
+
+
+@app.route('/api/save_profile', methods=['POST'])
+def save_profile():
+    data = request.json or {}
+    uid = data.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid"}), 400
+
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip()
+    if not name or not email:
+        return jsonify({"error": "Name and email are required"}), 400
+
+    age = data.get("age")
+    phone = data.get("phone", "")
+    department = data.get("department", "")
+    designation = data.get("designation", "")
+    education = data.get("education", [])
+    skills = data.get("skills", [])
+    experience = data.get("experience", [])
+
+    if not skills:
+        return jsonify({"error": "Please add at least one skill"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    existing = cur.execute("SELECT id FROM users WHERE uid = ?", (uid,)).fetchone()
+    if existing:
+        user_id = existing["id"]
+        cur.execute(
+            """UPDATE users SET name=?, age=?, phone=?, email=?, department=?, designation=?
+               WHERE id=?""",
+            (name, age, phone, email, department, designation, user_id)
+        )
+        cur.execute("DELETE FROM user_education WHERE user_id=?", (user_id,))
+        cur.execute("DELETE FROM user_skills WHERE user_id=?", (user_id,))
+        cur.execute("DELETE FROM user_experience WHERE user_id=?", (user_id,))
+    else:
+        cur.execute(
+            """INSERT INTO users (uid, name, age, phone, email, department, designation)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (uid, name, age, phone, email, department, designation)
+        )
+        user_id = cur.lastrowid
+
+    for edu in education:
+        if not (edu.get("degree") or edu.get("institution")):
+            continue
+        cur.execute(
+            "INSERT INTO user_education (user_id, degree, institution, year) VALUES (?, ?, ?, ?)",
+            (user_id, edu.get("degree", ""), edu.get("institution", ""), edu.get("year", ""))
+        )
+
+    for skill in skills:
+        if not skill.get("name"):
+            continue
+        cur.execute(
+            "INSERT INTO user_skills (user_id, skill_name, self_rated_level) VALUES (?, ?, ?)",
+            (user_id, skill["name"], skill.get("level", "Beginner"))
+        )
+
+    for exp in experience:
+        if not (exp.get("role") or exp.get("organization")):
+            continue
+        cur.execute(
+            """INSERT INTO user_experience (user_id, role, organization, duration, description)
+               VALUES (?, ?, ?, ?, ?)""",
+            (user_id, exp.get("role", ""), exp.get("organization", ""), exp.get("duration", ""), exp.get("description", ""))
+        )
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Profile saved!", "user_id": user_id})
+
+
+@app.route('/api/profile/<uid>', methods=['GET'])
+def get_profile(uid):
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE uid = ?", (uid,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Profile not found"}), 404
+
+    skills = conn.execute(
+        "SELECT skill_name, self_rated_level FROM user_skills WHERE user_id = ?", (user["id"],)
+    ).fetchall()
+    education = conn.execute(
+        "SELECT degree, institution, year FROM user_education WHERE user_id = ?", (user["id"],)
+    ).fetchall()
+    experience = conn.execute(
+        "SELECT role, organization, duration, description FROM user_experience WHERE user_id = ?", (user["id"],)
+    ).fetchall()
+    conn.close()
+
+    return jsonify({
+        "name": user["name"], "age": user["age"], "phone": user["phone"], "email": user["email"],
+        "department": user["department"], "designation": user["designation"],
+        "skills": [dict(r) for r in skills],
+        "education": [dict(r) for r in education],
+        "experience": [dict(r) for r in experience],
     })
 
 
@@ -470,6 +696,7 @@ def _clean_json_response(raw_text):
 
 
 def _looks_like_front_matter(text):
+
     lowered = text.lower()
 
     strong_markers = [
@@ -727,7 +954,7 @@ def generate_test():
     data = request.json or {}
     difficulty = data.get("difficulty", "medium")
     num_questions = data.get("num_questions", 10)
-    source = data.get("source", "notes")  # "notes" | "bank"
+    source = data.get("source", "notes")  
 
     if difficulty not in VALID_DIFFICULTIES:
         difficulty = "medium"
@@ -779,6 +1006,282 @@ def questions_bank():
     ).fetchall()
     conn.close()
     return jsonify([dict(row) for row in rows])
+
+SKILL_TEST_TOTAL_QUESTIONS = 20
+
+
+def _skill_test_distribution(total):
+    easy = round(total * 0.5)
+    medium = round(total * 0.25)
+    hard = total - easy - medium
+    return easy, medium, hard
+
+
+def _generate_skill_questions(skills, easy_count, medium_count, hard_count):
+    skill_names = [s["name"].strip() for s in skills if s.get("name", "").strip()]
+    if not skill_names:
+        return None, ("No skills to test.", 400)
+
+    total = easy_count + medium_count + hard_count
+    skills_list_str = ", ".join(skill_names)
+
+    prompt = f"""
+    You are an examiner creating an initial competency assessment MCQ test for a new employee,
+    covering the following self-declared skills: {skills_list_str}.
+
+    Generate EXACTLY {total} multiple choice questions:
+    - {easy_count} EASY questions (basic recall/definition-level, Bloom's Remember/Understand)
+    - {medium_count} MEDIUM questions (applied/comparison-level, Bloom's Apply/Analyze)
+    - {hard_count} HARD questions (deep analytical/scenario-level, Bloom's Analyze/Evaluate)
+
+    Spread the questions across ALL the listed skills as evenly as possible — don't test only
+    one or two skills. Each question must test real, practical knowledge of one of the listed
+    skills: concepts, syntax, best practices, real-world usage, common pitfalls, or comparisons
+    between tools/techniques within that skill.
+
+    STRICT RULES:
+    1. Never ask about this test, this platform, or any meta-topic — only real technical or
+       professional knowledge of the named skills.
+    2. Write questions the way a real interviewer/examiner would, e.g.:
+       - "Which of the following is NOT a valid way to handle exceptions in Python?"
+       - "Which SQL clause is used to filter grouped results?"
+       - "Which of the following is not a principle of good UX design?"
+       Mix straightforward and negative-form ("NOT", "EXCEPT") questions.
+    3. All 4 options must be plausible and in the same category, so the question requires real
+       understanding rather than guessing by elimination.
+    4. The "topic" field for each question MUST be exactly one of these skill names:
+       {skill_names}. Pick whichever skill the question actually tests.
+    5. Include a "difficulty" field for each question — exactly one of: "easy", "medium", "hard".
+
+    Return ONLY a valid JSON array (no markdown fences, no commentary) where every item has
+    exactly this shape:
+    {{
+      "topic": "one of the exact skill names above",
+      "difficulty": "easy" | "medium" | "hard",
+      "question": "the question text",
+      "options": {{"a": "...", "b": "...", "c": "...", "d": "..."}},
+      "correct_option": "a",
+      "explanation": "1-2 sentence explanation of why the correct answer is correct"
+    }}
+    """
+
+    try:
+        model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, temperature=0.5)
+        response = model.invoke(prompt)
+        questions = json.loads(_clean_json_response(response.content))
+    except Exception as e:
+        print(f"Error generating skill test: {str(e)}")
+        return None, ("Failed to generate the skill assessment. Please try again.", 500)
+
+    banned_phrases = ("this test", "this platform", "this assessment", "the app", "blitzlearn")
+    cleaned = [
+        q for q in questions
+        if isinstance(q.get("question"), str)
+        and not any(p in q["question"].lower() for p in banned_phrases)
+        and q.get("difficulty") in ("easy", "medium", "hard")
+        and q.get("topic")
+    ]
+
+    if not cleaned:
+        return None, ("Generated questions didn't pass quality checks. Please try again.", 500)
+
+    return cleaned, None
+
+
+@app.route('/generate_skill_test', methods=['POST'])
+def generate_skill_test():
+    data = request.json or {}
+    uid = data.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid"}), 400
+
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE uid = ?", (uid,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Profile not found. Please complete signup first."}), 404
+
+    skill_rows = conn.execute(
+        "SELECT skill_name, self_rated_level FROM user_skills WHERE user_id = ?", (user["id"],)
+    ).fetchall()
+    skills = [{"name": r["skill_name"], "level": r["self_rated_level"]} for r in skill_rows]
+
+    if not skills:
+        conn.close()
+        return jsonify({"error": "No skills found on your profile."}), 400
+
+    easy_count, medium_count, hard_count = _skill_test_distribution(SKILL_TEST_TOTAL_QUESTIONS)
+    questions, error = _generate_skill_questions(skills, easy_count, medium_count, hard_count)
+
+    if error:
+        conn.close()
+        message, status_code = error
+        return jsonify({"error": message}), status_code
+
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO tests (difficulty, num_questions, source_title) VALUES (?, ?, ?)",
+        ("mixed", len(questions), "Initial Skill Assessment")
+    )
+    test_id = cur.lastrowid
+
+    saved_questions = []
+    for i, q in enumerate(questions):
+        try:
+            options = q["options"]
+            cur.execute(
+                """INSERT INTO questions
+                   (topic, difficulty, question_text, option_a, option_b, option_c, option_d,
+                    correct_option, explanation, source_title)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    q["topic"], q["difficulty"], q["question"],
+                    options["a"], options["b"], options["c"], options["d"],
+                    q["correct_option"], q.get("explanation", ""), "Initial Skill Assessment"
+                )
+            )
+            question_id = cur.lastrowid
+            cur.execute(
+                "INSERT INTO test_questions (test_id, question_id, question_order) VALUES (?, ?, ?)",
+                (test_id, question_id, i)
+            )
+            saved_questions.append({
+                "id": question_id,
+                "topic": q["topic"],
+                "difficulty": q["difficulty"],
+                "question": q["question"],
+                "options": options,
+                "correct_option": q["correct_option"],
+                "explanation": q.get("explanation", "")
+            })
+        except (KeyError, TypeError):
+            continue
+
+    conn.commit()
+    conn.close()
+
+    if not saved_questions:
+        return jsonify({"error": "Failed to generate a usable skill assessment. Please try again."}), 500
+
+    return jsonify({
+        "test_id": test_id,
+        "skills": [s["name"] for s in skills],
+        "questions": saved_questions
+    })
+
+
+def _proficiency_label(percent):
+    if percent >= 80:
+        return "Advanced"
+    if percent >= 50:
+        return "Intermediate"
+    return "Beginner"
+
+
+@app.route('/submit_skill_test', methods=['POST'])
+def submit_skill_test():
+    data = request.json or {}
+    uid = data.get("uid")
+    test_id = data.get("test_id")
+    answers = data.get("answers", {})  
+
+    if not uid or not test_id:
+        return jsonify({"error": "Missing uid or test_id"}), 400
+
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE uid = ?", (uid,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Profile not found."}), 404
+
+    rows = conn.execute(
+        """SELECT q.id, q.topic, q.difficulty, q.correct_option
+           FROM test_questions tq
+           JOIN questions q ON q.id = tq.question_id
+           WHERE tq.test_id = ?
+           ORDER BY tq.question_order""",
+        (test_id,)
+    ).fetchall()
+
+    if not rows:
+        conn.close()
+        return jsonify({"error": "Test not found."}), 404
+
+    skill_stats = {}
+    overall_correct = 0
+
+    for row in rows:
+        topic = row["topic"] or "General"
+        skill_stats.setdefault(topic, {"correct": 0, "total": 0})
+        skill_stats[topic]["total"] += 1
+
+        selected = answers.get(str(row["id"]))
+        if selected == row["correct_option"]:
+            skill_stats[topic]["correct"] += 1
+            overall_correct += 1
+
+    overall_total = len(rows)
+
+    skills_breakdown = []
+    for topic, stats in skill_stats.items():
+        percent = round((stats["correct"] / stats["total"]) * 100) if stats["total"] else 0
+        skills_breakdown.append({
+            "skill": topic,
+            "correct": stats["correct"],
+            "total": stats["total"],
+            "percent": percent,
+            "level": _proficiency_label(percent)
+        })
+    skills_breakdown.sort(key=lambda s: s["percent"])
+
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO test_attempts (test_id, score, total) VALUES (?, ?, ?)",
+        (test_id, overall_correct, overall_total)
+    )
+    cur.execute(
+        """INSERT INTO skill_reports (user_id, test_id, overall_score, overall_total, skills_breakdown)
+           VALUES (?, ?, ?, ?, ?)""",
+        (user["id"], test_id, overall_correct, overall_total, json.dumps(skills_breakdown))
+    )
+    report_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "report_id": report_id,
+        "overall_score": overall_correct,
+        "overall_total": overall_total,
+        "skills": skills_breakdown
+    })
+
+
+@app.route('/api/skill_report/<uid>', methods=['GET'])
+def get_latest_skill_report(uid):
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE uid = ?", (uid,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Profile not found."}), 404
+
+    report = conn.execute(
+        "SELECT * FROM skill_reports WHERE user_id = ? ORDER BY generated_at DESC LIMIT 1",
+        (user["id"],)
+    ).fetchone()
+    conn.close()
+
+    if not report:
+        return jsonify({"error": "No report found yet."}), 404
+
+    return jsonify({
+        "report_id": report["id"],
+        "overall_score": report["overall_score"],
+        "overall_total": report["overall_total"],
+        "skills": json.loads(report["skills_breakdown"]),
+        "generated_at": report["generated_at"],
+        "name": user["name"]
+    })
+
 
 
 @app.route('/ask', methods=['POST'])
@@ -872,6 +1375,209 @@ def prioritize_topics():
     except Exception as e:
         print(f"Error in prioritize_topics: {str(e)}")
         return jsonify({"error": "Failed to prioritize topics. Please try again."}), 500
+
+
+def _latest_reports(conn):
+    return conn.execute("""
+        SELECT sr.*, u.name, u.department, u.designation FROM skill_reports sr
+        INNER JOIN (
+            SELECT user_id, MAX(generated_at) as max_date
+            FROM skill_reports GROUP BY user_id
+        ) latest ON sr.user_id = latest.user_id AND sr.generated_at = latest.max_date
+        JOIN users u ON u.id = sr.user_id
+    """).fetchall()
+
+
+@app.route('/admin/api/departments', methods=['GET'])
+@admin_required
+def admin_departments():
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != '' ORDER BY department"
+    ).fetchall()
+    conn.close()
+    return jsonify([r["department"] for r in rows])
+
+
+@app.route('/admin/api/users', methods=['GET'])
+@admin_required
+def admin_list_users():
+    q = request.args.get("q", "").strip().lower()
+    department = request.args.get("department", "").strip()
+    status_filter = request.args.get("status", "").strip()
+    sort_by = request.args.get("sort_by", "name")  
+
+    conn = get_db()
+    users = conn.execute("SELECT * FROM users").fetchall()
+
+    reports = _latest_reports(conn)
+    conn.close()
+    report_map = {r["user_id"]: r for r in reports}
+
+    result = []
+    for u in users:
+        if q and q not in (u["name"] or "").lower() and q not in (u["email"] or "").lower():
+            continue
+        if department and (u["department"] or "") != department:
+            continue
+        user_status = u["status"] or "active"
+        if status_filter and user_status != status_filter:
+            continue
+
+        report = report_map.get(u["id"])
+        percent = None
+        if report and report["overall_total"]:
+            percent = round((report["overall_score"] / report["overall_total"]) * 100)
+
+        result.append({
+            "id": u["id"],
+            "uid": u["uid"],
+            "name": u["name"],
+            "email": u["email"],
+            "phone": u["phone"],
+            "age": u["age"],
+            "department": u["department"] or "Unassigned",
+            "designation": u["designation"] or "",
+            "status": user_status,
+            "score_percent": percent,
+            "created_at": u["created_at"],
+        })
+
+    if sort_by == "department":
+        result.sort(key=lambda x: (x["department"] or "").lower())
+    elif sort_by == "score":
+        result.sort(key=lambda x: (x["score_percent"] is not None, x["score_percent"] or 0), reverse=True)
+    elif sort_by == "created_at":
+        result.sort(key=lambda x: x["created_at"] or "", reverse=True)
+    else:
+        result.sort(key=lambda x: (x["name"] or "").lower())
+
+    return jsonify(result)
+
+
+@app.route('/admin/api/users/<int:user_id>/status', methods=['POST'])
+@admin_required
+def admin_update_user_status(user_id):
+    data = request.json or {}
+    new_status = data.get("status")
+    if new_status not in ("active", "disabled"):
+        return jsonify({"error": "Status must be 'active' or 'disabled'"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET status = ? WHERE id = ?", (new_status, user_id))
+    updated = cur.rowcount
+    conn.commit()
+    conn.close()
+
+    if not updated:
+        return jsonify({"error": "User not found"}), 404
+
+    verb = "enabled" if new_status == "active" else "disabled"
+    return jsonify({"message": f"Account {verb}."})
+
+
+@app.route('/admin/api/users/<int:user_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_user(user_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    existing = cur.execute("SELECT id FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not existing:
+        conn.close()
+        return jsonify({"error": "User not found"}), 404
+
+    cur.execute("DELETE FROM user_education WHERE user_id = ?", (user_id,))
+    cur.execute("DELETE FROM user_skills WHERE user_id = ?", (user_id,))
+    cur.execute("DELETE FROM user_experience WHERE user_id = ?", (user_id,))
+    cur.execute("DELETE FROM skill_reports WHERE user_id = ?", (user_id,))
+    cur.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "message": "User deleted from BlitzLearn's records. Their login account (Firebase) "
+                    "was not removed — that needs to be done separately via Firebase console/Admin SDK."
+    })
+
+
+@app.route('/admin/api/performance', methods=['GET'])
+@admin_required
+def admin_performance():
+    conn = get_db()
+    reports = _latest_reports(conn)
+    conn.close()
+
+    ranked = []
+    for r in reports:
+        percent = round((r["overall_score"] / r["overall_total"]) * 100) if r["overall_total"] else 0
+        ranked.append({
+            "user_id": r["user_id"],
+            "name": r["name"],
+            "department": r["department"] or "Unassigned",
+            "designation": r["designation"] or "",
+            "score_percent": percent,
+            "score": r["overall_score"],
+            "total": r["overall_total"],
+        })
+
+    if not ranked:
+        return jsonify({"top": None, "bottom": None, "all": []})
+
+    ranked.sort(key=lambda x: x["score_percent"], reverse=True)
+
+    return jsonify({
+        "top": ranked[0],
+        "bottom": ranked[-1] if len(ranked) > 1 else None,
+        "all": ranked,
+    })
+
+
+@app.route('/admin/api/department_report', methods=['GET'])
+@admin_required
+def admin_department_report():
+    conn = get_db()
+    users = conn.execute("SELECT * FROM users").fetchall()
+    reports = _latest_reports(conn)
+    conn.close()
+
+    dept_data = {}
+    for u in users:
+        dept = u["department"] or "Unassigned"
+        dept_data.setdefault(dept, {"user_count": 0, "assessed_count": 0, "scores": [], "skills": {}})
+        dept_data[dept]["user_count"] += 1
+
+    for r in reports:
+        dept = r["department"] or "Unassigned"
+        dept_data.setdefault(dept, {"user_count": 0, "assessed_count": 0, "scores": [], "skills": {}})
+        percent = round((r["overall_score"] / r["overall_total"]) * 100) if r["overall_total"] else 0
+        dept_data[dept]["assessed_count"] += 1
+        dept_data[dept]["scores"].append(percent)
+
+        skills_breakdown = json.loads(r["skills_breakdown"]) if r["skills_breakdown"] else []
+        for s in skills_breakdown:
+            dept_data[dept]["skills"].setdefault(s["skill"], []).append(s["percent"])
+
+    report = []
+    for dept, data in dept_data.items():
+        avg_score = round(sum(data["scores"]) / len(data["scores"])) if data["scores"] else None
+        skills_avg = [
+            {"skill": name, "avg_percent": round(sum(vals) / len(vals))}
+            for name, vals in data["skills"].items()
+        ]
+        skills_avg.sort(key=lambda s: s["avg_percent"])
+
+        report.append({
+            "department": dept,
+            "user_count": data["user_count"],
+            "assessed_count": data["assessed_count"],
+            "avg_score_percent": avg_score,
+            "skills": skills_avg,
+        })
+
+    report.sort(key=lambda d: d["department"])
+    return jsonify(report)
 
 
 if __name__ == '__main__':
