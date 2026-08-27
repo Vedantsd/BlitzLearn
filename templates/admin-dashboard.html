@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-dashboard-style.css') }}">
+</head>
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo"/>
+        <h1>BlitzLearn <span class="admin-tag">Admin</span></h1>
+    </div>
+    <div class="header-actions">
+        <button class="icon-button" onclick="handleAdminLogout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="admin-container">
+
+    <div class="admin-stats" id="admin-stats">
+        <div class="stat-card">
+            <span class="stat-value" id="stat-total">—</span>
+            <span class="stat-label">Total Users</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-active">—</span>
+            <span class="stat-label">Active</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-disabled">—</span>
+            <span class="stat-label">Disabled</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-assessed">—</span>
+            <span class="stat-label">Assessed</span>
+        </div>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="admin-tab active" data-view="users" onclick="switchAdminView('users')">Users</button>
+        <button class="admin-tab" data-view="performance" onclick="switchAdminView('performance')">Performance</button>
+        <button class="admin-tab" data-view="departments" onclick="switchAdminView('departments')">Department Reports</button>
+    </div>
+
+    <div class="admin-view active" id="users-view">
+        <div class="toolbar">
+            <div class="search-wrapper">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/></svg>
+                <input type="text" id="search-input" placeholder="Search by name or email...">
+            </div>
+            <select id="department-filter">
+                <option value="">All Departments</option>
+            </select>
+            <select id="status-filter">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="disabled">Disabled</option>
+            </select>
+            <select id="sort-select">
+                <option value="name">Sort: Name</option>
+                <option value="department">Sort: Department</option>
+                <option value="score">Sort: Score</option>
+                <option value="created_at">Sort: Newest</option>
+            </select>
+        </div>
+
+        <div class="users-table-wrapper">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Score</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <tr><td colspan="7" class="table-loading">Loading users...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-view" id="performance-view">
+        <div class="performer-cards" id="performer-cards">
+            <div class="performer-card top">
+                <span class="performer-label">🏆 Highest Performer</span>
+                <div class="performer-body" id="top-performer-body">Loading...</div>
+            </div>
+            <div class="performer-card bottom">
+                <span class="performer-label">📉 Lowest Performer</span>
+                <div class="performer-body" id="bottom-performer-body">Loading...</div>
+            </div>
+        </div>
+
+        <h3 class="section-title">Full Leaderboard</h3>
+        <div id="leaderboard-list" class="leaderboard-list"></div>
+    </div>
+
+    <div class="admin-view" id="departments-view">
+        <p class="view-hint">Average scores are based on each employee's most recent skill assessment.</p>
+        <div id="department-reports-list" class="department-reports-list"></div>
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/admin-dashboard-script.js') }}"></script>
+</body>
+</html>
