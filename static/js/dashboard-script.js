@@ -386,11 +386,17 @@ async function refreshProcessedStatus() {
 function setTilesEnabled(enabled) {
     notesProcessed = enabled;
     document.querySelectorAll('.tile').forEach(tile => {
+        if (tile.id === 'evaluate-tile') return;
         tile.classList.toggle('tile-locked', !enabled);
     });
 }
 
 function goToTile(target) {
+    if (target === 'evaluate') {
+        window.location.href = '/evaluate';
+        return;
+    }
+
     if (!notesProcessed) {
         alert('Please process your notes first using "Process Content" at the bottom of the sidebar.');
         return;
