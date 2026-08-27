@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Your Skill Report</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/report-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="User Profile">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="report-container">
+
+    <div class="report-view" id="loading-view">
+        <div class="loading-card">
+            <div class="loading-spinner-big"></div>
+            <h2>Preparing your skill report...</h2>
+        </div>
+    </div>
+
+    <div class="report-view" id="report-view">
+        <div class="report-header">
+            <h2 id="report-heading">Your Skill Report</h2>
+            <p id="report-subheading">Here's how you scored across your declared skills.</p>
+        </div>
+
+        <div class="overall-card">
+            <div class="score-ring" id="score-ring">
+                <span id="score-percent">0%</span>
+            </div>
+            <div class="overall-meta">
+                <div class="overall-score-text" id="overall-score-text">0 / 0 correct</div>
+                <p id="overall-message" class="overall-message"></p>
+            </div>
+        </div>
+
+        <h3 class="section-title">Skill Breakdown</h3>
+        <div id="skills-breakdown" class="skills-breakdown"></div>
+
+        <div class="redirect-bar">
+            <p id="redirect-text">Redirecting to your dashboard in <span id="redirect-countdown">8</span>s...</p>
+            <button class="primary-button" onclick="goToDashboard()">Go to Dashboard Now</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/report-script.js') }}"></script>
+</body>
+</html>
