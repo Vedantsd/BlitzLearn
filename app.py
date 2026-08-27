@@ -171,10 +171,44 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users (id),
             FOREIGN KEY (test_id) REFERENCES tests (id)
         );
+
+        CREATE TABLE IF NOT EXISTS user_answers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            test_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            selected_option TEXT,
+            answered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (test_id) REFERENCES tests (id),
+            FOREIGN KEY (question_id) REFERENCES questions (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS skill_competency (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            skill_name TEXT NOT NULL,
+            correct_count INTEGER NOT NULL DEFAULT 0,
+            total_count INTEGER NOT NULL DEFAULT 0,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, skill_name),
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        );
+
+        CREATE TABLE IF NOT EXISTS progress_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            test_id INTEGER,
+            overall_percent INTEGER NOT NULL,
+            taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            FOREIGN KEY (test_id) REFERENCES tests (id)
+        );
     """)
     conn.commit()
 
     _ensure_column(conn, "users", "status", "TEXT DEFAULT 'active'")
+    _ensure_column(conn, "tests", "user_id", "INTEGER")
+    _ensure_column(conn, "test_attempts", "user_id", "INTEGER")
+    _ensure_column(conn, "tests", "competency_applied", "INTEGER DEFAULT 0")
     conn.commit()
     conn.close()
 
@@ -185,7 +219,92 @@ def _ensure_column(conn, table, column, coltype_and_default):
         conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {coltype_and_default}")
 
 
+def _update_skill_competency_and_progress(user_id, test_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    already_applied = cur.execute(
+        "SELECT competency_applied FROM tests WHERE id = ?", (test_id,)
+    ).fetchone()
+    if not already_applied or already_applied["competency_applied"]:
+        conn.close()
+        return
+
+    skill_rows = cur.execute(
+        "SELECT skill_name FROM user_skills WHERE user_id = ?", (user_id,)
+    ).fetchall()
+    declared_skills = {r["skill_name"].strip().lower(): r["skill_name"] for r in skill_rows if r["skill_name"]}
+
+    if not declared_skills:
+        cur.execute("UPDATE tests SET competency_applied = 1 WHERE id = ?", (test_id,))
+        conn.commit()
+        conn.close()
+        return
+
+    rows = cur.execute(
+        """SELECT q.topic, q.correct_option, ua.selected_option
+           FROM test_questions tq
+           JOIN questions q ON q.id = tq.question_id
+           LEFT JOIN user_answers ua ON ua.test_id = tq.test_id AND ua.question_id = q.id
+           WHERE tq.test_id = ?""",
+        (test_id,)
+    ).fetchall()
+
+    matched_any = False
+    for r in rows:
+        topic_key = (r["topic"] or "").strip().lower()
+        if topic_key not in declared_skills:
+            continue  
+
+        matched_any = True
+        skill_name = declared_skills[topic_key]
+        is_correct = 1 if r["selected_option"] and r["selected_option"] == r["correct_option"] else 0
+
+        cur.execute(
+            """INSERT INTO skill_competency (user_id, skill_name, correct_count, total_count)
+               VALUES (?, ?, ?, 1)
+               ON CONFLICT(user_id, skill_name) DO UPDATE SET
+                 correct_count = correct_count + excluded.correct_count,
+                 total_count = total_count + 1,
+                 updated_at = CURRENT_TIMESTAMP""",
+            (user_id, skill_name, is_correct)
+        )
+
+    if matched_any:
+        competency_rows = cur.execute(
+            "SELECT correct_count, total_count FROM skill_competency WHERE user_id = ?", (user_id,)
+        ).fetchall()
+        percents = [
+            round((c["correct_count"] / c["total_count"]) * 100)
+            for c in competency_rows if c["total_count"] > 0
+        ]
+        overall_percent = round(sum(percents) / len(percents)) if percents else 0
+
+        cur.execute(
+            "INSERT INTO progress_snapshots (user_id, test_id, overall_percent) VALUES (?, ?, ?)",
+            (user_id, test_id, overall_percent)
+        )
+
+    cur.execute("UPDATE tests SET competency_applied = 1 WHERE id = ?", (test_id,))
+    conn.commit()
+    conn.close()
+
+
+def _backfill_skill_competency():
+    conn = get_db()
+    pending = conn.execute(
+        """SELECT DISTINCT t.id, t.user_id FROM tests t
+           JOIN test_attempts ta ON ta.test_id = t.id
+           WHERE t.user_id IS NOT NULL AND (t.competency_applied IS NULL OR t.competency_applied = 0)"""
+    ).fetchall()
+    conn.close()
+
+    for row in pending:
+        _update_skill_competency_and_progress(row["user_id"], row["id"])
+
+
 init_db()
+_backfill_skill_competency()
 
 
 def get_pdf_text(pdf_files):
@@ -321,7 +440,6 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
 
 @app.route('/')
 def dashboard():
-    """Landing page after login."""
     return render_template('dashboard.html')
 
 
@@ -342,7 +460,7 @@ def tests():
 
 @app.route('/evaluate')
 def evaluate():
-    return render_template('dashboard.html')
+    return render_template('evaluate.html')
 
 
 @app.route('/roadmap')
@@ -696,7 +814,6 @@ def _clean_json_response(raw_text):
 
 
 def _looks_like_front_matter(text):
-
     lowered = text.lower()
 
     strong_markers = [
@@ -955,6 +1072,7 @@ def generate_test():
     difficulty = data.get("difficulty", "medium")
     num_questions = data.get("num_questions", 10)
     source = data.get("source", "notes")  
+    uid = data.get("uid")  
 
     if difficulty not in VALID_DIFFICULTIES:
         difficulty = "medium"
@@ -974,6 +1092,14 @@ def generate_test():
         message, status_code = error
         return jsonify({"error": message}), status_code
 
+    if uid:
+        conn = get_db()
+        user = conn.execute("SELECT id FROM users WHERE uid = ?", (uid,)).fetchone()
+        if user:
+            conn.execute("UPDATE tests SET user_id = ? WHERE id = ?", (user["id"], result["test_id"]))
+            conn.commit()
+        conn.close()
+
     return jsonify(result)
 
 
@@ -983,17 +1109,38 @@ def submit_test():
     test_id = data.get("test_id")
     score = data.get("score")
     total = data.get("total")
+    uid = data.get("uid")
+    answers = data.get("answers", {}) 
 
     if test_id is None or score is None or total is None:
         return jsonify({"error": "Missing test_id, score, or total"}), 400
 
     conn = get_db()
-    conn.execute(
-        "INSERT INTO test_attempts (test_id, score, total) VALUES (?, ?, ?)",
-        (test_id, score, total)
+    cur = conn.cursor()
+
+    user_id = None
+    if uid:
+        user = cur.execute("SELECT id FROM users WHERE uid = ?", (uid,)).fetchone()
+        if user:
+            user_id = user["id"]
+            cur.execute("UPDATE tests SET user_id = ? WHERE id = ?", (user_id, test_id))
+
+    cur.execute(
+        "INSERT INTO test_attempts (test_id, score, total, user_id) VALUES (?, ?, ?, ?)",
+        (test_id, score, total, user_id)
     )
+
+    for question_id, selected_option in answers.items():
+        cur.execute(
+            "INSERT INTO user_answers (test_id, question_id, selected_option) VALUES (?, ?, ?)",
+            (test_id, question_id, selected_option)
+        )
+
     conn.commit()
     conn.close()
+
+    if user_id:
+        _update_skill_competency_and_progress(user_id, test_id)
 
     return jsonify({"message": "Result saved!"})
 
@@ -1006,6 +1153,7 @@ def questions_bank():
     ).fetchall()
     conn.close()
     return jsonify([dict(row) for row in rows])
+
 
 SKILL_TEST_TOTAL_QUESTIONS = 20
 
@@ -1120,8 +1268,8 @@ def generate_skill_test():
 
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO tests (difficulty, num_questions, source_title) VALUES (?, ?, ?)",
-        ("mixed", len(questions), "Initial Skill Assessment")
+        "INSERT INTO tests (difficulty, num_questions, source_title, user_id) VALUES (?, ?, ?, ?)",
+        ("mixed", len(questions), "Initial Skill Assessment", user["id"])
     )
     test_id = cur.lastrowid
 
@@ -1236,9 +1384,16 @@ def submit_skill_test():
 
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO test_attempts (test_id, score, total) VALUES (?, ?, ?)",
-        (test_id, overall_correct, overall_total)
+        "INSERT INTO test_attempts (test_id, score, total, user_id) VALUES (?, ?, ?, ?)",
+        (test_id, overall_correct, overall_total, user["id"])
     )
+
+    for row in rows:
+        selected = answers.get(str(row["id"]))
+        cur.execute(
+            "INSERT INTO user_answers (test_id, question_id, selected_option) VALUES (?, ?, ?)",
+            (test_id, row["id"], selected)
+        )
     cur.execute(
         """INSERT INTO skill_reports (user_id, test_id, overall_score, overall_total, skills_breakdown)
            VALUES (?, ?, ?, ?, ?)""",
@@ -1247,6 +1402,8 @@ def submit_skill_test():
     report_id = cur.lastrowid
     conn.commit()
     conn.close()
+
+    _update_skill_competency_and_progress(user["id"], test_id)
 
     return jsonify({
         "report_id": report_id,
@@ -1282,6 +1439,200 @@ def get_latest_skill_report(uid):
         "name": user["name"]
     })
 
+
+DEFAULT_SKILL_TARGET_PERCENT = 75
+
+
+def _target_percent_for_designation(designation):
+    designation = (designation or "").lower()
+    if any(word in designation for word in ("senior", "lead", "head", "principal", "chief")):
+        return 85
+    if any(word in designation for word in ("intern", "trainee", "junior", "associate")):
+        return 65
+    return DEFAULT_SKILL_TARGET_PERCENT
+
+
+def _get_user_row(uid):
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE uid = ?", (uid,)).fetchone()
+    conn.close()
+    return user
+
+
+@app.route('/api/my_tests/<uid>', methods=['GET'])
+def get_my_tests(uid):
+    """All tests (skill assessments + practice tests) this user has taken,
+    newest first, each with its latest attempt score if one exists."""
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
+    conn = get_db()
+    tests = conn.execute(
+        "SELECT * FROM tests WHERE user_id = ? ORDER BY created_at DESC", (user["id"],)
+    ).fetchall()
+
+    result = []
+    for t in tests:
+        attempt = conn.execute(
+            "SELECT * FROM test_attempts WHERE test_id = ? ORDER BY taken_at DESC LIMIT 1",
+            (t["id"],)
+        ).fetchone()
+
+        percent = None
+        if attempt and attempt["total"]:
+            percent = round((attempt["score"] / attempt["total"]) * 100)
+
+        result.append({
+            "test_id": t["id"],
+            "difficulty": t["difficulty"],
+            "num_questions": t["num_questions"],
+            "source_title": t["source_title"],
+            "created_at": t["created_at"],
+            "score": attempt["score"] if attempt else None,
+            "total": attempt["total"] if attempt else None,
+            "percent": percent,
+            "attempted": attempt is not None,
+        })
+
+    conn.close()
+    return jsonify(result)
+
+
+@app.route('/api/test_detail/<int:test_id>', methods=['GET'])
+def get_test_detail(test_id):
+    conn = get_db()
+    rows = conn.execute(
+        """SELECT q.id, q.topic, q.difficulty, q.question_text, q.option_a, q.option_b,
+                  q.option_c, q.option_d, q.correct_option, q.explanation, ua.selected_option
+           FROM test_questions tq
+           JOIN questions q ON q.id = tq.question_id
+           LEFT JOIN user_answers ua ON ua.test_id = tq.test_id AND ua.question_id = q.id
+           WHERE tq.test_id = ?
+           ORDER BY tq.question_order""",
+        (test_id,)
+    ).fetchall()
+    conn.close()
+
+    if not rows:
+        return jsonify({"error": "Test not found."}), 404
+
+    questions = [{
+        "id": r["id"],
+        "topic": r["topic"],
+        "difficulty": r["difficulty"],
+        "question": r["question_text"],
+        "options": {"a": r["option_a"], "b": r["option_b"], "c": r["option_c"], "d": r["option_d"]},
+        "correct_option": r["correct_option"],
+        "explanation": r["explanation"],
+        "selected_option": r["selected_option"],
+    } for r in rows]
+
+    return jsonify({"test_id": test_id, "questions": questions})
+
+
+@app.route('/api/skill_radar/<uid>', methods=['GET'])
+def get_skill_radar(uid):
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
+    conn = get_db()
+    skill_rows = conn.execute(
+        "SELECT skill_name FROM user_skills WHERE user_id = ?", (user["id"],)
+    ).fetchall()
+    declared_skills = [r["skill_name"] for r in skill_rows]
+
+    competency_rows = conn.execute(
+        "SELECT skill_name, correct_count, total_count FROM skill_competency WHERE user_id = ?",
+        (user["id"],)
+    ).fetchall()
+    conn.close()
+
+    competency_map = {
+        r["skill_name"]: round((r["correct_count"] / r["total_count"]) * 100) if r["total_count"] else 0
+        for r in competency_rows
+    }
+
+    if not competency_map:
+        return jsonify({
+            "has_data": False, "skills": [],
+            "message": "Take a test that covers your skills first."
+        })
+
+    skills = [{"skill": name, "percent": competency_map.get(name, 0)} for name in declared_skills]
+
+    return jsonify({"has_data": True, "skills": skills})
+
+
+@app.route('/api/skill_gap/<uid>', methods=['GET'])
+def get_skill_gap(uid):
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
+    conn = get_db()
+    skill_rows = conn.execute(
+        "SELECT skill_name FROM user_skills WHERE user_id = ?", (user["id"],)
+    ).fetchall()
+    declared_skills = [r["skill_name"] for r in skill_rows]
+
+    competency_rows = conn.execute(
+        "SELECT skill_name, correct_count, total_count FROM skill_competency WHERE user_id = ?",
+        (user["id"],)
+    ).fetchall()
+    conn.close()
+
+    competency_map = {
+        r["skill_name"]: round((r["correct_count"] / r["total_count"]) * 100) if r["total_count"] else 0
+        for r in competency_rows
+    }
+
+    if not competency_map:
+        return jsonify({"has_data": False, "skills": []})
+
+    target = _target_percent_for_designation(user["designation"])
+
+    gaps = []
+    for skill_name in declared_skills:
+        current_percent = competency_map.get(skill_name, 0)
+        gap = max(0, target - current_percent)
+        if gap >= 25:
+            priority = "High"
+        elif gap >= 10:
+            priority = "Medium"
+        elif gap > 0:
+            priority = "Low"
+        else:
+            priority = "On Target"
+        gaps.append({
+            "skill": skill_name,
+            "current_percent": current_percent,
+            "target_percent": target,
+            "gap": gap,
+            "priority": priority,
+        })
+
+    gaps.sort(key=lambda g: g["gap"], reverse=True)
+
+    return jsonify({"has_data": True, "target_percent": target, "skills": gaps})
+
+
+@app.route('/api/progress_history/<uid>', methods=['GET'])
+def get_progress_history(uid):
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT overall_percent, taken_at FROM progress_snapshots WHERE user_id = ? ORDER BY taken_at ASC",
+        (user["id"],)
+    ).fetchall()
+    conn.close()
+
+    history = [{"generated_at": r["taken_at"], "percent": r["overall_percent"]} for r in rows]
+    return jsonify(history)
 
 
 @app.route('/ask', methods=['POST'])
