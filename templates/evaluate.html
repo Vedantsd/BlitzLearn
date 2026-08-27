@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Evaluate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/evaluate-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <a href="/dashboard" class="icon-button" title="Back to Dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="User Profile">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="evaluate-container">
+
+    <div class="page-heading">
+        <h2>Evaluate</h2>
+        <p>Your skill profile, gaps, priorities, progress, and every test you've taken — all in one place.</p>
+    </div>
+
+    <div class="stats-strip" id="stats-strip">
+        <div class="stat-card">
+            <span class="stat-value" id="stat-total-tests">—</span>
+            <span class="stat-label">Tests Taken</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-questions">—</span>
+            <span class="stat-label">Questions Answered</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-avg-score">—</span>
+            <span class="stat-label">Overall Average</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-last-assessed">—</span>
+            <span class="stat-label">Last Assessed</span>
+        </div>
+    </div>
+
+    <div class="grid-two">
+        <div class="panel-card">
+            <h3>Current Skill Profile</h3>
+            <p class="panel-hint">Based on your most recent skill assessment.</p>
+            <div id="radar-wrapper" class="radar-wrapper">
+                <p class="empty-state">Loading...</p>
+            </div>
+        </div>
+
+        <div class="panel-card">
+            <h3>Skill Gap Summary</h3>
+            <p class="panel-hint" id="gap-hint">Current level vs. target level for your role.</p>
+            <div id="gap-list" class="gap-list">
+                <p class="empty-state">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-card full-width">
+        <h3>Skill Gap Analysis</h3>
+        <p class="panel-hint">A closer look at where you stand against the target for each skill.</p>
+        <div id="gap-detail-grid" class="gap-detail-grid">
+            <p class="empty-state">Loading...</p>
+        </div>
+    </div>
+
+    <div class="panel-card full-width">
+        <h3>Topic Prioritization</h3>
+        <p class="panel-hint">Ranked by the size of the gap — start at the top.</p>
+        <div id="priority-list" class="priority-list">
+            <p class="empty-state">Loading...</p>
+        </div>
+    </div>
+
+    <div class="panel-card full-width">
+        <h3>Progress Over Time</h3>
+        <p class="panel-hint">Your overall assessment score across every attempt.</p>
+        <div id="progress-chart-wrapper" class="progress-chart-wrapper">
+            <p class="empty-state">Loading...</p>
+        </div>
+    </div>
+
+    <div class="panel-card full-width">
+        <h3>Test History</h3>
+        <p class="panel-hint">Every test you've taken — click one to review your answers.</p>
+        <div id="test-history-list" class="test-history-list">
+            <p class="empty-state">Loading...</p>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/evaluate-script.js') }}"></script>
+</body>
+</html>
