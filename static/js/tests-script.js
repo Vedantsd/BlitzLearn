@@ -1,8 +1,11 @@
+let currentUid = null;
+
 firebase.auth().onAuthStateChanged(user => {
     if (!user) {
         window.location.href = '/login';
     } else {
         console.log("Active Session:", user.email);
+        currentUid = user.uid;
 
         const photoEl = document.getElementById('user-photo');
         const initialEl = document.getElementById('user-initial');
@@ -113,7 +116,8 @@ async function generateTest() {
             body: JSON.stringify({
                 difficulty: testSetup.difficulty,
                 num_questions: testSetup.count,
-                source: testSetup.source
+                source: testSetup.source,
+                uid: currentUid
             })
         });
         const data = await response.json();
@@ -205,7 +209,7 @@ async function submitTest() {
         await fetch('/submit_test', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ test_id: currentTestId, score, total })
+            body: JSON.stringify({ test_id: currentTestId, score, total, uid: currentUid, answers: userAnswers })
         });
     } catch (error) {
         console.error('Failed to save test result:', error);
