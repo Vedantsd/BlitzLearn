@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <a href="/dashboard" class="icon-button" title="Back to Dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="profile-container">
+
+    <div class="profile-header-card">
+        <div class="profile-avatar" id="profile-avatar">
+            <img id="profile-photo" src="" alt="" style="display:none;">
+            <span id="profile-initial">?</span>
+        </div>
+        <div class="profile-header-info">
+            <h2 id="profile-name">Loading...</h2>
+            <p id="profile-role"></p>
+            <p id="profile-email" class="profile-email"></p>
+        </div>
+    </div>
+
+    <div class="grid-two">
+        <div class="panel-card">
+            <h3>Contact Details</h3>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value" id="info-email">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value" id="info-phone">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Age</span>
+                <span class="info-value" id="info-age">—</span>
+            </div>
+        </div>
+
+        <div class="panel-card">
+            <h3>Department &amp; Role</h3>
+            <div class="info-row">
+                <span class="info-label">Department</span>
+                <span class="info-value" id="info-department">—</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Designation</span>
+                <span class="info-value" id="info-designation">—</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-card full-width">
+        <h3>Skills</h3>
+        <p class="panel-hint">These skills drive your assessments and skill gap analysis.</p>
+
+        <div class="skill-input-row">
+            <input type="text" id="skill-name-input" placeholder="e.g. Python, SQL, Data Visualization">
+            <select id="skill-level-input">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate" selected>Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+            <button type="button" class="add-chip-button" onclick="addSkill()">+ Add</button>
+        </div>
+
+        <div id="skills-chips" class="chips-list">
+            <p class="empty-state">Loading...</p>
+        </div>
+    </div>
+
+    <div class="panel-card full-width" id="education-card" style="display:none;">
+        <h3>Education</h3>
+        <div id="education-list" class="detail-list"></div>
+    </div>
+
+    <div class="panel-card full-width" id="experience-card" style="display:none;">
+        <h3>Experience</h3>
+        <div id="experience-list" class="detail-list"></div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/profile-script.js') }}"></script>
+</body>
+</html>
