@@ -16,7 +16,10 @@ from langchain.prompts import PromptTemplate
 
 load_dotenv()
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "blitzlearn-dev-secret-change-me")
 
+# Hardcoded for now, per the current requirement — swap for a real admin
+# user store + hashed passwords before deploying this for real.
 ADMIN_USERNAME = "Admin"
 ADMIN_PASSWORD = "Password"
 
@@ -69,6 +72,11 @@ PREUPLOADED_BOOKS = [
 
 BOOKS_DIR = os.path.join(app.root_path, "static", "books")
 
+# ---------------------------------------------------------------------------
+# Questions database (SQLite). Every AI-generated test question is stored
+# here, tagged by topic + difficulty, so it can be reused later to assess
+# new users without calling the LLM again ("question bank" mode).
+# ---------------------------------------------------------------------------
 DB_PATH = os.path.join(app.root_path, "questions.db")
 
 
@@ -205,6 +213,8 @@ def init_db():
     """)
     conn.commit()
 
+    # Lightweight migration: add columns to tables that already existed
+    # before this column was introduced, without touching existing data.
     _ensure_column(conn, "users", "status", "TEXT DEFAULT 'active'")
     _ensure_column(conn, "tests", "user_id", "INTEGER")
     _ensure_column(conn, "test_attempts", "user_id", "INTEGER")
@@ -220,6 +230,18 @@ def _ensure_column(conn, table, column, coltype_and_default):
 
 
 def _update_skill_competency_and_progress(user_id, test_id):
+    """Turns ONE submitted test into running skill-competency evidence.
+
+    Any question in the test whose topic matches one of the user's declared
+    skills (case-insensitive) updates that skill's running correct/total
+    tally in skill_competency — this is what makes the radar chart, gap
+    analysis, and progress trend move from EVERY test taken (practice tests
+    from notes, the question bank, and the formal skill assessment alike),
+    not just the one-time onboarding assessment.
+
+    Idempotent: marks tests.competency_applied = 1 so re-running the
+    startup backfill (or being called twice) never double-counts a test.
+    """
     conn = get_db()
     cur = conn.cursor()
 
@@ -254,7 +276,7 @@ def _update_skill_competency_and_progress(user_id, test_id):
     for r in rows:
         topic_key = (r["topic"] or "").strip().lower()
         if topic_key not in declared_skills:
-            continue  
+            continue  # this question's topic isn't one of the user's declared skills — skip it
 
         matched_any = True
         skill_name = declared_skills[topic_key]
@@ -291,6 +313,9 @@ def _update_skill_competency_and_progress(user_id, test_id):
 
 
 def _backfill_skill_competency():
+    """Runs once at startup: catches any already-submitted tests (like
+    tests taken before this feature existed) that never fed into skill
+    competency, and applies them now."""
     conn = get_db()
     pending = conn.execute(
         """SELECT DISTINCT t.id, t.user_id FROM tests t
@@ -440,6 +465,7 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
 
 @app.route('/')
 def dashboard():
+    """Landing page after login."""
     return render_template('dashboard.html')
 
 
@@ -469,6 +495,8 @@ def roadmap():
 
 
 def admin_required(view_func):
+    """Guards both admin pages and admin/api routes. Pages redirect to the
+    admin login screen; API calls get a plain 401 JSON response."""
     @wraps(view_func)
     def wrapped(*args, **kwargs):
         if not session.get("is_admin"):
@@ -514,6 +542,11 @@ def admin_dashboard_page():
 @app.route('/signup')
 def signup():
     return render_template('signup.html')
+
+
+@app.route('/profile')
+def profile_page():
+    return render_template('profile.html')
 
 
 @app.route('/competency-test')
@@ -618,6 +651,9 @@ def select_book():
 
 @app.route('/api/save_profile', methods=['POST'])
 def save_profile():
+    """Called from signup.html on final submit. Upserts the user's profile
+    (basic details, department/designation) and replaces their education,
+    skills, and experience child rows."""
     data = request.json or {}
     uid = data.get("uid")
     if not uid:
@@ -701,7 +737,7 @@ def get_profile(uid):
         return jsonify({"error": "Profile not found"}), 404
 
     skills = conn.execute(
-        "SELECT skill_name, self_rated_level FROM user_skills WHERE user_id = ?", (user["id"],)
+        "SELECT id, skill_name, self_rated_level FROM user_skills WHERE user_id = ?", (user["id"],)
     ).fetchall()
     education = conn.execute(
         "SELECT degree, institution, year FROM user_education WHERE user_id = ?", (user["id"],)
@@ -720,8 +756,65 @@ def get_profile(uid):
     })
 
 
+@app.route('/api/profile/<uid>/skills', methods=['POST'])
+def add_profile_skill(uid):
+    data = request.json or {}
+    name = (data.get("name") or "").strip()
+    level = data.get("level", "Beginner")
+
+    if not name:
+        return jsonify({"error": "Skill name is required"}), 400
+
+    conn = get_db()
+    user = conn.execute("SELECT id FROM users WHERE uid = ?", (uid,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Profile not found"}), 404
+
+    existing = conn.execute(
+        "SELECT id FROM user_skills WHERE user_id = ? AND LOWER(skill_name) = LOWER(?)",
+        (user["id"], name)
+    ).fetchone()
+    if existing:
+        conn.close()
+        return jsonify({"error": "That skill is already on your profile"}), 400
+
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO user_skills (user_id, skill_name, self_rated_level) VALUES (?, ?, ?)",
+        (user["id"], name, level)
+    )
+    skill_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+
+    return jsonify({"id": skill_id, "skill_name": name, "self_rated_level": level})
+
+
+@app.route('/api/profile/<uid>/skills/<int:skill_id>', methods=['DELETE'])
+def remove_profile_skill(uid, skill_id):
+    conn = get_db()
+    user = conn.execute("SELECT id FROM users WHERE uid = ?", (uid,)).fetchone()
+    if not user:
+        conn.close()
+        return jsonify({"error": "Profile not found"}), 404
+
+    cur = conn.cursor()
+    cur.execute("DELETE FROM user_skills WHERE id = ? AND user_id = ?", (skill_id, user["id"]))
+    deleted = cur.rowcount
+    conn.commit()
+    conn.close()
+
+    if not deleted:
+        return jsonify({"error": "Skill not found"}), 404
+
+    return jsonify({"message": "Skill removed"})
+
+
 @app.route('/processed_status', methods=['GET'])
 def processed_status():
+    """Tells the Dashboard whether notes have been processed yet, so the
+    Chat/Tests/Evaluate/Roadmap tiles can be locked until they are."""
     return jsonify({"processed": vector_store is not None})
 
 
@@ -749,6 +842,9 @@ def remove_staged_file(filename):
 
 @app.route('/update_settings', methods=['POST'])
 def update_settings():
+    """Called from chat.html's 'Update Settings' button. Only updates
+    session_context (language, weightage, bloom level, course outcomes,
+    YouTube URL) — does NOT touch staged_files or vector_store."""
     global session_context
 
     data = request.json or {}
@@ -778,6 +874,9 @@ def update_settings():
 
 @app.route('/process', methods=['POST'])
 def process_content():
+    """Called from dashboard.html's 'Process Content' button. Builds the
+    vector store from staged files, using whatever settings were last
+    saved via /update_settings (defaults apply if none were set yet)."""
     global vector_store, session_context, staged_files
 
     if not staged_files:
@@ -797,6 +896,11 @@ def process_content():
     return jsonify({"message": f"Content processed at {session_context['bloom_level']} level!"})
 
 
+# ---------------------------------------------------------------------------
+# Tests: AI-generated MCQ tests from the processed notes, backed by the
+# questions.db question bank.
+# ---------------------------------------------------------------------------
+
 VALID_DIFFICULTIES = ("easy", "medium", "hard")
 VALID_QUESTION_COUNTS = (10, 20, 30, 40, 50)
 
@@ -808,14 +912,23 @@ DIFFICULTY_GUIDES = {
 
 
 def _clean_json_response(raw_text):
+    """Strip markdown code fences etc. so json.loads() succeeds."""
     cleaned = raw_text.strip()
     cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.MULTILINE)
     return cleaned.strip()
 
 
 def _looks_like_front_matter(text):
+    """Filters out chunks that are ABOUT the book itself — title page,
+    copyright, author bio, preface, table of contents, or the book's own
+    pedagogical apparatus (practice sets, review questions, exercises,
+    edition-to-edition changes) — rather than actual subject content, so
+    they never end up in the LLM's context."""
     lowered = text.lower()
 
+    # Strong markers: content that is unambiguously about the book's
+    # structure/history rather than the subject. A single hit is enough
+    # to exclude the chunk.
     strong_markers = [
         "new to this edition", "changes in this edition", "changes to this edition",
         "what's new in this edition", "revised in this edition",
@@ -831,6 +944,9 @@ def _looks_like_front_matter(text):
     if any(marker in lowered for marker in strong_markers):
         return True
 
+    # Weak markers: things like "published" or "www." can appear once in
+    # ordinary subject content, so only exclude when several appear together
+    # (a strong sign of a genuine copyright/imprint page).
     weak_markers = [
         "isbn", "copyright ©", "all rights reserved", "printed in",
         "library of congress", "about the author", "acknowledgments",
@@ -843,6 +959,8 @@ def _looks_like_front_matter(text):
 
 
 def _gather_test_context(num_questions):
+    """Pulls a topically diverse, content-only sample of chunks from the
+    processed notes for question generation."""
     seed_queries = [
         "definitions and key concepts explained",
         "how a process, mechanism, or algorithm works step by step",
@@ -870,6 +988,8 @@ def _gather_test_context(num_questions):
 
 
 def _generate_questions_from_notes(difficulty, num_questions):
+    """Uses the processed vector_store + Gemini to write new MCQs, then
+    persists them (and the test itself) into questions.db."""
     global vector_store, staged_files
 
     if vector_store is None:
@@ -880,6 +1000,9 @@ def _generate_questions_from_notes(difficulty, num_questions):
     if not context.strip():
         return None, ("Couldn't find enough usable content in your notes to build a test.", 400)
 
+    # Ask for a few extra questions since some will get dropped by the
+    # quality filters below — this keeps the final count close to what
+    # the user actually asked for.
     generation_target = num_questions + max(3, num_questions // 3)
 
     prompt = f"""
@@ -946,6 +1069,8 @@ def _generate_questions_from_notes(difficulty, num_questions):
         print(f"Error generating test: {str(e)}")
         return None, ("Failed to generate the test. Please try again.", 500)
 
+    # Safety net: drop any question that still slipped in book-metadata or
+    # book-structure trivia instead of real subject content.
     banned_phrases = (
         "author", "publisher", "isbn", "the book", "this book", "edition",
         "table of contents", "practice set", "review question", "exercises",
@@ -962,6 +1087,8 @@ def _generate_questions_from_notes(difficulty, num_questions):
     if not questions:
         return None, ("Generated questions didn't pass quality checks. Please try again.", 500)
 
+    # Trim back to what the user actually asked for (we over-generated on
+    # purpose to absorb the filtering above).
     questions = questions[:num_questions]
 
     source_title = ", ".join(sorted({f.get("title", f["filename"]) for f in staged_files})) or "Uploaded Notes"
@@ -1003,7 +1130,7 @@ def _generate_questions_from_notes(difficulty, num_questions):
                 "explanation": q.get("explanation", "")
             })
         except (KeyError, TypeError):
-            continue  
+            continue  # skip malformed items rather than failing the whole test
 
     conn.commit()
     conn.close()
@@ -1017,6 +1144,8 @@ def _generate_questions_from_notes(difficulty, num_questions):
 
 
 def _generate_test_from_bank(difficulty, num_questions):
+    """Assembles a test from previously stored questions instead of calling
+    the LLM — this is the path used to assess new users."""
     conn = get_db()
     rows = conn.execute(
         "SELECT * FROM questions WHERE difficulty = ? ORDER BY RANDOM() LIMIT ?",
@@ -1071,8 +1200,8 @@ def generate_test():
     data = request.json or {}
     difficulty = data.get("difficulty", "medium")
     num_questions = data.get("num_questions", 10)
-    source = data.get("source", "notes")  
-    uid = data.get("uid")  
+    source = data.get("source", "notes")  # "notes" | "bank"
+    uid = data.get("uid")  # optional — links this test to a user for their Evaluate history
 
     if difficulty not in VALID_DIFFICULTIES:
         difficulty = "medium"
@@ -1110,7 +1239,7 @@ def submit_test():
     score = data.get("score")
     total = data.get("total")
     uid = data.get("uid")
-    answers = data.get("answers", {}) 
+    answers = data.get("answers", {})  # { "<question_id>": "a" }
 
     if test_id is None or score is None or total is None:
         return jsonify({"error": "Missing test_id, score, or total"}), 400
@@ -1147,6 +1276,8 @@ def submit_test():
 
 @app.route('/questions_bank', methods=['GET'])
 def questions_bank():
+    """Lists how many stored questions exist per topic/difficulty — useful
+    later for an admin view of the growing question bank."""
     conn = get_db()
     rows = conn.execute(
         "SELECT topic, difficulty, COUNT(*) as count FROM questions GROUP BY topic, difficulty ORDER BY topic"
@@ -1155,6 +1286,14 @@ def questions_bank():
     return jsonify([dict(row) for row in rows])
 
 
+# ---------------------------------------------------------------------------
+# Initial skill/competency assessment — generated from the skills a new user
+# entered during signup rather than from any uploaded notes.
+# ---------------------------------------------------------------------------
+
+# 20 questions is for demonstration only; bump this once deployed (e.g. 50+).
+# The 50/25/25 easy/medium/hard split is recalculated automatically for
+# whatever total you set here.
 SKILL_TEST_TOTAL_QUESTIONS = 20
 
 
@@ -1328,10 +1467,12 @@ def _proficiency_label(percent):
 
 @app.route('/submit_skill_test', methods=['POST'])
 def submit_skill_test():
+    """Scores the assessment SERVER-SIDE (unlike the practice tests, which
+    score client-side) since this result feeds a formal competency report."""
     data = request.json or {}
     uid = data.get("uid")
     test_id = data.get("test_id")
-    answers = data.get("answers", {})  
+    answers = data.get("answers", {})  # { "<question_id>": "a" }
 
     if not uid or not test_id:
         return jsonify({"error": "Missing uid or test_id"}), 400
@@ -1415,6 +1556,8 @@ def submit_skill_test():
 
 @app.route('/api/skill_report/<uid>', methods=['GET'])
 def get_latest_skill_report(uid):
+    """Fallback for report.html if sessionStorage is empty (e.g. page refresh)
+    — returns the user's most recent skill assessment report."""
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE uid = ?", (uid,)).fetchone()
     if not user:
@@ -1440,6 +1583,17 @@ def get_latest_skill_report(uid):
     })
 
 
+# ---------------------------------------------------------------------------
+# Evaluate page — test history, skill radar, gap analysis, topic
+# prioritization, and progress-over-time. All keyed off the same
+# tests / test_attempts / user_answers / skill_reports tables the rest of
+# the app already writes to.
+# ---------------------------------------------------------------------------
+
+# Placeholder competency-target model: since there's no real job-role /
+# iGOT competency framework wired in yet, every skill is measured against
+# a flat target percentage, lightly adjusted by designation seniority.
+# Swap this for real per-role target data once that framework exists.
 DEFAULT_SKILL_TARGET_PERCENT = 75
 
 
@@ -1501,6 +1655,9 @@ def get_my_tests(uid):
 
 @app.route('/api/test_detail/<int:test_id>', methods=['GET'])
 def get_test_detail(test_id):
+    """Full question-by-question breakdown for one test, including what the
+    user actually selected — powers the expandable row in Evaluate's test
+    history list."""
     conn = get_db()
     rows = conn.execute(
         """SELECT q.id, q.topic, q.difficulty, q.question_text, q.option_a, q.option_b,
@@ -1533,6 +1690,10 @@ def get_test_detail(test_id):
 
 @app.route('/api/skill_radar/<uid>', methods=['GET'])
 def get_skill_radar(uid):
+    """Current competency per declared skill, for the radar/spider chart.
+    Reads the running skill_competency tally, which is updated by EVERY
+    test taken (practice tests, question bank, and the formal assessment
+    alike) — not just a one-time snapshot."""
     user = _get_user_row(uid)
     if not user:
         return jsonify({"error": "Profile not found."}), 404
@@ -1567,6 +1728,10 @@ def get_skill_radar(uid):
 
 @app.route('/api/skill_gap/<uid>', methods=['GET'])
 def get_skill_gap(uid):
+    """Current vs target percentage per skill, sorted by biggest gap first
+    — this list doubles as the Topic Prioritization ranking (largest gap =
+    highest priority to study next). Current level comes from the running
+    skill_competency tally (same source as the radar chart)."""
     user = _get_user_row(uid)
     if not user:
         return jsonify({"error": "Profile not found."}), 404
@@ -1620,6 +1785,9 @@ def get_skill_gap(uid):
 
 @app.route('/api/progress_history/<uid>', methods=['GET'])
 def get_progress_history(uid):
+    """Overall competency percentage over time, with one point per test
+    that actually touched a declared skill — this now reflects EVERY test
+    taken, not just the formal assessment."""
     user = _get_user_row(uid)
     if not user:
         return jsonify({"error": "Profile not found."}), 404
@@ -1728,7 +1896,13 @@ def prioritize_topics():
         return jsonify({"error": "Failed to prioritize topics. Please try again."}), 500
 
 
+# ---------------------------------------------------------------------------
+# Admin API — user management, search/sort, and reporting
+# ---------------------------------------------------------------------------
+
 def _latest_reports(conn):
+    """One row per user: their most recent skill_reports entry, joined with
+    the user's name/department/designation."""
     return conn.execute("""
         SELECT sr.*, u.name, u.department, u.designation FROM skill_reports sr
         INNER JOIN (
@@ -1753,10 +1927,13 @@ def admin_departments():
 @app.route('/admin/api/users', methods=['GET'])
 @admin_required
 def admin_list_users():
+    """Lists all users with search (name/email), department filter, status
+    filter, and sorting — all driven by query params so the dashboard can
+    hit this one endpoint for every toolbar combination."""
     q = request.args.get("q", "").strip().lower()
     department = request.args.get("department", "").strip()
     status_filter = request.args.get("status", "").strip()
-    sort_by = request.args.get("sort_by", "name")  
+    sort_by = request.args.get("sort_by", "name")  # name | department | score | created_at
 
     conn = get_db()
     users = conn.execute("SELECT * FROM users").fetchall()
@@ -1831,6 +2008,9 @@ def admin_update_user_status(user_id):
 @app.route('/admin/api/users/<int:user_id>', methods=['DELETE'])
 @admin_required
 def admin_delete_user(user_id):
+    """Deletes the user and all their child records from BlitzLearn's own
+    database. Does NOT delete their Firebase Auth account — that requires
+    the Firebase Admin SDK (a service account), which isn't wired up here."""
     conn = get_db()
     cur = conn.cursor()
 
@@ -1856,6 +2036,9 @@ def admin_delete_user(user_id):
 @app.route('/admin/api/performance', methods=['GET'])
 @admin_required
 def admin_performance():
+    """Ranks every user who has at least one skill report, by their latest
+    overall score percentage — powers the top/bottom performer cards and
+    the full leaderboard."""
     conn = get_db()
     reports = _latest_reports(conn)
     conn.close()
@@ -1888,6 +2071,9 @@ def admin_performance():
 @app.route('/admin/api/department_report', methods=['GET'])
 @admin_required
 def admin_department_report():
+    """Per-department rollup: headcount, how many have taken the skill
+    assessment, average overall score, and average per-skill score across
+    everyone assessed in that department."""
     conn = get_db()
     users = conn.execute("SELECT * FROM users").fetchall()
     reports = _latest_reports(conn)
