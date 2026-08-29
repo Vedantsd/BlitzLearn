@@ -4,3 +4,4 @@ static/js/firebase-config.js
 static/books/
 questions.db
 __pycache__
+firebase-service-account.json
