@@ -121,7 +121,7 @@ async function removeHistoryItem(index) {
 
     if (item.filename) {
         try {
-            await fetch(`/staged_files/${encodeURIComponent(item.filename)}`, { method: 'DELETE' });
+            await authFetch(`/staged_files/${encodeURIComponent(item.filename)}`, { method: 'DELETE' });
         } catch (e) {
         }
     }
@@ -213,7 +213,11 @@ async function handleFileUpload() {
     }
 
     try {
-        const response = await fetch('/upload_stage', { method: 'POST', body: formData });
+        // Note: authFetch attaches the Authorization header but leaves the
+        // FormData body/Content-Type alone (the browser sets the correct
+        // multipart boundary automatically as long as we don't set our own
+        // Content-Type header here).
+        const response = await authFetch('/upload_stage', { method: 'POST', body: formData });
         const data = await response.json();
 
         if (!response.ok) throw new Error(data.error || 'Upload failed');
@@ -255,7 +259,7 @@ async function processContent() {
             progressText.textContent = 'Creating embeddings...';
         }, 500);
 
-        const response = await fetch('/process', { method: 'POST' });
+        const response = await authFetch('/process', { method: 'POST' });
         const data = await response.json();
 
         if (!response.ok) {
@@ -310,6 +314,7 @@ async function loadBooks() {
     grid.innerHTML = '<div class="books-loading">Loading books...</div>';
 
     try {
+        // Public, non-personal listing — no auth needed.
         const response = await fetch('/api/books');
         const books = await response.json();
 
@@ -338,7 +343,7 @@ async function selectBook(bookId, buttonEl) {
     buttonEl.textContent = 'Adding...';
 
     try {
-        const response = await fetch('/select_book', {
+        const response = await authFetch('/select_book', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ book_id: bookId })
@@ -358,7 +363,7 @@ async function selectBook(bookId, buttonEl) {
 
 async function refreshProcessedStatus() {
     try {
-        const response = await fetch('/processed_status');
+        const response = await authFetch('/processed_status');
         const data = await response.json();
         setTilesEnabled(data.processed);
     } catch (error) {
@@ -369,7 +374,7 @@ async function refreshProcessedStatus() {
 function setTilesEnabled(enabled) {
     notesProcessed = enabled;
     document.querySelectorAll('.tile').forEach(tile => {
-        if (tile.id === 'evaluate-tile') return;
+        if (tile.id === 'evaluate-tile' || tile.id === 'roadmap-tile') return;
         tile.classList.toggle('tile-locked', !enabled);
     });
 }
@@ -377,6 +382,10 @@ function setTilesEnabled(enabled) {
 function goToTile(target) {
     if (target === 'evaluate') {
         window.location.href = '/evaluate';
+        return;
+    }
+    if (target === 'roadmap') {
+        window.location.href = '/roadmap';
         return;
     }
 

@@ -16,6 +16,11 @@ firebase.auth().onAuthStateChanged(user => {
             photoEl.style.display = 'none';
             initialEl.style.display = 'block';
         }
+
+        // Moved here (was previously fired unconditionally on
+        // DOMContentLoaded) so it only ever runs once we know who's
+        // signed in — authFetch needs a signed-in user to attach a token.
+        refreshStagedFilesBanner();
     }
 });
 
@@ -58,7 +63,7 @@ function updateThemeIcon(isDark) {
 async function refreshStagedFilesBanner() {
     const textEl = document.getElementById('staged-files-text');
     try {
-        const response = await fetch('/staged_files');
+        const response = await authFetch('/staged_files');
         const files = await response.json();
 
         if (files.length === 0) {
@@ -87,7 +92,7 @@ async function updateSettings() {
     statusEl.className = 'upload-status';
 
     try {
-        const response = await fetch('/update_settings', {
+        const response = await authFetch('/update_settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -147,7 +152,7 @@ async function askQuestion() {
     chatBox.scrollTop = chatBox.scrollHeight;
 
     try {
-        const response = await fetch('/ask', {
+        const response = await authFetch('/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question: query })
@@ -170,7 +175,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.toggle('dark', isDark);
     updateThemeIcon(isDark);
     updateHeaderLogo(isDark);
-    refreshStagedFilesBanner();
+    // refreshStagedFilesBanner() now runs from onAuthStateChanged above,
+    // once we actually know who's signed in.
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -258,7 +264,7 @@ async function setStudyMode() {
     }
 
     try {
-        const response = await fetch('/mode-change', {
+        const response = await authFetch('/mode-change', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -303,7 +309,7 @@ async function prioritizeTopics() {
     topicsLoading.style.display = 'block';
 
     try {
-        const response = await fetch('/prioritize_topics', {
+        const response = await authFetch('/prioritize_topics', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
