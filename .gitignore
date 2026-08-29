@@ -1,7 +1,6 @@
 .env
 static/js/firebase-config.js
 /.vscode
-static/books/
 questions.db
 __pycache__
 firebase-service-account.json
