@@ -211,6 +211,7 @@ async function submitTest() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ test_id: currentTestId, score, total, uid: currentUid, answers: userAnswers })
         });
+        BLData.invalidate();
     } catch (error) {
         console.error('Failed to save test result:', error);
     }

@@ -66,13 +66,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadEvaluateData() {
-    const [, , history, tests] = await Promise.all([
-        loadRadar(),
-        loadGapAndPriority(),
-        loadProgress(),
-        loadTestHistory(),
-    ]);
-    updateStats(tests || [], history || []);
+    try {
+        const core = await BLData.ready();
+        renderRadar(core.skill_radar);
+        renderGapAndPriority(core.skill_gap);
+        const history = renderProgress(core.progress_history);
+        const tests = renderTestHistory(core.my_tests);
+        updateStats(tests || [], history || []);
+    } catch (error) {
+        document.getElementById('radar-wrapper').innerHTML = '<p class="empty-state">Failed to load your skill profile.</p>';
+    }
+
+    document.addEventListener('bl-core-updated', e => {
+        renderRadar(e.detail.skill_radar);
+        renderGapAndPriority(e.detail.skill_gap);
+        const history = renderProgress(e.detail.progress_history);
+        const tests = renderTestHistory(e.detail.my_tests);
+        updateStats(tests || [], history || []);
+    });
 }
 
 function updateStats(tests, progressHistory) {
@@ -94,21 +105,15 @@ function updateStats(tests, progressHistory) {
     }
 }
 
-async function loadRadar() {
+function renderRadar(data) {
     const wrapper = document.getElementById('radar-wrapper');
-    try {
-        const response = await fetch(`/api/skill_radar/${currentUid}`);
-        const data = await response.json();
 
-        if (!data.has_data || data.skills.length === 0) {
-            wrapper.innerHTML = `<p class="empty-state">No skill assessment yet. <a href="/competency-test">Take it now</a>.</p>`;
-            return;
-        }
-
-        wrapper.innerHTML = buildRadarSVG(data.skills);
-    } catch (error) {
-        wrapper.innerHTML = '<p class="empty-state">Failed to load your skill profile.</p>';
+    if (!data || !data.has_data || data.skills.length === 0) {
+        wrapper.innerHTML = `<p class="empty-state">No skill assessment yet. <a href="/competency-test">Take it now</a>.</p>`;
+        return;
     }
+
+    wrapper.innerHTML = buildRadarSVG(data.skills);
 }
 
 function buildRadarSVG(skills) {
@@ -181,115 +186,99 @@ function buildRadarSVG(skills) {
     `;
 }
 
-async function loadGapAndPriority() {
+function renderGapAndPriority(data) {
     const gapList = document.getElementById('gap-list');
     const gapDetailGrid = document.getElementById('gap-detail-grid');
     const priorityList = document.getElementById('priority-list');
     const gapHint = document.getElementById('gap-hint');
 
-    try {
-        const response = await fetch(`/api/skill_gap/${currentUid}`);
-        const data = await response.json();
-
-        if (!data.has_data || data.skills.length === 0) {
-            const emptyMsg = '<p class="empty-state">No skill assessment yet. <a href="/competency-test">Take it now</a>.</p>';
-            gapList.innerHTML = emptyMsg;
-            gapDetailGrid.innerHTML = emptyMsg;
-            priorityList.innerHTML = emptyMsg;
-            return;
-        }
-
-        gapHint.textContent = `Current level vs. a ${data.target_percent}% target for your role.`;
-
-        const byName = [...data.skills].sort((a, b) => a.skill.localeCompare(b.skill));
-        gapList.innerHTML = byName.map(s => `
-            <div class="gap-row">
-                <div class="gap-row-header">
-                    <span class="gap-skill-name">${escapeHtml(s.skill)}</span>
-                    <span class="gap-numbers">${s.current_percent}% / ${s.target_percent}% target</span>
-                </div>
-                <div class="gap-track">
-                    <div class="gap-current-fill" style="width:${s.current_percent}%;"></div>
-                    <div class="gap-target-marker" style="left:${s.target_percent}%;"></div>
-                </div>
-            </div>
-        `).join('');
-
-        gapDetailGrid.innerHTML = data.skills.map(s => {
-            const priorityClass = s.priority.toLowerCase().replace(' ', '');
-            return `
-                <div class="gap-detail-card priority-${priorityClass}">
-                    <div class="gap-detail-header">
-                        <span class="gap-detail-name">${escapeHtml(s.skill)}</span>
-                    </div>
-                    <div class="gap-detail-numbers">
-                        <div class="gap-detail-number-block">
-                            <span class="gap-detail-number current">${s.current_percent}%</span>
-                            <span class="gap-detail-number-label">Current</span>
-                        </div>
-                        <span class="gap-detail-divider">/</span>
-                        <div class="gap-detail-number-block">
-                            <span class="gap-detail-number target">${s.target_percent}%</span>
-                            <span class="gap-detail-number-label">Target</span>
-                        </div>
-                        <div class="gap-detail-gap-tag">
-                            <div class="gap-detail-gap-value ${priorityClass}">${s.gap > 0 ? '-' + s.gap : '0'}</div>
-                            <span class="gap-detail-gap-label">Gap</span>
-                        </div>
-                    </div>
-                    <div class="gap-detail-track">
-                        <div class="gap-detail-fill ${priorityClass}" style="width:${s.current_percent}%;"></div>
-                        <div class="gap-detail-target-marker" style="left:${s.target_percent}%;" title="Target: ${s.target_percent}%"></div>
-                    </div>
-                    <div class="gap-detail-footer">
-                        <span class="gap-detail-badge ${priorityClass}">${escapeHtml(s.priority)} Priority</span>
-                        <span class="gap-detail-legend">| marks target</span>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        priorityList.innerHTML = data.skills.map((s, index) => `
-            <div class="priority-row">
-                <div class="priority-rank">#${index + 1}</div>
-                <div class="priority-info">
-                    <div class="priority-skill">${escapeHtml(s.skill)}</div>
-                    <div class="priority-detail">${s.current_percent}% now · ${s.target_percent}% target${s.gap > 0 ? ' · ' + s.gap + ' point gap' : ''}</div>
-                </div>
-                <span class="priority-badge ${s.priority.toLowerCase().replace(' ', '')}">${escapeHtml(s.priority)}</span>
-            </div>
-        `).join('');
-    } catch (error) {
-        gapList.innerHTML = '<p class="empty-state">Failed to load gap analysis.</p>';
-        gapDetailGrid.innerHTML = '<p class="empty-state">Failed to load gap analysis.</p>';
-        priorityList.innerHTML = '<p class="empty-state">Failed to load priorities.</p>';
+    if (!data || !data.has_data || data.skills.length === 0) {
+        const emptyMsg = '<p class="empty-state">No skill assessment yet. <a href="/competency-test">Take it now</a>.</p>';
+        gapList.innerHTML = emptyMsg;
+        gapDetailGrid.innerHTML = emptyMsg;
+        priorityList.innerHTML = emptyMsg;
+        return;
     }
+
+    gapHint.textContent = `Current level vs. a ${data.target_percent}% target for your role.`;
+
+    const byName = [...data.skills].sort((a, b) => a.skill.localeCompare(b.skill));
+    gapList.innerHTML = byName.map(s => `
+        <div class="gap-row">
+            <div class="gap-row-header">
+                <span class="gap-skill-name">${escapeHtml(s.skill)}</span>
+                <span class="gap-numbers">${s.current_percent}% / ${s.target_percent}% target</span>
+            </div>
+            <div class="gap-track">
+                <div class="gap-current-fill" style="width:${s.current_percent}%;"></div>
+                <div class="gap-target-marker" style="left:${s.target_percent}%;"></div>
+            </div>
+        </div>
+    `).join('');
+
+    gapDetailGrid.innerHTML = data.skills.map(s => {
+        const priorityClass = s.priority.toLowerCase().replace(' ', '');
+        return `
+            <div class="gap-detail-card priority-${priorityClass}">
+                <div class="gap-detail-header">
+                    <span class="gap-detail-name">${escapeHtml(s.skill)}</span>
+                </div>
+                <div class="gap-detail-numbers">
+                    <div class="gap-detail-number-block">
+                        <span class="gap-detail-number current">${s.current_percent}%</span>
+                        <span class="gap-detail-number-label">Current</span>
+                    </div>
+                    <span class="gap-detail-divider">/</span>
+                    <div class="gap-detail-number-block">
+                        <span class="gap-detail-number target">${s.target_percent}%</span>
+                        <span class="gap-detail-number-label">Target</span>
+                    </div>
+                    <div class="gap-detail-gap-tag">
+                        <div class="gap-detail-gap-value ${priorityClass}">${s.gap > 0 ? '-' + s.gap : '0'}</div>
+                        <span class="gap-detail-gap-label">Gap</span>
+                    </div>
+                </div>
+                <div class="gap-detail-track">
+                    <div class="gap-detail-fill ${priorityClass}" style="width:${s.current_percent}%;"></div>
+                    <div class="gap-detail-target-marker" style="left:${s.target_percent}%;" title="Target: ${s.target_percent}%"></div>
+                </div>
+                <div class="gap-detail-footer">
+                    <span class="gap-detail-badge ${priorityClass}">${escapeHtml(s.priority)} Priority</span>
+                    <span class="gap-detail-legend">| marks target</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    priorityList.innerHTML = data.skills.map((s, index) => `
+        <div class="priority-row">
+            <div class="priority-rank">#${index + 1}</div>
+            <div class="priority-info">
+                <div class="priority-skill">${escapeHtml(s.skill)}</div>
+                <div class="priority-detail">${s.current_percent}% now · ${s.target_percent}% target${s.gap > 0 ? ' · ' + s.gap + ' point gap' : ''}</div>
+            </div>
+            <span class="priority-badge ${s.priority.toLowerCase().replace(' ', '')}">${escapeHtml(s.priority)}</span>
+        </div>
+    `).join('');
 }
 
 let progressHistoryCache = [];
 
-async function loadProgress() {
+function renderProgress(history) {
     const wrapper = document.getElementById('progress-chart-wrapper');
-    try {
-        const response = await fetch(`/api/progress_history/${currentUid}`);
-        const history = await response.json();
-        progressHistoryCache = history;
+    progressHistoryCache = history || [];
 
-        if (history.length === 0) {
-            wrapper.innerHTML = '<p class="empty-state">No assessments yet.</p>';
-            return history;
-        }
-        if (history.length === 1) {
-            wrapper.innerHTML = `<p class="empty-state">You've taken 1 assessment so far — scoring <strong>${history[0].percent}%</strong>. Take another later to see your trend.</p>`;
-            return history;
-        }
-
-        wrapper.innerHTML = buildProgressSVG(history);
-        return history;
-    } catch (error) {
-        wrapper.innerHTML = '<p class="empty-state">Failed to load your progress.</p>';
-        return [];
+    if (progressHistoryCache.length === 0) {
+        wrapper.innerHTML = '<p class="empty-state">No assessments yet.</p>';
+        return progressHistoryCache;
     }
+    if (progressHistoryCache.length === 1) {
+        wrapper.innerHTML = `<p class="empty-state">You've taken 1 assessment so far — scoring <strong>${progressHistoryCache[0].percent}%</strong>. Take another later to see your trend.</p>`;
+        return progressHistoryCache;
+    }
+
+    wrapper.innerHTML = buildProgressSVG(progressHistoryCache);
+    return progressHistoryCache;
 }
 
 function buildProgressSVG(history) {
@@ -338,42 +327,36 @@ function buildProgressSVG(history) {
 
 const testDetailCache = {};
 
-async function loadTestHistory() {
+function renderTestHistory(tests) {
     const list = document.getElementById('test-history-list');
-    try {
-        const response = await fetch(`/api/my_tests/${currentUid}`);
-        const tests = await response.json();
+    tests = tests || [];
 
-        if (tests.length === 0) {
-            list.innerHTML = '<p class="empty-state">You haven\'t taken any tests yet.</p>';
-            return tests;
-        }
-
-        list.innerHTML = tests.map(t => `
-            <div class="test-history-row" id="test-row-${t.test_id}">
-                <div class="test-history-header" onclick="toggleTestRow(${t.test_id})">
-                    <div class="test-history-info">
-                        <span class="test-history-title">${escapeHtml(t.source_title || 'Test')} · ${escapeHtml(capitalize(t.difficulty))}</span>
-                        <span class="test-history-meta">${t.num_questions} questions · ${formatDateShort(t.created_at)}</span>
-                    </div>
-                    <div class="test-history-right">
-                        ${t.attempted
-                            ? `<span class="test-history-score">${t.percent}%</span>`
-                            : `<span class="test-history-score no-attempt">Not submitted</span>`}
-                        <svg class="expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="test-history-detail" id="test-detail-${t.test_id}"></div>
-            </div>
-        `).join('');
-
+    if (tests.length === 0) {
+        list.innerHTML = '<p class="empty-state">You haven\'t taken any tests yet.</p>';
         return tests;
-    } catch (error) {
-        list.innerHTML = '<p class="empty-state">Failed to load test history.</p>';
-        return [];
     }
+
+    list.innerHTML = tests.map(t => `
+        <div class="test-history-row" id="test-row-${t.test_id}">
+            <div class="test-history-header" onclick="toggleTestRow(${t.test_id})">
+                <div class="test-history-info">
+                    <span class="test-history-title">${escapeHtml(t.source_title || 'Test')} · ${escapeHtml(capitalize(t.difficulty))}</span>
+                    <span class="test-history-meta">${t.num_questions} questions · ${formatDateShort(t.created_at)}</span>
+                </div>
+                <div class="test-history-right">
+                    ${t.attempted
+                        ? `<span class="test-history-score">${t.percent}%</span>`
+                        : `<span class="test-history-score no-attempt">Not submitted</span>`}
+                    <svg class="expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="test-history-detail" id="test-detail-${t.test_id}"></div>
+        </div>
+    `).join('');
+
+    return tests;
 }
 
 async function toggleTestRow(testId) {

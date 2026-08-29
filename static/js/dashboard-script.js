@@ -1,4 +1,5 @@
 let currentUserEmail = null;
+let currentUserUid = null;
 let notesProcessed = false;
 
 firebase.auth().onAuthStateChanged(user => {
@@ -7,6 +8,7 @@ firebase.auth().onAuthStateChanged(user => {
     } else {
         console.log("Active Session:", user.email);
         currentUserEmail = user.email;
+        currentUserUid = user.uid;
 
         const photoEl = document.getElementById('user-photo');
         const initialEl = document.getElementById('user-initial');
@@ -122,6 +124,7 @@ async function removeHistoryItem(index) {
     if (item.filename) {
         try {
             await authFetch(`/staged_files/${encodeURIComponent(item.filename)}`, { method: 'DELETE' });
+            BLData.invalidate();
         } catch (e) {
         }
     }
@@ -231,6 +234,7 @@ async function handleFileUpload() {
 
         fileInput.value = '';
         fileCount.textContent = '';
+        BLData.invalidate();
     } catch (error) {
         statusEl.textContent = error.message || 'Failed to upload. Please try again.';
         statusEl.className = 'upload-status error';
@@ -271,6 +275,7 @@ async function processContent() {
         progressText.style.color = '#10b981';
 
         setTilesEnabled(true);
+        BLData.invalidate();
 
         setTimeout(() => {
             progressContainer.style.display = 'none';
@@ -354,6 +359,7 @@ async function selectBook(bookId, buttonEl) {
 
         buttonEl.textContent = 'Added ✓';
         addToLearningHistory({ name: data.title, type: 'book', filename: data.filename });
+        BLData.invalidate();
     } catch (error) {
         buttonEl.disabled = false;
         buttonEl.textContent = 'Add to My Notes';
@@ -363,13 +369,16 @@ async function selectBook(bookId, buttonEl) {
 
 async function refreshProcessedStatus() {
     try {
-        const response = await authFetch('/processed_status');
-        const data = await response.json();
-        setTilesEnabled(data.processed);
+        const core = await BLData.ready();
+        setTilesEnabled(core.processed);
     } catch (error) {
         setTilesEnabled(false);
     }
 }
+
+document.addEventListener('bl-core-updated', e => {
+    setTilesEnabled(e.detail.processed);
+});
 
 function setTilesEnabled(enabled) {
     notesProcessed = enabled;

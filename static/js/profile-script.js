@@ -103,15 +103,16 @@ let profileSkills = [];
 
 async function loadProfile() {
     try {
-        const response = await fetch(`/api/profile/${currentUid}`);
-        const data = await response.json();
-
-        if (!response.ok) throw new Error(data.error || 'Failed to load profile.');
-
-        renderProfile(data);
+        const core = await BLData.ready();
+        if (!core.profile) throw new Error('Profile not found.');
+        renderProfile(core.profile);
     } catch (error) {
         showToast(error.message || 'Failed to load your profile.', 'error');
     }
+
+    document.addEventListener('bl-core-updated', e => {
+        if (e.detail.profile) renderProfile(e.detail.profile);
+    });
 }
 
 function renderProfile(data) {
@@ -194,6 +195,7 @@ async function addSkill() {
         nameInput.value = '';
         nameInput.focus();
         showToast(`${data.skill_name} added.`, 'success');
+        BLData.invalidate();
     } catch (error) {
         showToast(error.message || 'Failed to add skill.', 'error');
     } finally {
@@ -211,6 +213,7 @@ async function removeSkill(skillId) {
         profileSkills = profileSkills.filter(s => s.id !== skillId);
         renderSkills();
         showToast('Skill removed.', 'success');
+        BLData.invalidate();
     } catch (error) {
         showToast(error.message || 'Failed to remove skill.', 'error');
     }

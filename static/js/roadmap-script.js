@@ -71,24 +71,34 @@ async function loadRoadmap() {
     const list = document.getElementById('roadmap-list');
 
     try {
-        const response = await fetch(`/api/roadmap/${currentUid}`);
-        const data = await response.json();
-
-        if (!response.ok) throw new Error(data.error || 'Failed to load your roadmap.');
-
-        if (!data.has_data || !data.skills || data.skills.length === 0) {
-            list.innerHTML = '<p class="empty-state">No skill assessment yet. <a href="/competency-test">Take it now</a> to generate your roadmap.</p>';
-            updateStats([]);
-            return;
-        }
-
-        roadmapData = data.skills;
-        updateStats(roadmapData);
-        renderRoadmap();
+        const data = await BLData.getRoadmap();
+        renderRoadmapData(data);
     } catch (error) {
         list.innerHTML = `<p class="empty-state">${escapeHtml(error.message || 'Failed to load your roadmap.')}</p>`;
         updateStats([]);
     }
+
+    document.addEventListener('bl-roadmap-updated', e => renderRoadmapData(e.detail));
+}
+
+function renderRoadmapData(data) {
+    const list = document.getElementById('roadmap-list');
+
+    if (!data || data.error) {
+        list.innerHTML = `<p class="empty-state">${escapeHtml((data && data.error) || 'Failed to load your roadmap.')}</p>`;
+        updateStats([]);
+        return;
+    }
+
+    if (!data.has_data || !data.skills || data.skills.length === 0) {
+        list.innerHTML = '<p class="empty-state">No skill assessment yet. <a href="/competency-test">Take it now</a> to generate your roadmap.</p>';
+        updateStats([]);
+        return;
+    }
+
+    roadmapData = data.skills;
+    updateStats(roadmapData);
+    renderRoadmap();
 }
 
 function updateStats(skills) {

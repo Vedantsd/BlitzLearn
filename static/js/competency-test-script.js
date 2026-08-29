@@ -167,6 +167,7 @@ async function submitSkillTest() {
         if (!response.ok) throw new Error(report.error || 'Failed to score your assessment.');
 
         sessionStorage.setItem('skillReport', JSON.stringify(report));
+        BLData.invalidate();
         window.location.href = '/report';
     } catch (error) {
         alert(error.message || 'Something went wrong while scoring your assessment. Please try again.');

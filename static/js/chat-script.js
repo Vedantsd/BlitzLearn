@@ -17,9 +17,6 @@ firebase.auth().onAuthStateChanged(user => {
             initialEl.style.display = 'block';
         }
 
-        // Moved here (was previously fired unconditionally on
-        // DOMContentLoaded) so it only ever runs once we know who's
-        // signed in — authFetch needs a signed-in user to attach a token.
         refreshStagedFilesBanner();
     }
 });
@@ -61,21 +58,25 @@ function updateThemeIcon(isDark) {
 }
 
 async function refreshStagedFilesBanner() {
-    const textEl = document.getElementById('staged-files-text');
     try {
-        const response = await authFetch('/staged_files');
-        const files = await response.json();
-
-        if (files.length === 0) {
-            textEl.textContent = 'No notes staged yet.';
-        } else {
-            const names = files.map(f => f.title).join(', ');
-            textEl.textContent = `${files.length} file${files.length > 1 ? 's' : ''} ready: ${names}`;
-        }
+        const core = await BLData.ready();
+        renderStagedFilesBanner(core.staged_files);
     } catch (error) {
-        textEl.textContent = 'Could not check staged files.';
+        document.getElementById('staged-files-text').textContent = 'Could not check staged files.';
     }
 }
+
+function renderStagedFilesBanner(files) {
+    const textEl = document.getElementById('staged-files-text');
+    if (!files || files.length === 0) {
+        textEl.textContent = 'No notes staged yet.';
+    } else {
+        const names = files.map(f => f.title).join(', ');
+        textEl.textContent = `${files.length} file${files.length > 1 ? 's' : ''} ready: ${names}`;
+    }
+}
+
+document.addEventListener('bl-core-updated', e => renderStagedFilesBanner(e.detail.staged_files));
 
 async function updateSettings() {
     const ytUrl = document.getElementById('yt-url').value;
@@ -111,6 +112,7 @@ async function updateSettings() {
 
         statusEl.textContent = data.message || 'Settings updated!';
         statusEl.className = 'upload-status success';
+        BLData.invalidate();
     } catch (error) {
         statusEl.textContent = error.message || 'Failed to update settings. Please try again.';
         statusEl.className = 'upload-status error';
@@ -175,8 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.toggle('dark', isDark);
     updateThemeIcon(isDark);
     updateHeaderLogo(isDark);
-    // refreshStagedFilesBanner() now runs from onAuthStateChanged above,
-    // once we actually know who's signed in.
 });
 
 document.addEventListener('DOMContentLoaded', function() {
