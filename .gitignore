@@ -3,3 +3,4 @@ static/js/firebase-config.js
 /.vscode
 static/books/
 questions.db
+__pycache__
