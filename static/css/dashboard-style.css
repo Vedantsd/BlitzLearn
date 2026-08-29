@@ -1,25 +1,39 @@
 :root {
-    --bg-color: #ffffff;
-    --text-color: #0a0a0a;
-    --card-bg: #fafafa;
-    --border-color: #cecece;
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --secondary: #f1f5f9;
-    --shadow: rgba(0, 0, 0, 0.08);
-    --input-bg: #ffffff;
+    --bg-color: #F8F3FA;
+    --text-color: #29212F;
+    --card-bg: #FFFFFF;
+    --border-color: #DED2E4;
+
+    --primary: #7C3AED;
+    --primary-hover: #6929D1;
+
+    --secondary: #F0E5F7;
+
+    --shadow: rgba(70, 35, 85, 0.10);
+    --input-bg: #FCFAFD;
+
+    --success: #3F8F6B;
+    --warning: #D58A32;
+    --error: #D04F68;
 }
 
 body.dark {
-    --bg-color: #0a0a0a;
-    --text-color: #f5f5f5;
-    --card-bg: #1a1a1a;
-    --border-color: #494949;
-    --primary: #3b82f6;
-    --primary-hover: #60a5fa;
-    --secondary: #171717;
-    --shadow: rgba(0, 0, 0, 0.3);
-    --input-bg: #141414;
+    --bg-color: #18121D;
+    --text-color: #F5EFF8;
+    --card-bg: #241B2B;
+    --border-color: #45364D;
+
+    --primary: #A78BFA;
+    --primary-hover: #BDA8FF;
+
+    --secondary: #33243D;
+
+    --shadow: rgba(0, 0, 0, 0.32);
+    --input-bg: #201823;
+
+    --success: #72C49A;
+    --warning: #E5A657;
+    --error: #EF788B;
 }
 
 * {

@@ -1,27 +1,35 @@
 :root {
-    --bg-color: #ffffff;
-    --text-color: #0a0a0a;
-    --card-bg: #fafafa;
-    --border-color: #e0e0e0;
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --secondary: #f1f5f9;
-    --shadow: rgba(0, 0, 0, 0.08);
-    --input-bg: #ffffff;
-    --error: #ef4444;
+    --bg-color: #F3EDF6;
+    --text-color: #251C2B;
+    --card-bg: #FCFAFD;
+    --border-color: #D4C5DC;
+
+    --primary: #6930C3;
+    --primary-hover: #5725A5;
+
+    --secondary: #E8DDF0;
+
+    --shadow: rgba(55, 30, 70, 0.12);
+    --input-bg: #F9F6FB;
+
+    --error: #BD4056;
 }
 
 body.dark {
-    --bg-color: #0a0a0a;
-    --text-color: #f5f5f5;
-    --card-bg: #1a1a1a;
-    --border-color: #2a2a2a;
-    --primary: #3b82f6;
-    --primary-hover: #60a5fa;
-    --secondary: #171717;
-    --shadow: rgba(0, 0, 0, 0.3);
-    --input-bg: #141414;
-    --error: #f87171;
+    --bg-color: #130E17;
+    --text-color: #F3EAF6;
+    --card-bg: #1F1725;
+    --border-color: #3D3045;
+
+    --primary: #9670D8;
+    --primary-hover: #AA89E5;
+
+    --secondary: #2B2033;
+
+    --shadow: rgba(0, 0, 0, 0.38);
+    --input-bg: #1A141E;
+
+    --error: #E16A7D;
 }
 
 * {
@@ -116,7 +124,6 @@ header h1 {
     gap: 10px;
 }
 
-/* ---------------- Login card ---------------- */
 
 .admin-login-main {
     flex: 1;
