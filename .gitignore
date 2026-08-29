@@ -5,3 +5,4 @@ static/books/
 questions.db
 __pycache__
 firebase-service-account.json
+scrapers/
