@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlitzLearn — AI Skill Intelligence for India's Official Statistical System</title>
+<link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index-style.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="grain-bg"></div>
+
+<header>
+  <div class="nav-inner">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='logo/blitz-logo-light.png') }}" alt="BlitzLearn Logo" class="brand-logo">
+      <div>
+        <div class="brand-name">BlitzLearn</div>
+        <div class="brand-tag">Skill Intelligence Platform</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a class="section-link" href="#solution">Solution</a>
+      <a class="section-link" href="#how-it-works">How it works</a>
+      <a class="section-link" href="#impact">Impact</a>
+      <a class="section-link" href="#tech">Tech</a>
+      <a class="section-link" href="#team">Team</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="btn btn-ghost" href="{{ url_for('login') }}">Log in</a>
+      <a class="btn btn-primary" href="{{ url_for('signup') }}">Sign up</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-grid">
+      <div>
+        <h1>Every official has a<br><em>skill gap</em>. Now it's<br>visible, measured, and closing.</h1>
+        <p class="hero-sub">BlitzLearn is an AI-enabled Skill Intelligence &amp; Learning Platform for India's Official Statistical System — it profiles an official's competencies, finds the exact gaps, and recommends personalized training from iGOT Karmayogi and NSSTA TPAC. Upload any material and it writes the quiz for you.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary btn-lg" href="{{ url_for('signup') }}">Get started free</a>
+          <a class="btn btn-ghost btn-lg" href="#how-it-works">See how it works ↓</a>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="pipe-row"><div class="pipe-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 11h6"/></svg></div><div><div class="pipe-label">Upload notes / iGOT course</div><div class="pipe-desc">PDF chunked &amp; embedded</div></div></div>
+        <div class="pipe-row"><div class="pipe-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div><div><div class="pipe-label">RAG retrieval</div><div class="pipe-desc">LangChain + vector search</div></div></div>
+        <div class="pipe-row"><div class="pipe-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5"/></svg></div><div><div class="pipe-label">Gemini generation</div><div class="pipe-desc">MCQs, quizzes, explanations</div></div></div>
+        <div class="pipe-row"><div class="pipe-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5"/><rect x="13" y="9" width="3" height="9"/><rect x="19" y="6" width="3" height="12"/></svg></div><div><div class="pipe-label">Competency scoring</div><div class="pipe-desc">Skill radar &amp; gap analysis</div></div></div>
+        <div class="pipe-row"><div class="pipe-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div><div><div class="pipe-label">Roadmap</div><div class="pipe-desc">iGOT + NSSTA TPAC picks</div></div></div>
+      </div>
+    </div>
+
+    <div class="stat-strip reveal">
+      <div class="stat-cell"><div class="stat-num">5,600+</div><div class="stat-cap">iGOT courses reachable</div></div>
+      <div class="stat-cell"><div class="stat-num">16L+</div><div class="stat-cap">monthly active learner ecosystem</div></div>
+      <div class="stat-cell"><div class="stat-num">28</div><div class="stat-cap">States &amp; UTs addressable</div></div>
+      <div class="stat-cell"><div class="stat-num">23</div><div class="stat-cap">languages targeted</div></div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">The problem</span>
+      <h2>iGOT has the courses. Officials still can't find the right one.</h2>
+    </div>
+    <div class="problem-card reveal">
+      <p>India's statistical system is moving fast toward AI, ML, GIS, cloud, and modern statistical methods — and officials in data collection, processing, analysis, and policy support need to keep upskilling to keep pace.</p>
+      <p>The <b>iGOT Karmayogi</b> platform already holds a vast course repository, but there's no mechanism that looks at an individual's actual job role, current competencies, and future requirements and says: <b>"start here."</b> Manual appraisal-based gap-finding is infrequent, self-assessment is subjective, and trainers still build assessments by hand.</p>
+      <p>BlitzLearn replaces that guesswork with a continuous, AI-driven competency engine — purpose-built for Official Statistics.</p>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">The solution</span>
+      <h2>One platform, six jobs done for the official</h2>
+      <p>BlitzLearn builds a live competency profile per official, maps it against Statistical, Technical, Digital Governance, and Behavioural competency frameworks, and keeps recommendations moving as skills grow.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg></div>
+        <h3>Competency Profiling</h3>
+        <p>Auto-builds a profile from designation, department, job role, qualifications, experience, and prior trainings.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg></div>
+        <h3>AI Skill-Gap Analysis</h3>
+        <p>Benchmarks the official against Statistical, Technical, Digital Governance &amp; Behavioural competency frameworks.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg></div>
+        <h3>iGOT &amp; NSSTA Integration</h3>
+        <p>Pulls the live course catalogue via API and matches NSSTA TPAC training programmes to identified gaps.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9.5 14.5 1.5 1.5 3-3"/></svg></div>
+        <h3>MCQs from your own notes</h3>
+        <p>Upload any PDF — lecture notes, a manual, a course reader — and the RAG + Gemini pipeline writes a graded test from it.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-4.5 2.5L8 16l4.5-2.5z"/></svg></div>
+        <h3>Personalized Roadmaps</h3>
+        <p>Ranks courses and TPAC programmes by predicted relevance to the specific, individual gap — not designation alone.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg></div>
+        <h3>Dual Dashboards</h3>
+        <p>A learner view for progress &amp; recommendations; an admin view for workforce-wide competency and training-effectiveness analytics.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how-it-works">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">How it works</span>
+      <h2>From login to continuous skill growth</h2>
+      <p>The same seven states every learner moves through — this is the actual state machine behind BlitzLearn.</p>
+    </div>
+    <div class="flow-track">
+      <div class="flow-step done reveal"><div class="flow-idx">01</div><h3>Login</h3><p>Secure Firebase authentication gives access to the personalized platform.</p></div>
+      <div class="flow-step done reveal"><div class="flow-idx">02</div><h3>Dashboard</h3><p>One overview of learning status, assessments, and recommendations.</p></div>
+      <div class="flow-step reveal"><div class="flow-idx">03</div><h3>Skill Assessment</h3><p>An AI-generated test evaluates existing knowledge and produces competency scores.</p></div>
+      <div class="flow-step reveal"><div class="flow-idx">04</div><h3>Gap Identification</h3><p>Current competencies are compared against role-based targets to surface specific gaps.</p></div>
+      <div class="flow-step reveal"><div class="flow-idx">05</div><h3>Personalized Content</h3><p>iGOT Karmayogi courses and NSSTA TPAC programmes are recommended against the gap.</p></div>
+      <div class="flow-step reveal"><div class="flow-idx">06</div><h3>Learning Experience</h3><p>The official engages with AI chat, quizzes, MCQs, and tests tuned to their Bloom's level.</p></div>
+      <div class="flow-step reveal"><div class="flow-idx">07</div><h3>Continuous Skill Growth</h3><p>Every test taken re-scores competency and refreshes the roadmap — the loop never really ends.</p></div>
+    </div>
+  </section>
+
+  <!-- IMPACT / CHARTS -->
+  <section id="impact">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Impact</span>
+      <h2>What changes when the loop is AI-driven</h2>
+      <p>Illustrative capability scores (0–100) comparing today's manual process against BlitzLearn's proposed AI-powered approach, and how projected impact is expected to split across focus areas.</p>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card reveal">
+        <h3>Traditional Learning vs AI-Powered Learning</h3>
+        <div class="note">Illustrative capability scores, 0–100 — not measured learner outcomes.</div>
+        <canvas id="capabilityChart" height="230"></canvas>
+      </div>
+      <div class="chart-card reveal">
+        <h3>Where the impact is projected to land</h3>
+        <div class="note">100% of BlitzLearn's projected value, split across five focus areas.</div>
+        <canvas id="impactDonut" height="230"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section id="benefits">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Benefits</span>
+      <h2>The numbers behind the pitch</h2>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit-card reveal"><div class="benefit-num">~40%</div><div class="benefit-label">less effort to identify skill gaps</div></div>
+      <div class="benefit-card reveal"><div class="benefit-num">~30%</div><div class="benefit-label">shorter course discovery time</div></div>
+      <div class="benefit-card reveal"><div class="benefit-num">80%+</div><div class="benefit-label">relevant course recommendations</div></div>
+      <div class="benefit-card reveal"><div class="benefit-num">25%+</div><div class="benefit-label">targeted competency-score improvement</div></div>
+      <div class="benefit-card reveal"><div class="benefit-num">≤50%</div><div class="benefit-label">less manual assessment-creation effort</div></div>
+    </div>
+  </section>
+
+  <!-- KPI TABLE -->
+  <section id="kpi">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Measured by</span>
+      <h2>Key performance indicators</h2>
+    </div>
+    <div class="reveal" style="overflow-x:auto;">
+      <table class="kpi-table">
+        <thead><tr><th>Indicator</th><th>Target</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Gap Detection Accuracy</td><td class="kpi-target">85%+</td><td>Correctly identifying an official's competency gaps</td></tr>
+          <tr><td>Weekly Engagement</td><td class="kpi-target">70%+</td><td>Enrolled users actively engaging with the platform each week</td></tr>
+          <tr><td>Quiz Generation Time</td><td class="kpi-target">&lt; 5 sec</td><td>Average time to generate an MCQ/quiz from uploaded content</td></tr>
+          <tr><td>Language Support</td><td class="kpi-target">15+</td><td>Languages supported to widen accessibility across states &amp; UTs</td></tr>
+          <tr><td>Course Completion Rate</td><td class="kpi-target">60%+</td><td>Officials who complete a recommended learning pathway once started</td></tr>
+          <tr><td>Assessment Cost Reduction</td><td class="kpi-target">40%+</td><td>Manual assessment-creation effort saved via AI-generated MCQs &amp; reuse</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section id="tech">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Under the hood</span>
+      <h2>Built on a proven, production-ready stack</h2>
+      <p>No experimental components — every layer is a widely adopted, well-documented technology.</p>
+    </div>
+    <div class="tech-strip reveal">
+      <span class="tech-chip"><span class="tdot"></span>React</span>
+      <span class="tech-chip"><span class="tdot"></span>Tailwind CSS</span>
+      <span class="tech-chip"><span class="tdot"></span>Flask</span>
+      <span class="tech-chip"><span class="tdot"></span>Python</span>
+      <span class="tech-chip"><span class="tdot"></span>LangChain (RAG)</span>
+      <span class="tech-chip"><span class="tdot"></span>Gemini API</span>
+      <span class="tech-chip"><span class="tdot"></span>HuggingFace Embeddings</span>
+      <span class="tech-chip"><span class="tdot"></span>PyPDF</span>
+      <span class="tech-chip"><span class="tdot"></span>spaCy</span>
+      <span class="tech-chip"><span class="tdot"></span>Firebase Auth</span>
+      <span class="tech-chip"><span class="tdot"></span>Oracle Free SQL</span>
+      <span class="tech-chip"><span class="tdot"></span>iGOT Karmayogi API</span>
+      <span class="tech-chip"><span class="tdot"></span>AWS</span>
+      <span class="tech-chip"><span class="tdot"></span>Railway</span>
+    </div>
+  </section>
+
+  <!-- FEASIBILITY -->
+  <section id="feasibility">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Why it's viable</span>
+      <h2>Feasible on every axis that matters for government scale</h2>
+    </div>
+    <div class="feas-grid">
+      <div class="feas-card reveal"><h3>Technical</h3><p>A demo-ready, RAG-validated pipeline (PDF → embeddings → RAG → chat/MCQs) with no experimental components.</p></div>
+      <div class="feas-card reveal"><h3>Operational</h3><p>Extends iGOT — the platform officials already use — with no new infrastructure and no behaviour change required.</p></div>
+      <div class="feas-card reveal"><h3>Economic</h3><p>Open-source core, usage-based AI cost, and a persistent question bank that cuts repeat inference spend over time.</p></div>
+      <div class="feas-card reveal"><h3>Organizational</h3><p>Aligned with MoSPI's mandate and Mission Karmayogi's policy backing — no institutional buy-in to build from zero.</p></div>
+    </div>
+  </section>
+
+  <!-- SDG -->
+  <section id="sdg">
+    <div class="section-head reveal">
+      <span class="section-eyebrow">Aligned with</span>
+      <h2>UN Sustainable Development Goals</h2>
+    </div>
+    <div class="sdg-grid">
+      <div class="sdg-card reveal"><div class="sdg-num">SDG 4</div><div class="sdg-title">Quality Education</div><div class="sdg-desc">Personalized, competency-based upskilling for officials</div></div>
+      <div class="sdg-card reveal"><div class="sdg-num">SDG 8</div><div class="sdg-title">Decent Work &amp; Growth</div><div class="sdg-desc">Improves workforce productivity system-wide</div></div>
+      <div class="sdg-card reveal"><div class="sdg-num">SDG 9</div><div class="sdg-title">Industry &amp; Innovation</div><div class="sdg-desc">Builds AI-driven learning infrastructure for government</div></div>
+      <div class="sdg-card reveal"><div class="sdg-num">SDG 10</div><div class="sdg-title">Reduced Inequalities</div><div class="sdg-desc">Equal training access regardless of prior digital literacy</div></div>
+      <div class="sdg-card reveal"><div class="sdg-num">SDG 16</div><div class="sdg-title">Strong Institutions</div><div class="sdg-desc">Data-driven, transparent workforce administration</div></div>
+      <div class="sdg-card reveal"><div class="sdg-num">SDG 17</div><div class="sdg-title">Partnerships</div><div class="sdg-desc">Public-tech collaboration via iGOT Karmayogi</div></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section id="cta-band-section">
+    <div class="cta-band reveal">
+      <h2>Ready to close the gap?</h2>
+      <p>Sign up, upload your first set of notes, and get a personalized roadmap in minutes.</p>
+      <div class="hero-ctas" style="justify-content:center;">
+        <a class="btn btn-white btn-lg" href="{{ url_for('signup') }}">Create free account</a>
+        <a class="btn btn-ghost btn-lg" href="{{ url_for('login') }}">I already have one</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER / TEAM -->
+<footer id="team">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px;">
+          <img src="{{ url_for('static', filename='logo/blitz-logo-light.png') }}" alt="BlitzLearn Logo" class="brand-logo">
+          <div>
+            <div class="brand-name">BlitzLearn</div>
+            <div class="brand-tag">Skill Intelligence Platform</div>
+          </div>
+        </div>
+        <p style="color:var(--muted); font-size:13.5px; max-width:380px;">An AI-enabled Skill Intelligence &amp; Learning Platform for India's Official Statistical System.</p>
+        <div class="foot-meta-row" style="margin-top:22px;">
+          <div class="foot-meta-item"><div class="k">Team</div><div class="v">Aarambh</div></div>
+          <div class="foot-meta-item"><div class="k">PS ID</div><div class="v">SIH26101</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="k mono" style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;">Team members</div>
+        <ul class="team-list">
+          <li><span class="avatar">VD</span> Vedant Desai <span class="lead-badge">LEAD</span><span class="role">IT Dept</span></li>
+          <li><span class="avatar">AB</span> Aniket Bhujad <span class="role">IT Dept</span></li>
+          <li><span class="avatar">BT</span> Bhoomi Tiple <span class="role">Software Dept</span></li>
+          <li><span class="avatar">KY</span> Komal Yerkal <span class="role">IT Dept</span></li>
+          <li><span class="avatar">SI</span> Swapnil Ingole <span class="role">IT Dept</span></li>
+          <li><span class="avatar">RA</span> Rushikesh Ambilwade <span class="role">IT Dept</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Team Aarambh · BlitzLearn</span>
+      <span>PS ID SIH26101</span>
+    </div>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/index-script.js') }}"></script>
+</body>
+</html>

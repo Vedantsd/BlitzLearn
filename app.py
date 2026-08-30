@@ -697,6 +697,10 @@ def get_conversational_chain(bloom_level, outcomes, weightage, language, study_m
 
 
 @app.route('/')
+def landing_page():
+    return render_template('index.html')
+
+@app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
 
