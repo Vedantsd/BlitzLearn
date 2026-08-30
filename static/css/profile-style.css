@@ -33,6 +33,7 @@ body.dark {
     --success: #72C49A;
     --error: #EF788B;
 }
+
 * {
     box-sizing: border-box;
 }

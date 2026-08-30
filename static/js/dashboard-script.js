@@ -216,10 +216,6 @@ async function handleFileUpload() {
     }
 
     try {
-        // Note: authFetch attaches the Authorization header but leaves the
-        // FormData body/Content-Type alone (the browser sets the correct
-        // multipart boundary automatically as long as we don't set our own
-        // Content-Type header here).
         const response = await authFetch('/upload_stage', { method: 'POST', body: formData });
         const data = await response.json();
 
