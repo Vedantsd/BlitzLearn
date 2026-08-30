@@ -24,9 +24,7 @@ app = Flask(__name__)
 
 ADMIN_USERNAME = "Admin"
 ADMIN_PASSWORD = "Password"
-
-api_key = os.getenv("GEMINI_API_KEY")
-
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "blitzlearn-dev-secret-key")
 _vector_store_cache = {}  
 
 DEFAULT_SESSION_CONTEXT = {
