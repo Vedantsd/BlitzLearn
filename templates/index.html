@@ -36,9 +36,71 @@
   </div>
 </header>
 
+<div class="demo-access" id="demo-access">
+  <button class="demo-panel" id="demo-panel" onclick="toggleDemoPanel()" aria-expanded="false" aria-controls="demo-panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7a4 4 0 0 1 0 8H8l-4 4V7a4 4 0 0 1 4-4h7a4 4 0 0 1 4 4Z"/><circle cx="9" cy="11" r="1"/><circle cx="13" cy="11" r="1"/></svg>
+    <span>Demo Access</span>
+    <svg class="demo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+
+  <div class="demo-panel" id="demo-panel">
+    <div class="demo-panel-head">
+      <span>Try BlitzLearn</span>
+    </div>
+
+    <div class="demo-group-label">Demo Credentials</div>
+    <div class="demo-row">
+      <div class="demo-row-text">
+        <span class="demo-row-label">Email</span>
+        <span class="demo-row-value">blitzlearn@gmail.com</span>
+      </div>
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'blitzlearn@gmail.com')" aria-label="Copy demo email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+    <div class="demo-row">
+      <div class="demo-row-text">
+        <span class="demo-row-label">Password</span>
+        <span class="demo-row-value">Password</span>
+      </div>
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'Password')" aria-label="Copy demo password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+
+    <div class="demo-group-label">Admin dashboard</div>
+    <div class="demo-row">
+      <div class="demo-row-text">
+        <span class="demo-row-label">Login URL</span>
+        <a class="demo-row-value demo-row-link" href="https://blitz-learn.up.railway.app/admin/login" target="_blank" rel="noopener">blitz-learn.up.railway.app/admin/login</a>
+      </div>
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'https://blitz-learn.up.railway.app/admin/login')" aria-label="Copy admin login URL">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+    <div class="demo-row">
+      <div class="demo-row-text">
+        <span class="demo-row-label">Username</span>
+        <span class="demo-row-value">Admin</span>
+      </div>
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'Admin')" aria-label="Copy admin username">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+    <div class="demo-row">
+      <div class="demo-row-text">
+        <span class="demo-row-label">Password</span>
+        <span class="demo-row-value">Password</span>
+      </div>
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'Password')" aria-label="Copy admin password">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <main class="wrap">
 
-  <!-- HERO -->
   <section class="hero" id="top">
     <div class="hero-grid">
       <div>
@@ -67,7 +129,6 @@
     </div>
   </section>
 
-  <!-- PROBLEM -->
   <section id="problem">
     <div class="section-head reveal">
       <span class="section-eyebrow">The problem</span>
@@ -80,7 +141,6 @@
     </div>
   </section>
 
-  <!-- SOLUTION -->
   <section id="solution">
     <div class="section-head reveal">
       <span class="section-eyebrow">The solution</span>
@@ -121,7 +181,6 @@
     </div>
   </section>
 
-  <!-- HOW IT WORKS -->
   <section id="how-it-works">
     <div class="section-head reveal">
       <span class="section-eyebrow">How it works</span>
@@ -139,7 +198,6 @@
     </div>
   </section>
 
-  <!-- IMPACT / CHARTS -->
   <section id="impact">
     <div class="section-head reveal">
       <span class="section-eyebrow">Impact</span>
@@ -160,7 +218,6 @@
     </div>
   </section>
 
-  <!-- BENEFITS -->
   <section id="benefits">
     <div class="section-head reveal">
       <span class="section-eyebrow">Benefits</span>
@@ -175,7 +232,6 @@
     </div>
   </section>
 
-  <!-- KPI TABLE -->
   <section id="kpi">
     <div class="section-head reveal">
       <span class="section-eyebrow">Measured by</span>
@@ -196,7 +252,6 @@
     </div>
   </section>
 
-  <!-- TECH STACK -->
   <section id="tech">
     <div class="section-head reveal">
       <span class="section-eyebrow">Under the hood</span>
@@ -221,7 +276,6 @@
     </div>
   </section>
 
-  <!-- FEASIBILITY -->
   <section id="feasibility">
     <div class="section-head reveal">
       <span class="section-eyebrow">Why it's viable</span>
@@ -235,7 +289,6 @@
     </div>
   </section>
 
-  <!-- SDG -->
   <section id="sdg">
     <div class="section-head reveal">
       <span class="section-eyebrow">Aligned with</span>
@@ -251,7 +304,6 @@
     </div>
   </section>
 
-  <!-- CTA -->
   <section id="cta-band-section">
     <div class="cta-band reveal">
       <h2>Ready to close the gap?</h2>
@@ -265,7 +317,6 @@
 
 </main>
 
-<!-- FOOTER / TEAM -->
 <footer id="team">
   <div class="wrap">
     <div class="foot-grid">

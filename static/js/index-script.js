@@ -1,3 +1,37 @@
+function copyDemoValue(buttonEl, value) {
+    const restoreIcon = buttonEl.innerHTML;
+
+    const markCopied = () => {
+        buttonEl.classList.add('copied');
+        buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+        setTimeout(() => {
+            buttonEl.classList.remove('copied');
+            buttonEl.innerHTML = restoreIcon;
+        }, 1400);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(value).then(markCopied).catch(() => fallbackCopy(value, markCopied));
+    } else {
+        fallbackCopy(value, markCopied);
+    }
+}
+
+function fallbackCopy(value, onDone) {
+    const temp = document.createElement('textarea');
+    temp.value = value;
+    temp.style.position = 'fixed';
+    temp.style.opacity = '0';
+    document.body.appendChild(temp);
+    temp.select();
+    try {
+        document.execCommand('copy');
+    } catch (e) {
+    }
+    document.body.removeChild(temp);
+    onDone();
+}
+
 const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
         if (e.isIntersecting) {
