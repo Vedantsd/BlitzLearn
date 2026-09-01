@@ -64,7 +64,11 @@ Students and working professionals face two related problems: scattered, unstruc
 
 ---
 
-## Architecture Summary
+## Architecture Diagram
+
+<img width="780" height="854" alt="image" src="https://github.com/user-attachments/assets/22620f2e-b9a1-45b3-8e31-64cf38f552bb" />
+
+## Architecture Summary 
 
 **Notes → Chat pipeline (RAG)**
 1. Users authenticate via Firebase Authentication.
@@ -111,7 +115,9 @@ Students and working professionals face two related problems: scattered, unstruc
 
 ---
 
-## Workflow
+## Workflow Diagram 
+
+<img width="555" height="883" alt="image" src="https://github.com/user-attachments/assets/5533f777-89fb-47c4-8ef1-8152aaeb01de" />
 
 1. A visitor lands on the public landing page and signs up.
 2. Signup collects basic details, education, skills, experience, and department/designation.
