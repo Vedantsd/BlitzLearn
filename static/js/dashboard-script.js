@@ -379,7 +379,7 @@ document.addEventListener('bl-core-updated', e => {
 function setTilesEnabled(enabled) {
     notesProcessed = enabled;
     document.querySelectorAll('.tile').forEach(tile => {
-        if (tile.id === 'evaluate-tile' || tile.id === 'roadmap-tile') return;
+        if (tile.id === 'evaluate-tile' || tile.id === 'roadmap-tile' || tile.id === 'labs-tile') return;
         tile.classList.toggle('tile-locked', !enabled);
     });
 }
@@ -391,6 +391,10 @@ function goToTile(target) {
     }
     if (target === 'roadmap') {
         window.location.href = '/roadmap';
+        return;
+    }
+    if (target === 'labs') {
+        window.location.href = '/labs-select';
         return;
     }
 

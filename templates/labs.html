@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1 onclick="window.location.href='/dashboard'">BlitzLearn</h1>
+    </div>
+    <div class="header-center" id="lab-topic-badge"></div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="View Profile" onclick="goToProfile()">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+
+        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="lab-progress-bar"><div class="lab-progress-fill" id="lab-progress-fill"></div></div>
+
+<div class="lab-container">
+
+    <div class="lab-view active" id="loading-view">
+        <div class="lab-loading">
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Building your lab...</p>
+        </div>
+    </div>
+
+    <div class="lab-view" id="error-view">
+        <div class="lab-loading">
+            <p id="error-text">Something went wrong.</p>
+            <div class="lab-error-actions">
+                <button class="lab-btn-primary" onclick="fetchLabContent()">Try Again</button>
+                <a class="lab-btn-ghost" href="/labs-select">Back to Labs</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="lab-view" id="theory-view">
+        <div class="lab-split">
+            <div class="lab-pane lab-pane-left">
+                <div class="lab-pane-label">Theory</div>
+                <div class="lab-theory-body" id="theory-body"></div>
+            </div>
+            <div class="lab-pane lab-pane-right">
+                <div class="lab-pane-label">Examples</div>
+                <div class="lab-examples-body" id="examples-body"></div>
+            </div>
+        </div>
+        <div class="lab-footer-bar">
+            <a class="lab-btn-ghost" href="/labs-select">← Back to Labs</a>
+            <button class="lab-btn-primary" onclick="goToTaskView()">Try it yourself →</button>
+        </div>
+    </div>
+
+    <div class="lab-view" id="task-view">
+        <div class="lab-split">
+            <div class="lab-pane lab-pane-left">
+                <div class="lab-pane-label">Task</div>
+                <div class="lab-task-body" id="task-body"></div>
+            </div>
+            <div class="lab-pane lab-pane-right lab-pane-workspace">
+                <div class="lab-pane-label" id="workspace-label">Your workspace</div>
+                <textarea id="workspace-input" class="lab-workspace-input" spellcheck="false" placeholder="Start working here..."></textarea>
+                <div id="feedback-panel" class="lab-feedback-panel"></div>
+            </div>
+        </div>
+        <div class="lab-footer-bar">
+            <button class="lab-btn-ghost" onclick="goToTheoryView()">← Back to theory</button>
+            <button class="lab-btn-primary" id="evaluate-btn" onclick="evaluateLab()">Evaluate my work</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/labs-script.js') }}"></script>
+</body>
+</html>

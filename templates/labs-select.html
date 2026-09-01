@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - Labs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/labs-select-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1 onclick="window.location.href='/dashboard'">BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <div id="user-profile" class="profile-circle" title="View Profile" onclick="goToProfile()">
+            <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
+        </div>
+
+        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="labs-main">
+    <div class="labs-hero">
+        <span class="labs-eyebrow">Practice</span>
+        <h2>Skill Labs</h2>
+        <p>Hands-on labs generated from your competency gaps — pick one and put the skill into practice.</p>
+    </div>
+
+    <div class="labs-stats">
+        <div class="labs-stat-card">
+            <div class="labs-stat-num" id="stat-labs-available">—</div>
+            <div class="labs-stat-label">Labs available</div>
+        </div>
+        <div class="labs-stat-card">
+            <div class="labs-stat-num" id="stat-high-priority">—</div>
+            <div class="labs-stat-label">High priority</div>
+        </div>
+        <div class="labs-stat-card">
+            <div class="labs-stat-num" id="stat-avg-gap">—</div>
+            <div class="labs-stat-label">Average gap</div>
+        </div>
+    </div>
+
+    <div class="labs-filter-row" id="labs-filter-row">
+        <button class="pill active" onclick="setLabFilter('all', this)">All labs</button>
+        <button class="pill" onclick="setLabFilter('High', this)">High priority</button>
+        <button class="pill" onclick="setLabFilter('Medium', this)">Medium priority</button>
+        <button class="pill" onclick="setLabFilter('Low', this)">Low priority</button>
+    </div>
+
+    <div class="labs-grid" id="labs-grid">
+        <p class="empty-state">Loading your labs...</p>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/load-data.js') }}"></script>
+<script src="{{ url_for('static', filename='js/labs-select-script.js') }}"></script>
+</body>
+</html>
