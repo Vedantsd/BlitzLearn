@@ -90,6 +90,9 @@ function switchAdminView(view) {
     } else if (view === 'departments' && !loadedViews.has('departments')) {
         loadDepartmentReports();
         loadedViews.add('departments');
+    } else if (view === 'trainers' && !loadedViews.has('trainers')) {
+        loadTrainersView();
+        loadedViews.add('trainers');
     }
 }
 
@@ -375,6 +378,164 @@ if (!isTouchDevice) {
             customCursor.style.backgroundColor = '#10B981';
         }
     });
+}
+
+async function loadTrainersView() {
+    loadDepartmentDatalist();
+    loadTrainers();
+    loadDepartmentAudit();
+}
+
+async function loadDepartmentDatalist() {
+    try {
+        const response = await fetch('/admin/api/departments');
+        const departments = await response.json();
+        document.getElementById('trainer-department-options').innerHTML =
+            departments.map(d => `<option value="${escapeAttr(d)}"></option>`).join('');
+    } catch (error) {
+    }
+}
+
+async function loadTrainers() {
+    const tbody = document.getElementById('trainers-tbody');
+    tbody.innerHTML = '<tr><td colspan="5" class="table-loading">Loading trainers...</td></tr>';
+
+    try {
+        const response = await fetch('/admin/api/trainers');
+        const trainers = await response.json();
+
+        if (trainers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No trainers added yet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = trainers.map(renderTrainerRow).join('');
+    } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Failed to load trainers.</td></tr>';
+    }
+}
+
+function renderTrainerRow(trainer) {
+    return `
+        <tr>
+            <td class="user-name-cell">${escapeHtml(trainer.name)}</td>
+            <td>${escapeHtml(trainer.username)}</td>
+            <td><span class="dept-pill">${escapeHtml(trainer.department)}</span></td>
+            <td>${formatDateShort(trainer.created_at)}</td>
+            <td>
+                <div class="row-actions">
+                    <button class="action-button" onclick="promptResetPassword(${trainer.id}, '${escapeAttr(trainer.name)}')">Reset Password</button>
+                    <button class="action-button delete" onclick="deleteTrainer(${trainer.id}, '${escapeAttr(trainer.name)}')">Delete</button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+async function submitNewTrainer() {
+    const name = document.getElementById('trainer-name-input').value.trim();
+    const username = document.getElementById('trainer-username-input').value.trim();
+    const password = document.getElementById('trainer-password-input').value;
+    const department = document.getElementById('trainer-department-input').value.trim();
+    const errorEl = document.getElementById('trainer-form-error');
+    const btn = document.getElementById('add-trainer-btn');
+
+    errorEl.textContent = '';
+
+    if (!name || !username || !password || !department) {
+        errorEl.textContent = 'All fields are required.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+
+    try {
+        const response = await fetch('/admin/api/trainers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, username, password, department })
+        });
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error || 'Failed to add trainer.');
+
+        document.getElementById('trainer-name-input').value = '';
+        document.getElementById('trainer-username-input').value = '';
+        document.getElementById('trainer-password-input').value = '';
+        document.getElementById('trainer-department-input').value = '';
+
+        showToast(`Trainer '${data.name}' added for ${data.department}.`, 'success');
+        loadTrainers();
+        loadDepartmentAudit();
+    } catch (error) {
+        errorEl.textContent = error.message || 'Failed to add trainer.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Add Trainer';
+    }
+}
+
+function promptResetPassword(trainerId, name) {
+    const newPassword = prompt(`Set a new password for ${name} (min 6 characters):`);
+    if (!newPassword) return;
+
+    fetch(`/admin/api/trainers/${trainerId}/reset_password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword })
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data })))
+        .then(({ ok, data }) => {
+            if (!ok) throw new Error(data.error || 'Failed to reset password.');
+            showToast(`Password updated for ${name}.`, 'success');
+        })
+        .catch(error => showToast(error.message || 'Failed to reset password.', 'error'));
+}
+
+async function deleteTrainer(trainerId, name) {
+    if (!confirm(`Remove trainer '${name}'? They will lose access immediately.`)) return;
+
+    try {
+        const response = await fetch(`/admin/api/trainers/${trainerId}`, { method: 'DELETE' });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to remove trainer.');
+        showToast(`Trainer '${name}' removed.`, 'success');
+        loadTrainers();
+        loadDepartmentAudit();
+    } catch (error) {
+        showToast(error.message || 'Failed to remove trainer.', 'error');
+    }
+}
+
+async function loadDepartmentAudit() {
+    const dupEl = document.getElementById('dept-duplicates-list');
+    const orphanEl = document.getElementById('dept-orphans-list');
+
+    try {
+        const response = await fetch('/admin/api/department_audit');
+        const data = await response.json();
+
+        const duplicates = data.duplicate_department_variants || [];
+        dupEl.innerHTML = duplicates.length === 0
+            ? '<p class="no-data-text">No inconsistent department names found.</p>'
+            : duplicates.map(group => `<div class="dup-group">${group.map(d => `<span class="dup-chip">${escapeHtml(d)}</span>`).join('')}</div>`).join('');
+
+        const orphans = data.departments_without_trainer || [];
+        orphanEl.innerHTML = orphans.length === 0
+            ? '<p class="no-data-text">Every department has at least one trainer.</p>'
+            : orphans.map(d => `<span class="dup-chip warning">${escapeHtml(d)}</span>`).join('');
+    } catch (error) {
+        dupEl.innerHTML = '<p class="no-data-text">Failed to load audit.</p>';
+        orphanEl.innerHTML = '';
+    }
+}
+
+function formatDateShort(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso.replace(' ', 'T'));
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 updateThemeIcon();

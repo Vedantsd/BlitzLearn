@@ -53,6 +53,7 @@
         <button class="admin-tab active" data-view="users" onclick="switchAdminView('users')">Users</button>
         <button class="admin-tab" data-view="performance" onclick="switchAdminView('performance')">Performance</button>
         <button class="admin-tab" data-view="departments" onclick="switchAdminView('departments')">Department Reports</button>
+        <button class="admin-tab" data-view="trainers" onclick="switchAdminView('trainers')">Trainers</button>
     </div>
 
     <div class="admin-view active" id="users-view">
@@ -118,6 +119,52 @@
         <div id="department-reports-list" class="department-reports-list"></div>
     </div>
 
+    <div class="admin-view" id="trainers-view">
+        <div class="trainer-form-card">
+            <h3>Add Trainer</h3>
+            <div class="trainer-form-grid">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="trainer-name-input" placeholder="e.g. Rohan Mehta">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="trainer-username-input" placeholder="e.g. rohan.trainer">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="trainer-password-input" placeholder="Min 6 characters">
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" id="trainer-department-input" list="trainer-department-options" placeholder="e.g. IT">
+                    <datalist id="trainer-department-options"></datalist>
+                </div>
+            </div>
+            <div class="trainer-form-error" id="trainer-form-error"></div>
+            <button class="action-button" id="add-trainer-btn" onclick="submitNewTrainer()">Add Trainer</button>
+        </div>
+
+        <div class="dept-audit-row">
+            <div class="dept-audit-card">
+                <h4>Inconsistent Department Names</h4>
+                <div id="dept-duplicates-list"><p class="no-data-text">Loading...</p></div>
+            </div>
+            <div class="dept-audit-card">
+                <h4>Departments Without a Trainer</h4>
+                <div id="dept-orphans-list"><p class="no-data-text">Loading...</p></div>
+            </div>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr><th>Name</th><th>Username</th><th>Department</th><th>Added</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="trainers-tbody">
+                <tr><td colspan="5" class="table-loading">Loading trainers...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/admin-dashboard-script.js') }}"></script>
