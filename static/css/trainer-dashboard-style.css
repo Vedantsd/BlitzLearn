@@ -1,0 +1,557 @@
+:root {
+    --bg-color: #F8F3FA;
+    --text-color: #29212F;
+    --card-bg: #FFFFFF;
+    --border-color: #DED2E4;
+    --primary: #7C3AED;
+    --primary-hover: #6929D1;
+    --secondary: #F0E5F7;
+    --shadow: rgba(70, 35, 85, 0.10);
+    --input-bg: #FCFAFD;
+    --success: #3F8F6B;
+    --warning: #D58A32;
+    --error: #D04F68;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+header {
+    height: 68px;
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border-bottom: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    box-shadow: 0 2px 8px var(--shadow);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-logo {
+    height: 36px;
+    width: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    object-fit: cover;
+}
+
+header h1 {
+    font-size: 20px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.header-sub {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--secondary);
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.trainer-id-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.trainer-name {
+    font-size: 13.5px;
+    font-weight: 700;
+}
+
+.trainer-dept-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--primary);
+    background: var(--secondary);
+    border: 1.5px solid var(--border-color);
+    padding: 2px 9px;
+    border-radius: 100px;
+}
+
+.icon-button {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--error);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.icon-button:hover {
+    background: rgba(208, 79, 104, 0.1);
+    border-color: var(--error);
+    transform: translateY(-2px);
+}
+
+.trainer-main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 28px;
+    gap: 20px;
+}
+
+.trainer-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.trainer-stat-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px 20px;
+    text-align: center;
+    box-shadow: 0 4px 16px var(--shadow);
+}
+
+.trainer-stat-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.trainer-stat-label {
+    font-size: 12px;
+    opacity: 0.65;
+    margin-top: 3px;
+}
+
+.trainer-split {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    overflow: hidden;
+}
+
+.trainer-pane {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.trainer-learners-pane {
+    width: 340px;
+    flex-shrink: 0;
+}
+
+.trainer-detail-pane {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    position: relative;
+}
+
+.pane-head {
+    padding: 18px 18px 14px;
+    border-bottom: 2px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.pane-head h2 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.pane-head input {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.pane-head input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.learners-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.learner-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    margin-bottom: 6px;
+    transition: all 0.15s ease;
+}
+
+.learner-row:hover {
+    background: var(--secondary);
+}
+
+.learner-row.active {
+    border-color: var(--primary);
+    background: var(--secondary);
+}
+
+.learner-row-name {
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.learner-row-designation {
+    font-size: 11.5px;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+.learner-row-score {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.learner-row-score.none {
+    color: var(--text-color);
+    opacity: 0.4;
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px 16px;
+    opacity: 0.6;
+    font-size: 13px;
+}
+
+.empty-state-large {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 40px;
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.55;
+}
+
+.learner-detail {
+    padding: 24px 28px;
+}
+
+.learner-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.learner-detail-header h2 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+}
+
+.learner-detail-header p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.65;
+}
+
+.detail-score-badge {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+    background: var(--secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 8px 16px;
+    flex-shrink: 0;
+}
+
+.detail-section {
+    margin-bottom: 26px;
+}
+
+.detail-section h3 {
+    font-size: 14px;
+    margin: 0 0 12px 0;
+}
+
+.detail-skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skill-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.skill-bar-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    width: 140px;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.skill-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--secondary);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1.5px solid var(--border-color);
+}
+
+.skill-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), #7c3aed);
+    border-radius: 10px;
+}
+
+.skill-bar-percent {
+    font-size: 12px;
+    font-weight: 700;
+    width: 40px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.detail-tests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-test-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg-color);
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 12.5px;
+}
+
+.detail-test-score {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.course-search-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.course-search-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.course-search-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.trainer-btn-primary {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), #7c3aed);
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.trainer-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(124, 58, 237, 0.3);
+}
+
+.course-results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.course-result-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-color);
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.course-result-info {
+    min-width: 0;
+}
+
+.course-result-title {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.course-result-meta {
+    font-size: 11.5px;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+.course-assign-btn {
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.course-assign-btn:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+.course-assign-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.assigned-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.assigned-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-color);
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+}
+
+.assigned-row-info {
+    min-width: 0;
+}
+
+.assigned-row-title {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.assigned-row-meta {
+    font-size: 11.5px;
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+.assigned-remove-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 2px solid var(--error);
+    background: transparent;
+    color: var(--error);
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.assigned-remove-btn:hover {
+    background: var(--error);
+    color: #fff;
+}
+
+@media screen and (max-width: 900px) {
+    .trainer-split {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .trainer-learners-pane {
+        width: 100%;
+        max-height: 320px;
+    }
+}
