@@ -3306,5 +3306,139 @@ def api_user_assigned_courses(uid):
 
     return jsonify({"assigned_courses": rows})
 
+def _normalize_department(department):
+    department = (department or "").strip()
+    if not department:
+        return department
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != ' '")
+    existing = [r[0] for r in cur.fetchall()]
+    conn.close()
+    for d in existing:
+        if d and d.strip().lower() == department.lower():
+            return d
+    return department
+
+
+@app.route('/admin/api/trainers', methods=['GET'])
+@admin_required
+def admin_list_trainers():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id, username, name, department, created_at FROM trainers ORDER BY department, name")
+    trainers = _fetchall(cur)
+    conn.close()
+    return jsonify(trainers)
+
+
+@app.route('/admin/api/trainers', methods=['POST'])
+@admin_required
+def admin_create_trainer():
+    data = request.json or {}
+    username = (data.get("username") or "").strip()
+    password = data.get("password", "")
+    name = (data.get("name") or "").strip()
+    department = _normalize_department(data.get("department"))
+
+    if not username or not password or not name or not department:
+        return jsonify({"error": "Username, password, name, and department are all required"}), 400
+
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id FROM trainers WHERE LOWER(username) = LOWER(:1)", (username,))
+    if _fetchone(cur):
+        conn.close()
+        return jsonify({"error": f"A trainer with username '{username}' already exists"}), 400
+
+    cur.execute(
+        "SELECT id FROM trainers WHERE LOWER(name) = LOWER(:1) AND LOWER(department) = LOWER(:2)",
+        (name, department)
+    )
+    if _fetchone(cur):
+        conn.close()
+        return jsonify({"error": f"'{name}' is already registered as a trainer for {department}"}), 400
+
+    id_var = cur.var(oracledb.NUMBER)
+    cur.execute(
+        """INSERT INTO trainers (username, password_hash, name, department)
+           VALUES (:1, :2, :3, :4) RETURNING id INTO :5""",
+        (username, generate_password_hash(password), name, department, id_var)
+    )
+    trainer_id = _getid(id_var)
+    conn.commit()
+    conn.close()
+
+    return jsonify({"id": trainer_id, "username": username, "name": name, "department": department})
+
+
+@app.route('/admin/api/trainers/<int:trainer_id>', methods=['DELETE'])
+@admin_required
+def admin_delete_trainer(trainer_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM trainers WHERE id = :1", (trainer_id,))
+    if not _fetchone(cur):
+        conn.close()
+        return jsonify({"error": "Trainer not found"}), 404
+
+    cur.execute("DELETE FROM trainers WHERE id = :1", (trainer_id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Trainer removed"})
+
+
+@app.route('/admin/api/trainers/<int:trainer_id>/reset_password', methods=['POST'])
+@admin_required
+def admin_reset_trainer_password(trainer_id):
+    data = request.json or {}
+    password = data.get("password", "")
+
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM trainers WHERE id = :1", (trainer_id,))
+    if not _fetchone(cur):
+        conn.close()
+        return jsonify({"error": "Trainer not found"}), 404
+
+    cur.execute("UPDATE trainers SET password_hash = :1 WHERE id = :2", (generate_password_hash(password), trainer_id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Password updated"})
+
+
+@app.route('/admin/api/department_audit', methods=['GET'])
+@admin_required
+def admin_department_audit():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT DISTINCT department FROM users WHERE department IS NOT NULL AND department != ' '")
+    user_depts = [r[0] for r in cur.fetchall() if r[0]]
+    cur.execute("SELECT DISTINCT department FROM trainers")
+    trainer_depts = [r[0] for r in cur.fetchall() if r[0]]
+    conn.close()
+
+    groups = {}
+    for d in set(user_depts + trainer_depts):
+        key = d.strip().lower()
+        groups.setdefault(key, []).append(d)
+
+    duplicates = [variants for variants in groups.values() if len(set(variants)) > 1]
+    orphans = [d for d in user_depts if not any(td.strip().lower() == d.strip().lower() for td in trainer_depts)]
+
+    return jsonify({
+        "duplicate_department_variants": duplicates,
+        "departments_without_trainer": sorted(orphans),
+    })
+
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False, port=5000, host='0.0.0.0')
