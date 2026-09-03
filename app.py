@@ -19,6 +19,7 @@ from firebase_admin import credentials as fb_credentials
 from firebase_admin import auth as fb_auth
 from firebase_admin import firestore as fb_firestore
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import date, timedelta
 
 
 load_dotenv()
@@ -1950,6 +1951,76 @@ def _get_user_row(uid):
     conn.close()
     return user
 
+def get_activity_days(user_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT DATE(taken_at) AS d, COUNT(*) AS c FROM test_attempts WHERE user_id = %s GROUP BY DATE(taken_at)",
+        (user_id,)
+    )
+    activity = {}
+    for r in _fetchall(cur):
+        key = r["d"].isoformat()
+        activity[key] = activity.get(key, 0) + r["c"]
+
+    cur.execute(
+        "SELECT DATE(created_at) AS d, COUNT(*) AS c FROM lab_attempts WHERE user_id = %s GROUP BY DATE(created_at)",
+        (user_id,)
+    )
+    for r in _fetchall(cur):
+        key = r["d"].isoformat()
+        activity[key] = activity.get(key, 0) + r["c"]
+
+    conn.close()
+    return activity
+
+
+def _compute_current_streak(active_dates):
+    today = date.today()
+    cursor_date = today
+    if cursor_date.isoformat() not in active_dates:
+        cursor_date = cursor_date - timedelta(days=1)
+
+    streak = 0
+    while cursor_date.isoformat() in active_dates:
+        streak += 1
+        cursor_date -= timedelta(days=1)
+    return streak
+
+
+def _compute_longest_streak(active_dates):
+    if not active_dates:
+        return 0
+
+    sorted_dates = sorted(date.fromisoformat(d) for d in active_dates)
+    longest = 1
+    current = 1
+    for i in range(1, len(sorted_dates)):
+        if (sorted_dates[i] - sorted_dates[i - 1]).days == 1:
+            current += 1
+            longest = max(longest, current)
+        else:
+            current = 1
+    return longest
+
+
+@app.route('/api/activity/<uid>', methods=['GET'])
+def api_user_activity(uid):
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
+    activity = get_activity_days(user["id"])
+    active_dates = set(activity.keys())
+
+    return jsonify({
+        "activity": activity,
+        "current_streak": _compute_current_streak(active_dates),
+        "longest_streak": _compute_longest_streak(active_dates),
+        "total_active_days": len(active_dates),
+    })
+
 
 @app.route('/api/my_tests/<uid>', methods=['GET'])
 def get_my_tests(uid):
@@ -3351,6 +3422,7 @@ def admin_department_audit():
         "duplicate_department_variants": duplicates,
         "departments_without_trainer": sorted(orphans),
     })
+
 
 
 if __name__ == '__main__':
