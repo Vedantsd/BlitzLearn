@@ -25,6 +25,7 @@ firebase.auth().onAuthStateChanged(user => {
 
         renderLearningHistory();
         refreshProcessedStatus();
+        loadListedCourses();
     }
 });
 
@@ -163,6 +164,31 @@ function bookIconSvg() {
 
 function uploadIconSvg() {
     return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>`;
+}
+
+async function loadListedCourses() {
+    const container = document.getElementById('listed-courses');
+    try {
+        const response = await fetch('/api/courses');
+        const courses = await response.json();
+
+        if (!courses || courses.length === 0) {
+            container.innerHTML = '<div class="history-empty">No courses available yet.</div>';
+            return;
+        }
+
+        container.innerHTML = courses.map(course => `
+            <div class="history-item">
+                <div class="history-icon book">${bookIconSvg()}</div>
+                <div class="history-meta">
+                    <a class="history-name" href="${course.url || '#'}" target="_blank" rel="noopener">${escapeHtml(course.course_name)}</a>
+                    <span class="history-date">${escapeHtml(course.organisation || '')}${course.duration ? ' · ' + escapeHtml(course.duration) : ''}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        container.innerHTML = '<div class="history-empty">Failed to load courses.</div>';
+    }
 }
 
 function formatDate(iso) {

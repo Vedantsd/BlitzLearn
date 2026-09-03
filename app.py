@@ -2788,6 +2788,23 @@ def api_bootstrap_core():
         "session_context": get_session_context(uid),
     })
 
+@app.route('/api/courses', methods=['GET'])
+def api_courses():
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT course_name, url, duration, organisation
+        FROM igot_courses
+        ORDER BY course_name
+        LIMIT 50
+    """)
+
+    rows = _fetchall(cur)
+    cur.close()
+    conn.close()
+
+    return jsonify(rows)
 
 @app.route('/api/bootstrap/roadmap', methods=['GET'])
 @require_uid
