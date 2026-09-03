@@ -107,6 +107,36 @@
         <div id="experience-list" class="detail-list"></div>
     </div>
 
+    <div class="streak-card">
+        <h3>Learning Streak</h3>
+        <div class="streak-stats-row">
+            <div class="streak-stat-card">
+                <div class="streak-stat-num" id="stat-current-streak">—</div>
+                <div class="streak-stat-label">Current streak</div>
+            </div>
+            <div class="streak-stat-card">
+                <div class="streak-stat-num" id="stat-longest-streak">—</div>
+                <div class="streak-stat-label">Longest streak</div>
+            </div>
+            <div class="streak-stat-card">
+                <div class="streak-stat-num" id="stat-active-days">—</div>
+                <div class="streak-stat-label">Active days</div>
+            </div>
+        </div>
+        <div class="heatmap-scroll">
+            <div class="heatmap-grid" id="heatmap-grid"></div>
+        </div>
+        <div class="heatmap-legend">
+            <span>Less</span>
+            <div class="heatmap-cell level-0"></div>
+            <div class="heatmap-cell level-1"></div>
+            <div class="heatmap-cell level-2"></div>
+            <div class="heatmap-cell level-3"></div>
+            <div class="heatmap-cell level-4"></div>
+            <span>More</span>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>

@@ -18,6 +18,7 @@ firebase.auth().onAuthStateChanged(user => {
         }
 
         loadProfile();
+        loadActivityHeatmap();
     }
 });
 
@@ -228,10 +229,91 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+async function loadActivityHeatmap() {
+    const grid = document.getElementById('heatmap-grid');
+    try {
+        const response = await fetch(`/api/activity/${currentUid}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to load activity.');
+
+        const currentStreak = data.current_streak || 0;
+        const longestStreak = data.longest_streak || 0;
+
+        document.getElementById('stat-current-streak').textContent = `${currentStreak} day${currentStreak === 1 ? '' : 's'}`;
+        document.getElementById('stat-longest-streak').textContent = `${longestStreak} day${longestStreak === 1 ? '' : 's'}`;
+        document.getElementById('stat-active-days').textContent = data.total_active_days || 0;
+
+        const weeks = generateHeatmapWeeks(data.activity || {});
+        renderHeatmap(weeks);
+    } catch (error) {
+        grid.innerHTML = '<p class="empty-state">Failed to load learning activity.</p>';
+    }
+}
+
+function generateHeatmapWeeks(activityMap) {
+    const weeks = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const totalDays = 371;
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - (totalDays - 1));
+    startDate.setDate(startDate.getDate() - startDate.getDay());
+
+    let cursor = new Date(startDate);
+    while (cursor <= today) {
+        const week = [];
+        for (let d = 0; d < 7; d++) {
+            if (cursor > today) {
+                week.push(null);
+            } else {
+                const iso = cursor.toISOString().slice(0, 10);
+                week.push({ date: iso, count: activityMap[iso] || 0 });
+            }
+            cursor.setDate(cursor.getDate() + 1);
+        }
+        weeks.push(week);
+    }
+    return weeks;
+}
+
+function heatLevel(count) {
+    if (count <= 0) return 0;
+    if (count === 1) return 1;
+    if (count === 2) return 2;
+    if (count <= 4) return 3;
+    return 4;
+}
+
+function renderHeatmap(weeks) {
+    const container = document.getElementById('heatmap-grid');
+    container.innerHTML = weeks.map(week => `
+        <div class="heatmap-col">
+            ${week.map(day => {
+                if (!day) return '<div class="heatmap-cell empty"></div>';
+                const level = heatLevel(day.count);
+                const label = day.count > 0
+                    ? `${day.count} activit${day.count === 1 ? 'y' : 'ies'} on ${formatHeatDate(day.date)}`
+                    : `No activity on ${formatHeatDate(day.date)}`;
+                return `<div class="heatmap-cell level-${level}" title="${escapeAttr(label)}"></div>`;
+            }).join('')}
+        </div>
+    `).join('');
+}
+
+function formatHeatDate(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
+}
+
+function escapeAttr(str) {
+    return escapeHtml(str).replace(/"/g, '&quot;');
 }
 
 const customCursor = document.getElementById('custom-cursor');
