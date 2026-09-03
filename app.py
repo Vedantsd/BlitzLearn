@@ -444,8 +444,11 @@ def _backfill_skill_competency():
         _update_skill_competency_and_progress(row["user_id"], row["id"])
 
 
-init_db()
-_backfill_skill_competency()
+try:
+    init_db()
+    _backfill_skill_competency()
+except Exception as _e:
+    print(f"Warning: Database initialization skipped at startup: {_e}")
 
 
 def _init_firebase_admin():
@@ -479,6 +482,57 @@ def require_uid(view_func):
         request.uid = decoded["uid"]
         return view_func(*args, **kwargs)
     return wrapped
+
+
+def _get_user_row(uid):
+    if not uid:
+        return None
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
+        user = _fetchone(cur)
+        if user:
+            conn.close()
+            return user
+
+        fb_user = None
+        try:
+            fb_user = fb_auth.get_user(uid)
+        except Exception:
+            pass
+
+        if fb_user:
+            email = fb_user.email
+            display_name = fb_user.display_name or (email.split('@')[0] if email else 'User')
+
+            # Check if an existing profile exists with this email
+            if email:
+                cur.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(%s) ORDER BY id DESC", (email,))
+                existing = _fetchone(cur)
+                if existing:
+                    cur.execute("UPDATE users SET uid = %s WHERE id = %s RETURNING *", (uid, existing["id"]))
+                    user = _fetchone(cur)
+                    conn.commit()
+                    conn.close()
+                    return user
+
+            # Auto-provision a default profile for the authenticated user
+            cur.execute(
+                """INSERT INTO users (uid, name, email, department, designation)
+                   VALUES (%s, %s, %s, 'General', 'Learner')
+                   RETURNING *""",
+                (uid, display_name, email or "")
+            )
+            user = _fetchone(cur)
+            conn.commit()
+            conn.close()
+            return user
+
+        conn.close()
+    except Exception as e:
+        print(f"Error resolving user row for UID {uid}: {e}")
+    return None
 
 
 def _user_doc_ref(uid):
@@ -928,22 +982,27 @@ def terms():
 def firebase_config_js():
     js = f"""
     const firebaseConfig = {{
-        apiKey: "{os.environ['FIREBASE_API_KEY']}",
-        authDomain: "{os.environ['FIREBASE_AUTH_DOMAIN']}",
-        projectId: "{os.environ['FIREBASE_PROJECT_ID']}",
+        apiKey: "{os.environ.get('FIREBASE_API_KEY', '')}",
+        authDomain: "{os.environ.get('FIREBASE_AUTH_DOMAIN', '')}",
+        projectId: "{os.environ.get('FIREBASE_PROJECT_ID', '')}",
         storageBucket: "{os.environ.get('FIREBASE_STORAGE_BUCKET', '')}",
-        messagingSenderId: "{os.environ['FIREBASE_MESSAGING_SENDER_ID']}",
-        appId: "{os.environ['FIREBASE_APP_ID']}",
+        messagingSenderId: "{os.environ.get('FIREBASE_MESSAGING_SENDER_ID', '')}",
+        appId: "{os.environ.get('FIREBASE_APP_ID', '')}",
         measurementId: "{os.environ.get('FIREBASE_MEASUREMENT_ID', '')}"
     }};
 
-    if (!firebase.apps.length) {{
-        firebase.initializeApp(firebaseConfig);
+    var auth = null;
+    if (typeof firebase !== 'undefined') {{
+        if (!firebase.apps.length) {{
+            firebase.initializeApp(firebaseConfig);
+        }}
+        auth = firebase.auth();
+        window.auth = auth;
+        window.getAuth = function() {{ return auth || firebase.auth(); }};
     }}
-    const auth = firebase.auth();
 
     async function authFetch(url, options = {{}}) {{
-        const user = firebase.auth().currentUser;
+        const user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
         if (!user) {{
             throw new Error("Not signed in");
         }}
@@ -1086,14 +1145,12 @@ def save_profile():
 
 @app.route('/api/profile/<uid>', methods=['GET'])
 def get_profile(uid):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
+    user = _get_user_row(uid)
     if not user:
-        conn.close()
         return jsonify({"error": "Profile not found"}), 404
 
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(
         "SELECT id, skill_name, self_rated_level FROM user_skills WHERE user_id = %s", (user["id"],)
     )
@@ -1126,14 +1183,12 @@ def add_profile_skill(uid):
     if not name:
         return jsonify({"error": "Skill name is required"}), 400
 
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT id FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
+    user = _get_user_row(uid)
     if not user:
-        conn.close()
         return jsonify({"error": "Profile not found"}), 404
 
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(
         "SELECT id FROM user_skills WHERE user_id = %s AND LOWER(skill_name) = LOWER(%s)",
         (user["id"], name)
@@ -1156,14 +1211,12 @@ def add_profile_skill(uid):
 
 @app.route('/api/profile/<uid>/skills/<int:skill_id>', methods=['DELETE'])
 def remove_profile_skill(uid, skill_id):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT id FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
+    user = _get_user_row(uid)
     if not user:
-        conn.close()
         return jsonify({"error": "Profile not found"}), 404
 
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute("DELETE FROM user_skills WHERE id = %s AND user_id = %s", (skill_id, user["id"]))
     deleted = cur.rowcount
     conn.commit()
@@ -1726,14 +1779,12 @@ def generate_skill_test():
     if not uid:
         return jsonify({"error": "Missing uid"}), 400
 
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
+    user = _get_user_row(uid)
     if not user:
-        conn.close()
         return jsonify({"error": "Profile not found. Please complete signup first."}), 404
 
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(
         "SELECT skill_name, self_rated_level FROM user_skills WHERE user_id = %s", (user["id"],)
     )
@@ -1817,18 +1868,17 @@ def submit_skill_test():
     uid = data.get("uid")
     test_id = data.get("test_id")
     answers = data.get("answers", {})
+    disqualified = bool(data.get("disqualified", False))
 
     if not uid or not test_id:
         return jsonify({"error": "Missing uid or test_id"}), 400
 
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
+    user = _get_user_row(uid)
     if not user:
-        conn.close()
         return jsonify({"error": "Profile not found."}), 404
 
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(
         """SELECT q.id, q.topic, q.difficulty, q.correct_option
            FROM test_questions tq
@@ -1846,15 +1896,21 @@ def submit_skill_test():
     skill_stats = {}
     overall_correct = 0
 
-    for row in rows:
-        topic = row["topic"] or "General"
-        skill_stats.setdefault(topic, {"correct": 0, "total": 0})
-        skill_stats[topic]["total"] += 1
+    if not disqualified:
+        for row in rows:
+            topic = row["topic"] or "General"
+            skill_stats.setdefault(topic, {"correct": 0, "total": 0})
+            skill_stats[topic]["total"] += 1
 
-        selected = answers.get(str(row["id"]))
-        if selected == row["correct_option"]:
-            skill_stats[topic]["correct"] += 1
-            overall_correct += 1
+            selected = answers.get(str(row["id"]))
+            if selected == row["correct_option"]:
+                skill_stats[topic]["correct"] += 1
+                overall_correct += 1
+    else:
+        for row in rows:
+            topic = row["topic"] or "General"
+            skill_stats.setdefault(topic, {"correct": 0, "total": 0})
+            skill_stats[topic]["total"] += 1
 
     overall_total = len(rows)
 
@@ -1866,7 +1922,7 @@ def submit_skill_test():
             "correct": stats["correct"],
             "total": stats["total"],
             "percent": percent,
-            "level": _proficiency_label(percent)
+            "level": "Beginner (Disqualified)" if disqualified else _proficiency_label(percent)
         })
     skills_breakdown.sort(key=lambda s: s["percent"])
 
@@ -1876,7 +1932,7 @@ def submit_skill_test():
     )
 
     for row in rows:
-        selected = answers.get(str(row["id"]))
+        selected = None if disqualified else answers.get(str(row["id"]))
         cur.execute(
             "INSERT INTO user_answers (test_id, question_id, selected_option) VALUES (%s, %s, %s)",
             (test_id, row["id"], selected)
@@ -1897,19 +1953,19 @@ def submit_skill_test():
         "report_id": report_id,
         "overall_score": overall_correct,
         "overall_total": overall_total,
-        "skills": skills_breakdown
+        "skills": skills_breakdown,
+        "disqualified": disqualified
     })
 
 
 @app.route('/api/skill_report/<uid>', methods=['GET'])
 def get_latest_skill_report(uid):
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
-    if not user:
-        conn.close()
-        return jsonify({"error": "Profile not found."}), 404
 
     cur.execute(
         "SELECT * FROM skill_reports WHERE user_id = %s ORDER BY generated_at DESC LIMIT 1",
@@ -1942,14 +1998,6 @@ def _target_percent_for_designation(designation):
         return 65
     return DEFAULT_SKILL_TARGET_PERCENT
 
-
-def _get_user_row(uid):
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
-    conn.close()
-    return user
 
 def get_activity_days(user_id):
     conn = get_db()
@@ -2700,8 +2748,7 @@ def api_bootstrap_core():
     )
     staged_files = _fetchall(cur)
 
-    cur.execute("SELECT * FROM users WHERE uid = %s", (uid,))
-    user = _fetchone(cur)
+    user = _get_user_row(uid)
 
     profile = None
     skill_radar = {"has_data": False, "skills": []}
@@ -2972,14 +3019,25 @@ def api_evaluate_lab():
     category = (data.get("category") or "general").strip().lower()
     submission = data.get("submission", "")
     task = data.get("task") or {}
+    disqualified = bool(data.get("disqualified", False))
 
     if not topic or not task.get("prompt"):
         return jsonify({"error": "Missing topic or task"}), 400
 
-    result, error = _evaluate_lab_submission(topic, category, task, submission)
-    if error:
-        message, status_code = error
-        return jsonify({"error": message}), status_code
+    if disqualified:
+        result = {
+            "score": 0,
+            "summary": "Lab test auto-submitted with 0 marks due to exceeding maximum allowed tab switches / fullscreen exits (3/3).",
+            "mistakes": ["Proctoring violation: Tab changed or fullscreen exited more than 3 times."],
+            "improvements": ["Maintain active fullscreen test window without switching tabs or losing focus."],
+            "suggestions": ["Retake the lab assessment in fullscreen mode."],
+            "disqualified": True
+        }
+    else:
+        result, error = _evaluate_lab_submission(topic, category, task, submission)
+        if error:
+            message, status_code = error
+            return jsonify({"error": message}), status_code
 
     feedback_json_str = json.dumps(result)
     if len(feedback_json_str) > 4000:
