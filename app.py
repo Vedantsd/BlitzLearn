@@ -2,6 +2,9 @@ import os
 import io
 import json
 import re
+import secrets
+import smtplib
+import hashlib
 import psycopg2
 import psycopg2.extras
 from functools import wraps
@@ -19,7 +22,9 @@ from firebase_admin import credentials as fb_credentials
 from firebase_admin import auth as fb_auth
 from firebase_admin import firestore as fb_firestore
 from werkzeug.security import check_password_hash, generate_password_hash
-from datetime import date, timedelta
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from datetime import date, datetime, timedelta
 
 
 load_dotenv()
@@ -30,6 +35,20 @@ ADMIN_PASSWORD = "Password"
 api_key = os.getenv("GEMINI_API_KEY")
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "blitzlearn-dev-secret-key")
 _vector_store_cache = {}
+
+# ---------------- Email OTP (signup verification) configuration ----------------
+SMTP_HOST = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "blitzlearn.official@gmail.com")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+SMTP_USE_TLS = os.environ.get("SMTP_USE_TLS", "true").strip().lower() in ("1", "true", "yes")
+OTP_SENDER = "BlitzLearn <blitzlearn.official@gmail.com>"
+
+OTP_EXPIRY_MINUTES = 10
+OTP_MAX_ATTEMPTS = 5
+OTP_RESEND_COOLDOWN_SECONDS = 60
+
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 DEFAULT_SESSION_CONTEXT = {
     "course_outcomes": "",
@@ -948,6 +967,261 @@ def admin_dashboard_page():
     return render_template('admin-dashboard.html')
 
 
+def _is_valid_email(email):
+    return bool(email) and bool(EMAIL_REGEX.match(email)) and len(email) <= 320
+
+
+def _generate_otp():
+    """Cryptographically secure 6-digit OTP (always 100000-999999)."""
+    return str(secrets.randbelow(900000) + 100000)
+
+
+def _hash_otp(otp, email):
+    salted = f"{otp}:{email.strip().lower()}:{app.secret_key}"
+    return hashlib.sha256(salted.encode("utf-8")).hexdigest()
+
+
+def _clear_signup_otp_session():
+    for key in (
+        "signup_otp_email", "signup_otp_hash", "signup_otp_expires",
+        "signup_otp_attempts", "signup_otp_verified", "signup_otp_last_sent",
+    ):
+        session.pop(key, None)
+
+
+def _email_already_registered(email):
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM users WHERE LOWER(email) = LOWER(%s)", (email,))
+        existing = _fetchone(cur)
+        conn.close()
+        return existing is not None
+    except Exception as e:
+        print(f"Warning: could not check existing email during OTP send: {e}")
+        return False
+
+
+def _build_otp_email_html(otp):
+    return f"""\
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify your BlitzLearn email</title>
+</head>
+<body style="margin:0; padding:0; background-color:#F8F3FA; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8F3FA; padding:32px 16px;">
+<tr>
+<td align="center">
+<table role="presentation" width="480" cellpadding="0" cellspacing="0" border="0" style="max-width:480px; width:100%; background-color:#FFFFFF; border-radius:16px; overflow:hidden; border:2px solid #DED2E4;">
+
+<tr>
+<td align="center" style="background:linear-gradient(135deg,#7C3AED,#6929D1); padding:28px 24px;">
+<span style="font-size:24px; font-weight:700; color:#FFFFFF; letter-spacing:0.3px;">&#9889; BlitzLearn</span>
+</td>
+</tr>
+
+<tr>
+<td style="padding:36px 32px 8px 32px;">
+<h1 style="margin:0 0 12px 0; font-size:20px; font-weight:700; color:#29212F;">Verify your email</h1>
+<p style="margin:0 0 20px 0; font-size:14px; line-height:1.6; color:#29212F;">Hello,</p>
+<p style="margin:0 0 24px 0; font-size:14px; line-height:1.6; color:#29212F;">
+You're almost there! Use the verification code below to complete your BlitzLearn account setup.
+</p>
+</td>
+</tr>
+
+<tr>
+<td align="center" style="padding:0 32px 24px 32px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="background-color:#F0E5F7; border-radius:12px; border:2px solid #DED2E4;">
+<tr>
+<td style="padding:18px 32px; font-size:32px; font-weight:700; letter-spacing:10px; color:#7C3AED; font-family:'Courier New',Courier,monospace;">
+{otp}
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td align="center" style="padding:0 32px 28px 32px;">
+<p style="margin:0; font-size:13px; color:#6B5C75;">This code will expire in {OTP_EXPIRY_MINUTES} minutes.</p>
+</td>
+</tr>
+
+<tr>
+<td style="padding:0 32px 28px 32px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FCFAFD; border-left:4px solid #D04F68; border-radius:8px;">
+<tr>
+<td style="padding:14px 16px; font-size:12.5px; line-height:1.5; color:#29212F;">
+If you did not request this verification code, you can safely ignore this email.
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td align="center" style="padding:20px 24px; background-color:#F8F3FA; border-top:2px solid #DED2E4;">
+<p style="margin:0 0 4px 0; font-size:12px; color:#6B5C75;">&copy; BlitzLearn</p>
+<p style="margin:0; font-size:12px; color:#6B5C75;">Learn smarter. Build better.</p>
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>
+"""
+
+
+def _send_otp_email(to_email, otp):
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "Your BlitzLearn verification code"
+    msg["From"] = OTP_SENDER
+    msg["To"] = to_email
+
+    text_body = (
+        f"Verify your BlitzLearn email\n\n"
+        f"Your verification code is: {otp}\n"
+        f"This code will expire in {OTP_EXPIRY_MINUTES} minutes.\n\n"
+        f"If you did not request this verification code, you can safely ignore this email.\n\n"
+        f"(c) BlitzLearn - Learn smarter. Build better."
+    )
+    msg.attach(MIMEText(text_body, "plain"))
+    msg.attach(MIMEText(_build_otp_email_html(otp), "html"))
+
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as server:
+        if SMTP_USE_TLS:
+            server.starttls()
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.sendmail(SMTP_USERNAME, [to_email], msg.as_string())
+
+
+@app.route('/api/send-otp', methods=['POST'])
+def send_otp():
+    data = request.json or {}
+    email = (data.get("email") or "").strip().lower()
+
+    if not _is_valid_email(email):
+        return jsonify({"success": False, "message": "Please enter a valid email address."}), 400
+
+    if _email_already_registered(email):
+        return jsonify({
+            "success": False,
+            "message": "An account with this email already exists. Please log in instead."
+        }), 409
+
+    now = datetime.utcnow()
+
+    last_sent_raw = session.get("signup_otp_last_sent")
+    if last_sent_raw and session.get("signup_otp_email") == email:
+        try:
+            last_sent = datetime.fromisoformat(last_sent_raw)
+            elapsed = (now - last_sent).total_seconds()
+        except ValueError:
+            elapsed = OTP_RESEND_COOLDOWN_SECONDS
+        if elapsed < OTP_RESEND_COOLDOWN_SECONDS:
+            remaining = int(OTP_RESEND_COOLDOWN_SECONDS - elapsed) + 1
+            return jsonify({
+                "success": False,
+                "message": f"Please wait {remaining}s before requesting another OTP.",
+                "retry_after": remaining,
+            }), 429
+
+    otp = _generate_otp()
+
+    try:
+        _send_otp_email(email, otp)
+    except Exception as e:
+        print(f"Error sending OTP email: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Unable to send the verification email right now. Please try again."
+        }), 500
+
+    # New OTP invalidates any previous one for this signup session.
+    session["signup_otp_email"] = email
+    session["signup_otp_hash"] = _hash_otp(otp, email)
+    session["signup_otp_expires"] = (now + timedelta(minutes=OTP_EXPIRY_MINUTES)).isoformat()
+    session["signup_otp_attempts"] = 0
+    session["signup_otp_verified"] = False
+    session["signup_otp_last_sent"] = now.isoformat()
+
+    return jsonify({"success": True, "message": "OTP sent successfully."})
+
+
+@app.route('/api/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.json or {}
+    email = (data.get("email") or "").strip().lower()
+    otp = (data.get("otp") or "").strip()
+
+    stored_email = session.get("signup_otp_email")
+    stored_hash = session.get("signup_otp_hash")
+    expires_raw = session.get("signup_otp_expires")
+    attempts = session.get("signup_otp_attempts", 0)
+
+    if not stored_email or not stored_hash or not email or stored_email != email:
+        return jsonify({
+            "success": False,
+            "message": "This OTP has expired. Please request a new OTP."
+        }), 400
+
+    try:
+        expired = (not expires_raw) or (datetime.utcnow() > datetime.fromisoformat(expires_raw))
+    except ValueError:
+        expired = True
+
+    if expired:
+        _clear_signup_otp_session()
+        return jsonify({
+            "success": False,
+            "message": "This OTP has expired. Please request a new OTP."
+        }), 400
+
+    if attempts >= OTP_MAX_ATTEMPTS:
+        _clear_signup_otp_session()
+        return jsonify({
+            "success": False,
+            "message": "Too many incorrect attempts. Please request a new OTP."
+        }), 429
+
+    if not otp.isdigit() or len(otp) != 6:
+        session["signup_otp_attempts"] = attempts + 1
+        return jsonify({
+            "success": False,
+            "message": "Incorrect OTP. Please check the code and try again."
+        }), 400
+
+    submitted_hash = _hash_otp(otp, email)
+
+    if not secrets.compare_digest(submitted_hash, stored_hash):
+        attempts += 1
+        session["signup_otp_attempts"] = attempts
+        if attempts >= OTP_MAX_ATTEMPTS:
+            _clear_signup_otp_session()
+            return jsonify({
+                "success": False,
+                "message": "Too many incorrect attempts. Please request a new OTP."
+            }), 429
+        return jsonify({
+            "success": False,
+            "message": "Incorrect OTP. Please check the code and try again."
+        }), 400
+
+    # Correct OTP: mark verified and invalidate the OTP so it cannot be reused.
+    session["signup_otp_verified"] = True
+    session["signup_otp_hash"] = None
+    session["signup_otp_attempts"] = 0
+
+    return jsonify({"success": True, "message": "Email verified successfully."})
+
+
 @app.route('/signup')
 def signup():
     return render_template('signup.html')
@@ -1078,6 +1352,12 @@ def save_profile():
     if not name or not email:
         return jsonify({"error": "Name and email are required"}), 400
 
+    if (
+        not session.get("signup_otp_verified")
+        or (session.get("signup_otp_email") or "").lower() != email.lower()
+    ):
+        return jsonify({"error": "Please verify your email before completing signup."}), 403
+
     age = data.get("age")
     phone = data.get("phone", "")
     department = data.get("department", "")
@@ -1139,6 +1419,8 @@ def save_profile():
 
     conn.commit()
     conn.close()
+
+    _clear_signup_otp_session()
 
     return jsonify({"message": "Profile saved!", "user_id": user_id})
 
