@@ -26,7 +26,6 @@ firebase.auth().onAuthStateChanged(user => {
     }
 });
 
-
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
 }
@@ -63,12 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeaderLogo(isDark);
 });
 
-
 function switchView(viewId) {
     document.querySelectorAll('.assessment-view').forEach(v => v.classList.remove('active'));
     document.getElementById(viewId).classList.add('active');
 }
 
+let proctor = null;
+let generatedAssessmentData = null;
 
 async function generateAssessment() {
     switchView('loading-view');
@@ -83,19 +83,48 @@ async function generateAssessment() {
 
         if (!response.ok) throw new Error(data.error || 'Failed to generate your assessment.');
 
+        generatedAssessmentData = data;
         currentTestId = data.test_id;
         currentQuestions = data.questions;
         userAnswers = {};
 
+        document.getElementById('ready-question-count').textContent = data.questions.length;
+        document.getElementById('ready-skill-count').textContent = (data.skills && data.skills.length)
+            ? (data.skills.length > 2 ? `${data.skills.slice(0, 2).join(', ')} +${data.skills.length - 2}` : data.skills.join(', '))
+            : 'Multiple';
+
         document.getElementById('quiz-intro-text').textContent =
             `Covering: ${data.skills.join(', ')}. Answer all ${data.questions.length} questions, then submit for your skill report.`;
 
-        renderQuiz(data.questions);
-        switchView('quiz-view');
+        switchView('ready-view');
+
     } catch (error) {
         document.getElementById('error-text').textContent = error.message || 'We couldn\'t generate your assessment. Please try again.';
         switchView('error-view');
     }
+}
+
+async function startAssessmentNow() {
+    if (!generatedAssessmentData) return;
+
+    if (typeof BlitzProctor !== 'undefined' && BlitzProctor.requestFullscreen) {
+        BlitzProctor.requestFullscreen();
+    }
+
+    renderQuiz(generatedAssessmentData.questions);
+    switchView('quiz-view');
+
+    if (!proctor) {
+        proctor = new BlitzProctor({
+            maxViolations: 3,
+            testType: 'competency',
+            badgeContainer: document.getElementById('competency-proctor-container') || '#quiz-proctor-badge-container',
+            onDisqualify: async (violations) => {
+                await autoSubmitDisqualifiedSkillTest();
+            }
+        });
+    }
+    await proctor.start();
 }
 
 function renderQuiz(questions) {
@@ -140,12 +169,15 @@ function updateProgress() {
     document.getElementById('quiz-progress').textContent = `${answered} / ${currentQuestions.length} answered`;
 }
 
-
 async function submitSkillTest() {
     const unanswered = currentQuestions.length - Object.keys(userAnswers).length;
     if (unanswered > 0) {
         const proceed = confirm(`You have ${unanswered} unanswered question${unanswered > 1 ? 's' : ''}. Submit anyway?`);
         if (!proceed) return;
+    }
+
+    if (proctor) {
+        proctor.stop();
     }
 
     const submitBtn = document.getElementById('submit-test-btn');
@@ -176,13 +208,53 @@ async function submitSkillTest() {
     }
 }
 
+async function autoSubmitDisqualifiedSkillTest() {
+    if (proctor) {
+        proctor.stop();
+    }
+
+    const submitBtn = document.getElementById('submit-test-btn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Assessment Terminated (0 Marks)';
+    }
+
+    document.querySelectorAll('.option-row').forEach(row => {
+        row.style.pointerEvents = 'none';
+        row.style.opacity = '0.5';
+    });
+
+    try {
+        const response = await fetch('/submit_skill_test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uid: currentUid,
+                test_id: currentTestId,
+                answers: {},
+                disqualified: true
+            })
+        });
+        const report = await response.json();
+        if (report) {
+            report.disqualified = true;
+            sessionStorage.setItem('skillReport', JSON.stringify(report));
+        }
+        BLData.invalidate();
+        setTimeout(() => {
+            window.location.href = '/report';
+        }, 1200);
+    } catch (err) {
+        console.error('Failed to submit disqualified assessment:', err);
+        window.location.href = '/report';
+    }
+}
 
 function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
 }
-
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);

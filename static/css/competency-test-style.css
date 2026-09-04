@@ -130,7 +130,6 @@ header h1 {
     cursor: default;
 }
 
-
 .assessment-container {
     flex: 1;
     display: flex;
@@ -154,7 +153,6 @@ header h1 {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 
 .loading-card {
     background: var(--card-bg);
@@ -204,7 +202,6 @@ header h1 {
     align-items: center;
     justify-content: center;
 }
-
 
 .quiz-intro {
     margin-bottom: 24px;
@@ -373,7 +370,6 @@ header h1 {
     cursor: not-allowed;
     transform: none;
 }
-
 
 @media screen and (max-width: 768px) {
     header {
