@@ -1,8 +1,18 @@
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        window.location.href = '/dashboard';
-    }
-});
+function getAuthInstance() {
+    if (typeof auth !== 'undefined' && auth) return auth;
+    if (window.auth) return window.auth;
+    if (typeof firebase !== 'undefined' && firebase.auth) return firebase.auth();
+    return null;
+}
+
+const authInstance = getAuthInstance();
+if (authInstance) {
+    authInstance.onAuthStateChanged((user) => {
+        if (user) {
+            window.location.href = '/dashboard';
+        }
+    });
+}
 
 async function handleLogin(e) {
     e.preventDefault();
@@ -10,11 +20,17 @@ async function handleLogin(e) {
     const password = document.getElementById('login-password').value;
     const submitBtn = e.target.querySelector('button[type="submit"]');
 
+    const clientAuth = getAuthInstance();
+    if (!clientAuth) {
+        alert("Authentication is not ready yet. Please refresh the page.");
+        return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Authenticating...';
 
     try {
-        await auth.signInWithEmailAndPassword(email, password);
+        await clientAuth.signInWithEmailAndPassword(email, password);
     } catch (error) {
         alert("Login Error: " + error.message);
         submitBtn.disabled = false;
@@ -23,10 +39,15 @@ async function handleLogin(e) {
 }
 
 async function handleSocialLogin(provider) {
+    const clientAuth = getAuthInstance();
+    if (!clientAuth) {
+        alert("Authentication is not ready yet. Please refresh the page.");
+        return;
+    }
     if (provider === 'Google') {
         const googleProvider = new firebase.auth.GoogleAuthProvider();
         try {
-            await auth.signInWithPopup(googleProvider);
+            await clientAuth.signInWithPopup(googleProvider);
         } catch (error) {
             alert("Google Login Error: " + error.message);
         }
@@ -57,7 +78,6 @@ function updateHeaderLogo(isDark) {
         : "/static/logo/blitz-logo-dark.png";
 }
 
-
 function updateThemeIcon(isDark) {
     const iconPath = document.getElementById('moon-icon');
     if (!iconPath) return;
@@ -69,7 +89,7 @@ function updateThemeIcon(isDark) {
 }
 
 function switchTab(tab) {
-    // Only 'login' is used now — Sign Up navigates to /signup directly.
+
     const tabs = document.querySelectorAll('.tab');
     const title = document.getElementById('auth-title');
 
@@ -89,8 +109,9 @@ function togglePassword(inputId) {
 function handleForgotPassword(e) {
     e.preventDefault();
     const email = prompt("Enter your email:");
-    if (email) {
-        auth.sendPasswordResetEmail(email)
+    const clientAuth = getAuthInstance();
+    if (email && clientAuth) {
+        clientAuth.sendPasswordResetEmail(email)
             .then(() => alert("Reset link sent!"))
             .catch(err => alert(err.message));
     }
@@ -102,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(isDark);
     updateHeaderLogo(isDark);
 });
-
 
 const customCursor = document.getElementById('custom-cursor');
 

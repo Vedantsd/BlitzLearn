@@ -1123,12 +1123,10 @@ footer {
     z-index: 200;
 }
 
-/* Toggle button hidden because credentials are always visible */
 .demo-toggle {
     display: none;
 }
 
-/* No open/closed state needed */
 .demo-toggle:hover {
     border-color: var(--primary);
     background: var(--secondary);
@@ -1146,7 +1144,6 @@ footer {
     display: none;
 }
 
-/* Demo credentials always visible */
 .demo-panel {
     position: absolute;
     top: 0;
@@ -1159,14 +1156,12 @@ footer {
     box-shadow: 0 20px 50px var(--shadow);
     padding: 16px;
 
-    /* Always visible */
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
 }
 
-/* Keep visible even if JS adds/removes "open" */
 .demo-access.open .demo-panel {
     opacity: 1;
     visibility: visible;
@@ -1282,7 +1277,6 @@ a.demo-row-link:hover {
     background: rgba(63, 143, 107, 0.1);
 }
 
-/* Mobile */
 @media (max-width: 640px) {
     .demo-access {
         top: 64px;

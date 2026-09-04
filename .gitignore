@@ -1,4 +1,5 @@
 .env
+env
 static/js/firebase-config.js
 /.vscode
 questions.db

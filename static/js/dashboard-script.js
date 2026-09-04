@@ -35,7 +35,6 @@ function logout() {
     }).catch(err => alert("Error logging out"));
 }
 
-
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
 }
@@ -341,7 +340,7 @@ async function loadBooks() {
     grid.innerHTML = '<div class="books-loading">Loading books...</div>';
 
     try {
-        // Public, non-personal listing — no auth needed.
+
         const response = await fetch('/api/books');
         const books = await response.json();
 

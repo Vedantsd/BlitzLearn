@@ -34,7 +34,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
 }
@@ -61,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(isDark);
 });
 
-
 async function handleAdminLogout() {
     try {
         await fetch('/admin/api/logout', { method: 'POST' });
@@ -69,7 +67,6 @@ async function handleAdminLogout() {
     }
     window.location.href = '/admin/login';
 }
-
 
 const loadedViews = new Set();
 
@@ -96,7 +93,6 @@ function switchAdminView(view) {
     }
 }
 
-
 async function refreshStats() {
     try {
         const [usersRes, perfRes] = await Promise.all([
@@ -114,7 +110,6 @@ async function refreshStats() {
         console.error('Failed to load stats:', error);
     }
 }
-
 
 async function loadDepartmentsFilter() {
     try {
@@ -234,7 +229,6 @@ async function deleteUser(userId, name) {
     }
 }
 
-
 async function loadPerformance() {
     const topBody = document.getElementById('top-performer-body');
     const bottomBody = document.getElementById('bottom-performer-body');
@@ -277,7 +271,6 @@ function renderPerformerBody(user) {
         <div class="performer-score">${user.score_percent}%</div>
     `;
 }
-
 
 async function loadDepartmentReports() {
     const container = document.getElementById('department-reports-list');
@@ -326,7 +319,6 @@ async function loadDepartmentReports() {
     }
 }
 
-
 function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
@@ -336,7 +328,6 @@ function escapeHtml(str) {
 function escapeAttr(str) {
     return escapeHtml(str).replace(/'/g, "\\'");
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDepartmentsFilter();
@@ -357,7 +348,6 @@ function debounce(fn, delay) {
         timer = setTimeout(() => fn(...args), delay);
     };
 }
-
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);

@@ -207,7 +207,6 @@ function renderEducationRows() {
     `).join('');
 }
 
-
 function addSkill() {
     const nameInput = document.getElementById('skill-name-input');
     const levelInput = document.getElementById('skill-level-input');
@@ -251,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
 
 function addExperienceRow() {
     const id = ++rowIdCounter;
@@ -302,7 +300,6 @@ function renderExperienceRows() {
     `).join('');
 }
 
-
 async function completeSignup() {
     const nextBtn = document.getElementById('next-btn');
     nextBtn.disabled = true;
@@ -317,7 +314,11 @@ async function completeSignup() {
     const designation = document.getElementById('role-designation').value.trim();
 
     try {
-        const credential = await auth.createUserWithEmailAndPassword(email, password);
+        const clientAuth = window.auth || (typeof auth !== 'undefined' ? auth : null) || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
+        if (!clientAuth) {
+            throw new Error('Authentication service is not initialized.');
+        }
+        const credential = await clientAuth.createUserWithEmailAndPassword(email, password);
         await credential.user.updateProfile({ displayName: name });
 
         const response = await fetch('/api/save_profile', {
@@ -360,13 +361,11 @@ function escapeAttr(str) {
     return escapeHtml(str).replace(/"/g, '&quot;');
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
     addEducationRow();
     addExperienceRow();
     showStep(1);
 });
-
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);

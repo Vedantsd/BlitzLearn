@@ -12,6 +12,11 @@
 <div id="custom-cursor"></div>
 <header>
     <div class="header-left">
+        <a href="/dashboard" class="icon-button" title="Back to Dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
         <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
         <h1 onclick="window.location.href='/dashboard'">BlitzLearn</h1>
     </div>
@@ -69,11 +74,16 @@
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+</script>
 
-<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
-<script src="{{ url_for('static', filename='js/load-data.js') }}"></script>
-<script src="{{ url_for('static', filename='js/labs-select-script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/load-data.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/labs-select-script.js') }}">
+</script>
 </body>
 </html>

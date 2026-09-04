@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(isDark);
 });
 
-
 async function handleAdminLogin() {
     const username = document.getElementById('admin-username').value.trim();
     const password = document.getElementById('admin-password').value;
@@ -64,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') handleAdminLogin();
     });
 });
-
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);

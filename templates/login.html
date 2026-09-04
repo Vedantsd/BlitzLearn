@@ -40,7 +40,6 @@
             <button class="tab" onclick="window.location.href='/signup'">Sign Up</button>
         </div>
 
-        <!-- Login Form -->
         <form id="login-form" class="form-container active" onsubmit="handleLogin(event)">
             <div class="form-group">
                 <label for="login-email">Email</label>
@@ -86,11 +85,15 @@
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+</script>
 
-<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}">
+</script>
 
-<script src="{{ url_for('static', filename='js/login-script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/login-script.js') }}">
+</script>
 </body>
 </html>

@@ -117,8 +117,6 @@ header h1 {
     border: 2px solid var(--text-color);
 }
 
-/* ---------------- Page shell ---------------- */
-
 .signup-main {
     flex: 1;
     display: flex;
@@ -154,8 +152,6 @@ header h1 {
     font-size: 14px;
     opacity: 0.7;
 }
-
-/* ---------------- Step indicator ---------------- */
 
 .step-indicator {
     display: flex;
@@ -222,8 +218,6 @@ header h1 {
     margin-top: 15px;
     flex-shrink: 0;
 }
-
-/* ---------------- Step panels ---------------- */
 
 .step-panel {
     display: none;
@@ -306,8 +300,6 @@ header h1 {
     min-height: 16px;
 }
 
-/* ---------------- Dynamic lists (education / experience) ---------------- */
-
 .dynamic-list {
     display: flex;
     flex-direction: column;
@@ -366,8 +358,6 @@ header h1 {
     border-color: var(--primary);
     background: var(--secondary);
 }
-
-/* ---------------- Skills chips ---------------- */
 
 .skill-input-row {
     display: flex;
@@ -463,8 +453,6 @@ header h1 {
     height: 12px;
 }
 
-/* ---------------- OTP placeholder ---------------- */
-
 .otp-row {
     display: flex;
     gap: 10px;
@@ -496,8 +484,6 @@ header h1 {
     border: 1px solid var(--border-color);
     opacity: 0.7;
 }
-
-/* ---------------- Nav buttons ---------------- */
 
 .step-nav {
     display: flex;
@@ -548,8 +534,6 @@ header h1 {
     background: var(--secondary);
     border-color: var(--primary);
 }
-
-/* ---------------- Toast notifications ---------------- */
 
 #toast-container {
     position: fixed;
@@ -615,8 +599,6 @@ header h1 {
     from { opacity: 1; transform: translateX(0); }
     to { opacity: 0; transform: translateX(30px); }
 }
-
-/* ---------------- Mobile ---------------- */
 
 @media screen and (max-width: 768px) {
     header {
