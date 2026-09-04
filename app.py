@@ -3119,18 +3119,32 @@ def api_bootstrap_core():
 
 @app.route('/api/courses', methods=['GET'])
 def api_courses():
+    q = request.args.get("q", "").strip()
+
     conn = get_db()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT course_name, url, duration, organisation
-        FROM igot_courses
-        ORDER BY course_name
-        LIMIT 50
-    """)
+    if q:
+        pattern = f"%{q}%"
+        cur.execute(
+            """SELECT course_name, url, duration, organisation, category
+               FROM igot_courses
+               WHERE course_name ILIKE %(pattern)s
+                  OR organisation ILIKE %(pattern)s
+                  OR category ILIKE %(pattern)s
+               ORDER BY course_name
+               LIMIT 50""",
+            {"pattern": pattern}
+        )
+    else:
+        cur.execute(
+            """SELECT course_name, url, duration, organisation, category
+               FROM igot_courses
+               ORDER BY course_name
+               LIMIT 50"""
+        )
 
     rows = _fetchall(cur)
-    cur.close()
     conn.close()
 
     return jsonify(rows)
@@ -3538,13 +3552,6 @@ def _search_igot_courses(query, limit=20):
         return [dict(r) for r in rows]
     except Exception:
         return []
-
-
-@app.route('/trainer/api/igot_courses', methods=['GET'])
-@trainer_required
-def trainer_api_igot_courses():
-    q = request.args.get("q", "").strip()
-    return jsonify({"courses": _search_igot_courses(q, limit=30)})
 
 
 @app.route('/trainer/api/assign_course', methods=['POST'])
