@@ -6,15 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/competency-test-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/proctoring.css') }}">
 </head>
 
 <body>
 <div id="custom-cursor"></div>
 <header>
     <div class="header-left">
+        <a href="/dashboard" class="icon-button" title="Back to Dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
         <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
         <h1>BlitzLearn</h1>
     </div>
+    <div class="header-center" id="competency-proctor-container"></div>
     <div class="header-actions">
         <div id="user-profile" class="profile-circle" title="User Profile">
             <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
@@ -38,11 +45,71 @@
         </div>
     </div>
 
+    <div class="assessment-view" id="ready-view">
+        <div class="ready-card">
+            <div class="ready-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Assessment Generated Successfully</span>
+            </div>
+
+            <h2 id="ready-title">Initial Skill Assessment Ready</h2>
+            <p id="ready-subtitle" class="setup-subtitle">This one-time assessment personalizes your dashboard, recommendations, and skill report.</p>
+
+            <div class="ready-stats-grid">
+                <div class="ready-stat-item">
+                    <span class="ready-stat-label">Total Questions</span>
+                    <span class="ready-stat-value" id="ready-question-count">10</span>
+                </div>
+                <div class="ready-stat-item">
+                    <span class="ready-stat-label">Skills Evaluated</span>
+                    <span class="ready-stat-value" id="ready-skill-count" style="font-size: 15px;">Multiple</span>
+                </div>
+                <div class="ready-stat-item">
+                    <span class="ready-stat-label">Allowed Tab Switches</span>
+                    <span class="ready-stat-value" style="color: #ef4444;">Max 3</span>
+                </div>
+            </div>
+
+            <div class="ready-instructions">
+                <h3>Assessment & Proctoring Rules:</h3>
+                <ul>
+                    <li>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                        <span><strong>Fullscreen Mode:</strong> Clicking "Start Assessment" below will immediately transition your browser into <strong>Full Screen</strong>. Fullscreen is mandatory.</span>
+                    </li>
+                    <li>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span><strong>Tab Switch Tracker (0 / 3):</strong> A live counter badge tracks any tab switches, app switching, or fullscreen exits.</span>
+                    </li>
+                    <li>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        <span><strong>Auto-Disqualification:</strong> Exceeding 3 tab switches terminates the assessment with <strong>0 marks</strong>.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="ready-actions">
+                <button type="button" class="primary-button ready-start-btn" id="start-assessment-btn" onclick="startAssessmentNow()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Start Assessment & Enter Fullscreen
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="assessment-view" id="quiz-view">
         <div class="quiz-intro">
             <h2>Initial Skill Assessment</h2>
             <p id="quiz-intro-text">This one-time assessment personalizes your dashboard, recommendations, and skill report.</p>
-            <div class="quiz-progress" id="quiz-progress">0 / 0 answered</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 12px;">
+                <div class="quiz-progress" id="quiz-progress">0 / 0 answered</div>
+                <div id="quiz-proctor-badge-container"></div>
+            </div>
         </div>
 
         <div id="questions-list" class="questions-list"></div>
@@ -65,11 +132,18 @@
 
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+</script>
 
-<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
-<script src="{{ url_for('static', filename='js/load-data.js') }}"></script>
-<script src="{{ url_for('static', filename='js/competency-test-script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/load-data.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/proctoring.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/competency-test-script.js') }}">
+</script>
 </body>
 </html>

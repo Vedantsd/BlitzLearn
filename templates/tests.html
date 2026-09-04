@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tests-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/proctoring.css') }}">
 </head>
 
 <body>
@@ -20,6 +21,7 @@
         <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
         <h1>BlitzLearn</h1>
     </div>
+    <div class="header-center" id="tests-proctor-container"></div>
     <div class="header-actions">
         <div id="user-profile" class="profile-circle" title="User Profile">
             <img id="user-photo" src="" alt="" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
@@ -85,13 +87,73 @@
         </div>
     </div>
 
+    <div class="test-view" id="ready-view">
+        <div class="ready-card">
+            <div class="ready-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Test Generated Successfully</span>
+            </div>
+
+            <h2 id="ready-title">Test Ready</h2>
+            <p id="ready-subtitle" class="setup-subtitle">Your personalized assessment is ready. Review instructions below before starting.</p>
+
+            <div class="ready-stats-grid">
+                <div class="ready-stat-item">
+                    <span class="ready-stat-label">Total Questions</span>
+                    <span class="ready-stat-value" id="ready-question-count">10</span>
+                </div>
+                <div class="ready-stat-item">
+                    <span class="ready-stat-label">Difficulty</span>
+                    <span class="ready-stat-value" id="ready-difficulty">Easy</span>
+                </div>
+                <div class="ready-stat-item">
+                    <span class="ready-stat-label">Allowed Tab Switches</span>
+                    <span class="ready-stat-value" style="color: #ef4444;">Max 3</span>
+                </div>
+            </div>
+
+            <div class="ready-instructions">
+                <h3>Assessment & Proctoring Rules:</h3>
+                <ul>
+                    <li>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                        <span><strong>Fullscreen Mode:</strong> Clicking "Start Test" below will immediately transition to <strong>Full Screen</strong>. Fullscreen is mandatory throughout the test.</span>
+                    </li>
+                    <li>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span><strong>Tab Switch Tracker (0 / 3):</strong> A live badge will track tab switches, window minimization, or exiting fullscreen.</span>
+                    </li>
+                    <li>
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        <span><strong>Auto-Disqualification:</strong> Exceeding 3 tab switches will immediately terminate and auto-submit the test with <strong>0 marks</strong>.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="ready-actions">
+                <button type="button" class="primary-button ready-start-btn" id="start-test-btn" onclick="startTestNow()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Start Test & Enter Fullscreen
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="test-view" id="quiz-view">
         <div class="quiz-header">
             <div>
                 <h2 id="quiz-title">Test</h2>
                 <p id="quiz-subtitle" class="setup-subtitle"></p>
             </div>
-            <div class="quiz-progress" id="quiz-progress">0 / 0 answered</div>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <div class="quiz-progress" id="quiz-progress">0 / 0 answered</div>
+                <div id="quiz-badge-slot"></div>
+            </div>
         </div>
 
         <div id="questions-list" class="questions-list"></div>
@@ -103,6 +165,7 @@
     </div>
 
     <div class="test-view" id="results-view">
+        <div id="results-disqualified-banner-slot"></div>
         <div class="results-summary">
             <div class="score-ring" id="score-ring">
                 <span id="score-percent">0%</span>
@@ -123,11 +186,18 @@
 
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+</script>
 
-<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
-<script src="{{ url_for('static', filename='js/load-data.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tests-script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/load-data.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/proctoring.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/tests-script.js') }}">
+</script>
 </body>
 </html>
