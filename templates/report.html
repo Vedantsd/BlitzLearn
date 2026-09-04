@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/report-style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/proctoring.css') }}">
 </head>
 
 <body>
@@ -43,6 +44,8 @@
             <p id="report-subheading">Here's how you scored across your declared skills.</p>
         </div>
 
+        <div id="disqualified-banner-slot"></div>
+
         <div class="overall-card">
             <div class="score-ring" id="score-ring">
                 <span id="score-percent">0%</span>
@@ -64,11 +67,16 @@
 
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+</script>
 
-<script src="{{ url_for('static', filename='js/firebase-config.js') }}"></script>
-<script src="{{ url_for('static', filename='js/load-data.js') }}"></script>
-<script src="{{ url_for('static', filename='js/report-script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/firebase-config.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/load-data.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/report-script.js') }}">
+</script>
 </body>
 </html>
