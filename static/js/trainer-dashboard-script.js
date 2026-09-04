@@ -155,9 +155,8 @@ async function searchCourses() {
     resultsEl.innerHTML = '<p class="empty-state">Searching...</p>';
 
     try {
-        const response = await fetch(`/trainer/api/igot_courses?q=${encodeURIComponent(q)}`);
-        const data = await response.json();
-        const courses = data.courses || [];
+        const response = await fetch(`/api/courses?q=${encodeURIComponent(q)}`);
+        const courses = await response.json();
 
         if (courses.length === 0) {
             resultsEl.innerHTML = '<p class="empty-state">No courses found.</p>';
