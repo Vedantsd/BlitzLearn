@@ -525,7 +525,7 @@ def _get_user_row(uid):
             email = fb_user.email
             display_name = fb_user.display_name or (email.split('@')[0] if email else 'User')
 
-            # Check if an existing profile exists with this email
+                                                                 
             if email:
                 cur.execute("SELECT * FROM users WHERE LOWER(email) = LOWER(%s) ORDER BY id DESC", (email,))
                 existing = _fetchone(cur)
@@ -536,7 +536,7 @@ def _get_user_row(uid):
                     conn.close()
                     return user
 
-            # Auto-provision a default profile for the authenticated user
+                                                                         
             cur.execute(
                 """INSERT INTO users (uid, name, email, department, designation)
                    VALUES (%s, %s, %s, 'General', 'Learner')

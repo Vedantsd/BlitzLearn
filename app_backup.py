@@ -18,8 +18,8 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "blitzlearn-dev-secret-change-me")
 
-# Hardcoded for now, per the current requirement — swap for a real admin
-# user store + hashed passwords before deploying this for real.
+                                                                        
+                                                               
 ADMIN_USERNAME = "Admin"
 ADMIN_PASSWORD = "Password"
 
@@ -72,11 +72,11 @@ PREUPLOADED_BOOKS = [
 
 BOOKS_DIR = os.path.join(app.root_path, "static", "books")
 
-# ---------------------------------------------------------------------------
-# Questions database (SQLite). Every AI-generated test question is stored
-# here, tagged by topic + difficulty, so it can be reused later to assess
-# new users without calling the LLM again ("question bank" mode).
-# ---------------------------------------------------------------------------
+                                                                             
+                                                                         
+                                                                         
+                                                                 
+                                                                             
 DB_PATH = os.path.join(app.root_path, "questions.db")
 
 
@@ -213,8 +213,8 @@ def init_db():
     """)
     conn.commit()
 
-    # Lightweight migration: add columns to tables that already existed
-    # before this column was introduced, without touching existing data.
+                                                                       
+                                                                        
     _ensure_column(conn, "users", "status", "TEXT DEFAULT 'active'")
     _ensure_column(conn, "tests", "user_id", "INTEGER")
     _ensure_column(conn, "test_attempts", "user_id", "INTEGER")
@@ -276,7 +276,7 @@ def _update_skill_competency_and_progress(user_id, test_id):
     for r in rows:
         topic_key = (r["topic"] or "").strip().lower()
         if topic_key not in declared_skills:
-            continue  # this question's topic isn't one of the user's declared skills — skip it
+            continue                                                                           
 
         matched_any = True
         skill_name = declared_skills[topic_key]
@@ -949,10 +949,10 @@ def process_content():
     return jsonify({"message": f"Content processed at {session_context['bloom_level']} level!"})
 
 
-# ---------------------------------------------------------------------------
-# Tests: AI-generated MCQ tests from the processed notes, backed by the
-# questions.db question bank.
-# ---------------------------------------------------------------------------
+                                                                             
+                                                                       
+                             
+                                                                             
 
 VALID_DIFFICULTIES = ("easy", "medium", "hard")
 VALID_QUESTION_COUNTS = (10, 20, 30, 40, 50)
@@ -979,9 +979,9 @@ def _looks_like_front_matter(text):
     they never end up in the LLM's context."""
     lowered = text.lower()
 
-    # Strong markers: content that is unambiguously about the book's
-    # structure/history rather than the subject. A single hit is enough
-    # to exclude the chunk.
+                                                                    
+                                                                       
+                           
     strong_markers = [
         "new to this edition", "changes in this edition", "changes to this edition",
         "what's new in this edition", "revised in this edition",
@@ -997,9 +997,9 @@ def _looks_like_front_matter(text):
     if any(marker in lowered for marker in strong_markers):
         return True
 
-    # Weak markers: things like "published" or "www." can appear once in
-    # ordinary subject content, so only exclude when several appear together
-    # (a strong sign of a genuine copyright/imprint page).
+                                                                        
+                                                                            
+                                                          
     weak_markers = [
         "isbn", "copyright ©", "all rights reserved", "printed in",
         "library of congress", "about the author", "acknowledgments",
@@ -1053,9 +1053,9 @@ def _generate_questions_from_notes(difficulty, num_questions):
     if not context.strip():
         return None, ("Couldn't find enough usable content in your notes to build a test.", 400)
 
-    # Ask for a few extra questions since some will get dropped by the
-    # quality filters below — this keeps the final count close to what
-    # the user actually asked for.
+                                                                      
+                                                                      
+                                  
     generation_target = num_questions + max(3, num_questions // 3)
 
     prompt = f"""
@@ -1122,8 +1122,8 @@ def _generate_questions_from_notes(difficulty, num_questions):
         print(f"Error generating test: {str(e)}")
         return None, ("Failed to generate the test. Please try again.", 500)
 
-    # Safety net: drop any question that still slipped in book-metadata or
-    # book-structure trivia instead of real subject content.
+                                                                          
+                                                            
     banned_phrases = (
         "author", "publisher", "isbn", "the book", "this book", "edition",
         "table of contents", "practice set", "review question", "exercises",
@@ -1140,8 +1140,8 @@ def _generate_questions_from_notes(difficulty, num_questions):
     if not questions:
         return None, ("Generated questions didn't pass quality checks. Please try again.", 500)
 
-    # Trim back to what the user actually asked for (we over-generated on
-    # purpose to absorb the filtering above).
+                                                                         
+                                             
     questions = questions[:num_questions]
 
     source_title = ", ".join(sorted({f.get("title", f["filename"]) for f in staged_files})) or "Uploaded Notes"
@@ -1183,7 +1183,7 @@ def _generate_questions_from_notes(difficulty, num_questions):
                 "explanation": q.get("explanation", "")
             })
         except (KeyError, TypeError):
-            continue  # skip malformed items rather than failing the whole test
+            continue                                                           
 
     conn.commit()
     conn.close()
@@ -1253,8 +1253,8 @@ def generate_test():
     data = request.json or {}
     difficulty = data.get("difficulty", "medium")
     num_questions = data.get("num_questions", 10)
-    source = data.get("source", "notes")  # "notes" | "bank"
-    uid = data.get("uid")  # optional — links this test to a user for their Evaluate history
+    source = data.get("source", "notes")                    
+    uid = data.get("uid")                                                                   
 
     if difficulty not in VALID_DIFFICULTIES:
         difficulty = "medium"
@@ -1292,7 +1292,7 @@ def submit_test():
     score = data.get("score")
     total = data.get("total")
     uid = data.get("uid")
-    answers = data.get("answers", {})  # { "<question_id>": "a" }
+    answers = data.get("answers", {})                            
 
     if test_id is None or score is None or total is None:
         return jsonify({"error": "Missing test_id, score, or total"}), 400
@@ -1339,14 +1339,14 @@ def questions_bank():
     return jsonify([dict(row) for row in rows])
 
 
-# ---------------------------------------------------------------------------
-# Initial skill/competency assessment — generated from the skills a new user
-# entered during signup rather than from any uploaded notes.
-# ---------------------------------------------------------------------------
+                                                                             
+                                                                            
+                                                            
+                                                                             
 
-# 20 questions is for demonstration only; bump this once deployed (e.g. 50+).
-# The 50/25/25 easy/medium/hard split is recalculated automatically for
-# whatever total you set here.
+                                                                             
+                                                                       
+                              
 SKILL_TEST_TOTAL_QUESTIONS = 20
 
 
@@ -1525,7 +1525,7 @@ def submit_skill_test():
     data = request.json or {}
     uid = data.get("uid")
     test_id = data.get("test_id")
-    answers = data.get("answers", {})  # { "<question_id>": "a" }
+    answers = data.get("answers", {})                            
 
     if not uid or not test_id:
         return jsonify({"error": "Missing uid or test_id"}), 400
@@ -1636,17 +1636,17 @@ def get_latest_skill_report(uid):
     })
 
 
-# ---------------------------------------------------------------------------
-# Evaluate page — test history, skill radar, gap analysis, topic
-# prioritization, and progress-over-time. All keyed off the same
-# tests / test_attempts / user_answers / skill_reports tables the rest of
-# the app already writes to.
-# ---------------------------------------------------------------------------
+                                                                             
+                                                                
+                                                                
+                                                                         
+                            
+                                                                             
 
-# Placeholder competency-target model: since there's no real job-role /
-# iGOT competency framework wired in yet, every skill is measured against
-# a flat target percentage, lightly adjusted by designation seniority.
-# Swap this for real per-role target data once that framework exists.
+                                                                       
+                                                                         
+                                                                      
+                                                                     
 DEFAULT_SKILL_TARGET_PERCENT = 75
 
 
@@ -1949,9 +1949,9 @@ def prioritize_topics():
         return jsonify({"error": "Failed to prioritize topics. Please try again."}), 500
 
 
-# ---------------------------------------------------------------------------
-# Admin API — user management, search/sort, and reporting
-# ---------------------------------------------------------------------------
+                                                                             
+                                                         
+                                                                             
 
 def _latest_reports(conn):
     """One row per user: their most recent skill_reports entry, joined with
@@ -1986,7 +1986,7 @@ def admin_list_users():
     q = request.args.get("q", "").strip().lower()
     department = request.args.get("department", "").strip()
     status_filter = request.args.get("status", "").strip()
-    sort_by = request.args.get("sort_by", "name")  # name | department | score | created_at
+    sort_by = request.args.get("sort_by", "name")                                          
 
     conn = get_db()
     users = conn.execute("SELECT * FROM users").fetchall()
