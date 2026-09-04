@@ -25,7 +25,6 @@ firebase.auth().onAuthStateChanged(user => {
     }
 });
 
-
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
 }
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeaderLogo(isDark);
 });
 
-
 async function loadReport() {
     const stored = sessionStorage.getItem('skillReport');
 
@@ -93,19 +91,42 @@ function switchView(viewId) {
     document.getElementById(viewId).classList.add('active');
 }
 
-
 function renderReport(report) {
+    const isDisqualified = !!report.disqualified;
     const percent = report.overall_total > 0
         ? Math.round((report.overall_score / report.overall_total) * 100)
         : 0;
 
+    const bannerSlot = document.getElementById('disqualified-banner-slot');
+    if (bannerSlot) {
+        if (isDisqualified) {
+            bannerSlot.innerHTML = `
+                <div class="proctor-disqualified-banner">
+                    <div class="banner-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="banner-content">
+                        <h4>Assessment Terminated (Proctoring Violation)</h4>
+                        <p>This assessment was auto-submitted with 0 marks because the maximum allowed tab switch / fullscreen exit limit (3) was exceeded.</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            bannerSlot.innerHTML = '';
+        }
+    }
+
     document.getElementById('score-percent').textContent = `${percent}%`;
     document.getElementById('overall-score-text').textContent = `${report.overall_score} / ${report.overall_total} correct`;
-    document.getElementById('overall-message').textContent = overallMessage(percent);
+    document.getElementById('overall-message').textContent = isDisqualified
+        ? "Assessment auto-submitted with 0 marks due to exceeding the tab switch / fullscreen limit."
+        : overallMessage(percent);
 
     const container = document.getElementById('skills-breakdown');
-    container.innerHTML = report.skills.map(skill => {
-        const levelClass = skill.level.toLowerCase();
+    container.innerHTML = (report.skills || []).map(skill => {
+        const levelClass = (skill.level || 'beginner').toLowerCase().replace(/\s+/g, '-');
         return `
             <div class="skill-report-card">
                 <div class="skill-report-header">
@@ -132,7 +153,6 @@ function overallMessage(percent) {
     return "This gives us a clear picture of where to start — check the breakdown below for the biggest opportunities.";
 }
 
-
 function startRedirectCountdown() {
     const countdownEl = document.getElementById('redirect-countdown');
     redirectTimer = setInterval(() => {
@@ -150,13 +170,11 @@ function goToDashboard() {
     window.location.href = '/dashboard';
 }
 
-
 function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
 }
-
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);

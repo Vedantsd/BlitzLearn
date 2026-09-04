@@ -132,7 +132,6 @@ header h1 {
     cursor: default;
 }
 
-
 .report-container {
     flex: 1;
     display: flex;
@@ -156,7 +155,6 @@ header h1 {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 
 .loading-card {
     background: var(--card-bg);
@@ -188,7 +186,6 @@ header h1 {
     to { transform: rotate(360deg); }
 }
 
-
 .report-header {
     margin-bottom: 24px;
     text-align: center;
@@ -205,7 +202,6 @@ header h1 {
     opacity: 0.7;
     font-size: 14.5px;
 }
-
 
 .overall-card {
     display: flex;
@@ -250,7 +246,6 @@ header h1 {
     opacity: 0.7;
     line-height: 1.5;
 }
-
 
 .section-title {
     font-size: 16px;
@@ -331,7 +326,6 @@ header h1 {
 .skill-progress-fill.intermediate { background: linear-gradient(90deg, var(--warning), #d97706); }
 .skill-progress-fill.advanced { background: linear-gradient(90deg, var(--success), #059669); }
 
-
 .redirect-bar {
     display: flex;
     align-items: center;
@@ -372,7 +366,6 @@ header h1 {
 .primary-button:hover {
     transform: translateY(-2px);
 }
-
 
 @media screen and (max-width: 768px) {
     header {
