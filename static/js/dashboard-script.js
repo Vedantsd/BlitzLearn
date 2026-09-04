@@ -405,7 +405,7 @@ document.addEventListener('bl-core-updated', e => {
 function setTilesEnabled(enabled) {
     notesProcessed = enabled;
     document.querySelectorAll('.tile').forEach(tile => {
-        if (tile.id === 'evaluate-tile' || tile.id === 'roadmap-tile' || tile.id === 'labs-tile') return;
+        if (tile.id === 'evaluate-tile' || tile.id === 'roadmap-tile' || tile.id === 'labs-tile' || tile.id === 'assigned-courses-tile') return;
         tile.classList.toggle('tile-locked', !enabled);
     });
 }
@@ -421,6 +421,10 @@ function goToTile(target) {
     }
     if (target === 'labs') {
         window.location.href = '/labs-select';
+        return;
+    }
+    if (target === 'assigned-courses') {
+        window.location.href = '/assigned-courses';
         return;
     }
 
