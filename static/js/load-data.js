@@ -16,7 +16,13 @@
     function readCache(key) {
         try {
             const raw = localStorage.getItem(key);
-            return raw ? JSON.parse(raw) : null;
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (!parsed || !parsed.data || parsed.data.error) {
+                localStorage.removeItem(key);
+                return null;
+            }
+            return parsed;
         } catch (e) {
             return null;
         }
@@ -24,6 +30,7 @@
 
     function writeCache(key, data) {
         try {
+            if (!data || data.error) return;
             localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
         } catch (e) {
         }
@@ -58,11 +65,15 @@
     async function refreshCore(cachedEntry) {
         try {
             const fresh = await fetchCore();
-            writeCache(coreKey(), fresh);
-            resolveCoreOnce(fresh);
-            const changed = !cachedEntry || JSON.stringify(fresh) !== JSON.stringify(cachedEntry.data);
-            if (changed) {
-                document.dispatchEvent(new CustomEvent('bl-core-updated', { detail: fresh }));
+            if (fresh && !fresh.error) {
+                writeCache(coreKey(), fresh);
+                resolveCoreOnce(fresh);
+                const changed = !cachedEntry || JSON.stringify(fresh) !== JSON.stringify(cachedEntry.data);
+                if (changed) {
+                    document.dispatchEvent(new CustomEvent('bl-core-updated', { detail: fresh }));
+                }
+            } else {
+                resolveCoreOnce(cachedEntry ? cachedEntry.data : null);
             }
         } catch (e) {
             resolveCoreOnce(cachedEntry ? cachedEntry.data : null);
@@ -72,11 +83,15 @@
     async function refreshLabs(cachedEntry) {
         try {
             const fresh = await fetchLabs();
-            writeCache(labsKey(), fresh);
-            resolveLabsOnce(fresh);
-            const changed = !cachedEntry || JSON.stringify(fresh) !== JSON.stringify(cachedEntry.data);
-            if (changed) {
-                document.dispatchEvent(new CustomEvent('bl-labs-updated', { detail: fresh }));
+            if (fresh && !fresh.error) {
+                writeCache(labsKey(), fresh);
+                resolveLabsOnce(fresh);
+                const changed = !cachedEntry || JSON.stringify(fresh) !== JSON.stringify(cachedEntry.data);
+                if (changed) {
+                    document.dispatchEvent(new CustomEvent('bl-labs-updated', { detail: fresh }));
+                }
+            } else {
+                resolveLabsOnce(cachedEntry ? cachedEntry.data : null);
             }
         } catch (e) {
             resolveLabsOnce(cachedEntry ? cachedEntry.data : null);
@@ -111,16 +126,20 @@
         const cached = readCache(roadmapKey());
         if (cached && !forceRefresh) {
             authFetch('/api/bootstrap/roadmap').then(r => r.json()).then(fresh => {
-                writeCache(roadmapKey(), fresh);
-                if (JSON.stringify(fresh) !== JSON.stringify(cached.data)) {
-                    document.dispatchEvent(new CustomEvent('bl-roadmap-updated', { detail: fresh }));
+                if (fresh && !fresh.error) {
+                    writeCache(roadmapKey(), fresh);
+                    if (JSON.stringify(fresh) !== JSON.stringify(cached.data)) {
+                        document.dispatchEvent(new CustomEvent('bl-roadmap-updated', { detail: fresh }));
+                    }
                 }
             }).catch(() => {});
             return cached.data;
         }
         const response = await authFetch('/api/bootstrap/roadmap');
         const fresh = await response.json();
-        writeCache(roadmapKey(), fresh);
+        if (fresh && !fresh.error) {
+            writeCache(roadmapKey(), fresh);
+        }
         return fresh;
     }
 
@@ -128,16 +147,20 @@
         const cached = readCache(labsKey());
         if (cached && !forceRefresh) {
             authFetch(`/api/labs/${uid}`).then(r => r.json()).then(fresh => {
-                writeCache(labsKey(), fresh);
-                if (JSON.stringify(fresh) !== JSON.stringify(cached.data)) {
-                    document.dispatchEvent(new CustomEvent('bl-labs-updated', { detail: fresh }));
+                if (fresh && !fresh.error) {
+                    writeCache(labsKey(), fresh);
+                    if (JSON.stringify(fresh) !== JSON.stringify(cached.data)) {
+                        document.dispatchEvent(new CustomEvent('bl-labs-updated', { detail: fresh }));
+                    }
                 }
             }).catch(() => {});
             return cached.data;
         }
         const response = await authFetch(`/api/labs/${uid}`);
         const fresh = await response.json();
-        writeCache(labsKey(), fresh);
+        if (fresh && !fresh.error) {
+            writeCache(labsKey(), fresh);
+        }
         return fresh;
     }
 
