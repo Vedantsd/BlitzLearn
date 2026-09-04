@@ -176,13 +176,33 @@ function renderTheoryView() {
     }).join('');
 }
 
+let proctor = null;
+
 function goToTaskView() {
+
+    if (typeof BlitzProctor !== 'undefined' && BlitzProctor.requestFullscreen) {
+        BlitzProctor.requestFullscreen();
+    }
+
     renderTaskView();
     switchView('task-view');
     setProgress(70);
+
+    if (!proctor) {
+        proctor = new BlitzProctor({
+            maxViolations: 3,
+            testType: 'lab',
+            badgeContainer: document.getElementById('lab-proctor-container'),
+            onDisqualify: async (violations) => {
+                await autoSubmitDisqualifiedLab();
+            }
+        });
+    }
+    proctor.start();
 }
 
 function goToTheoryView() {
+    if (proctor) proctor.stop();
     switchView('theory-view');
     setProgress(45);
 }
@@ -237,10 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ---------------------------------------------------------------------------
-// Step 3: evaluate
-// ---------------------------------------------------------------------------
 async function evaluateLab() {
+    if (proctor) proctor.stop();
+
     const evalBtn = document.getElementById('evaluate-btn');
     const submission = document.getElementById('workspace-input').value;
 
@@ -271,6 +290,50 @@ async function evaluateLab() {
         evalBtn.textContent = 'Evaluate my work';
     } finally {
         evalBtn.disabled = false;
+    }
+}
+
+async function autoSubmitDisqualifiedLab() {
+    if (proctor) proctor.stop();
+
+    const evalBtn = document.getElementById('evaluate-btn');
+    if (evalBtn) {
+        evalBtn.disabled = true;
+        evalBtn.textContent = 'Disqualified (0/100)';
+    }
+
+    const input = document.getElementById('workspace-input');
+    if (input) {
+        input.disabled = true;
+        input.style.opacity = '0.6';
+    }
+
+    const disqualifiedResult = {
+        score: 0,
+        summary: "Lab test auto-submitted with 0 marks due to exceeding maximum allowed tab switches / fullscreen exits (3/3).",
+        mistakes: ["Proctoring violation: Tab changed or fullscreen exited more than 3 times."],
+        improvements: ["Maintain active fullscreen test window without switching tabs or losing focus."],
+        suggestions: ["Review lab guidelines and retake the exercise in fullscreen mode."]
+    };
+
+    renderFeedback(disqualifiedResult);
+    setProgress(100);
+
+    try {
+        await fetch('/api/evaluate_lab', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uid: currentUid,
+                topic: labTopic,
+                category: labCategory,
+                submission: (input ? input.value : '') + "\n[Auto-submitted: Disqualified due to exceeding tab switch limit]",
+                task: labData.task,
+                disqualified: true
+            })
+        });
+    } catch (err) {
+        console.error('Failed to record disqualified lab attempt:', err);
     }
 }
 
