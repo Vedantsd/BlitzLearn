@@ -88,10 +88,11 @@ function selectPill(group, value, buttonEl) {
     }
 }
 
-
 let currentTestId = null;
 let currentQuestions = [];
 let userAnswers = {};   
+let proctor = null;
+let generatedTestData = null;
 
 function switchView(viewId) {
     document.querySelectorAll('.test-view').forEach(v => v.classList.remove('active'));
@@ -125,12 +126,18 @@ async function generateTest() {
         if (!response.ok) throw new Error(data.error || 'Failed to generate test.');
         if (!data.questions || data.questions.length === 0) throw new Error('No questions were generated. Try again.');
 
+        generatedTestData = data;
         currentTestId = data.test_id;
         currentQuestions = data.questions;
         userAnswers = {};
 
-        renderQuiz(data);
-        switchView('quiz-view');
+        document.getElementById('ready-title').textContent = `${capitalize(data.difficulty)} Test Ready`;
+        document.getElementById('ready-subtitle').textContent = `Generated from: ${data.source_title || 'Your Notes'}`;
+        document.getElementById('ready-question-count').textContent = data.questions.length;
+        document.getElementById('ready-difficulty').textContent = capitalize(data.difficulty);
+
+        switchView('ready-view');
+
     } catch (error) {
         statusEl.textContent = error.message || 'Something went wrong. Please try again.';
         statusEl.className = 'setup-status error';
@@ -140,6 +147,28 @@ async function generateTest() {
     }
 }
 
+async function startTestNow() {
+    if (!generatedTestData) return;
+
+    if (typeof BlitzProctor !== 'undefined' && BlitzProctor.requestFullscreen) {
+        BlitzProctor.requestFullscreen();
+    }
+
+    renderQuiz(generatedTestData);
+    switchView('quiz-view');
+
+    if (!proctor) {
+        proctor = new BlitzProctor({
+            maxViolations: 3,
+            testType: 'mcq',
+            badgeContainer: document.getElementById('tests-proctor-container') || '#quiz-badge-slot',
+            onDisqualify: async (violations) => {
+                await autoSubmitDisqualifiedMCQTest();
+            }
+        });
+    }
+    await proctor.start();
+}
 
 function renderQuiz(data) {
     document.getElementById('quiz-title').textContent =
@@ -186,6 +215,7 @@ function updateProgress() {
 
 function cancelTest() {
     if (!confirm('Discard this test and go back to setup?')) return;
+    if (proctor) proctor.stop();
     resetToSetup();
 }
 
@@ -196,13 +226,15 @@ async function submitTest() {
         if (!proceed) return;
     }
 
+    if (proctor) proctor.stop();
+
     let score = 0;
     currentQuestions.forEach(q => {
         if (userAnswers[q.id] === q.correct_option) score += 1;
     });
     const total = currentQuestions.length;
 
-    renderResults(score, total);
+    renderResults(score, total, false);
     switchView('results-view');
 
     try {
@@ -217,12 +249,65 @@ async function submitTest() {
     }
 }
 
-function renderResults(score, total) {
+async function autoSubmitDisqualifiedMCQTest() {
+    if (proctor) proctor.stop();
+
+    const total = currentQuestions.length;
+    const score = 0;
+
+    renderResults(score, total, true);
+    switchView('results-view');
+
+    try {
+        await fetch('/submit_test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                test_id: currentTestId,
+                score: 0,
+                total: total,
+                uid: currentUid,
+                answers: {},
+                disqualified: true
+            })
+        });
+        BLData.invalidate();
+    } catch (error) {
+        console.error('Failed to save disqualified test result:', error);
+    }
+}
+
+function renderResults(score, total, isDisqualified = false) {
     const percent = total > 0 ? Math.round((score / total) * 100) : 0;
 
+    const bannerSlot = document.getElementById('results-disqualified-banner-slot');
+    if (bannerSlot) {
+        if (isDisqualified) {
+            bannerSlot.innerHTML = `
+                <div class="proctor-disqualified-banner">
+                    <div class="banner-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="banner-content">
+                        <h4>Test Terminated & Auto-Submitted (0 Marks)</h4>
+                        <p>You have exceeded the limit of 3 tab switches / fullscreen exits. The test was automatically ended with 0 marks.</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            bannerSlot.innerHTML = '';
+        }
+    }
+
     document.getElementById('score-percent').textContent = `${percent}%`;
-    document.getElementById('results-heading').textContent = `You scored ${score} / ${total}`;
-    document.getElementById('results-subheading').textContent = resultMessage(percent);
+    document.getElementById('results-heading').textContent = isDisqualified
+        ? `Disqualified (0 / ${total})`
+        : `You scored ${score} / ${total}`;
+    document.getElementById('results-subheading').textContent = isDisqualified
+        ? "Exceeded maximum allowed tab changes (3/3). Auto-submitted with 0 marks."
+        : resultMessage(percent);
 
     const list = document.getElementById('results-list');
     list.innerHTML = currentQuestions.map((q, index) => {
@@ -265,6 +350,8 @@ function resultMessage(percent) {
 }
 
 function resetToSetup() {
+    if (proctor) proctor.stop();
+    generatedTestData = null;
     currentTestId = null;
     currentQuestions = [];
     userAnswers = {};
@@ -282,7 +369,6 @@ function escapeHtml(str) {
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
 }
-
 
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
