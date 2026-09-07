@@ -519,9 +519,15 @@ header h1 {
 
 .streak-stats-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 14px;
     margin-bottom: 18px;
+}
+
+@media screen and (max-width: 560px) {
+    .streak-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .streak-stat-card {
