@@ -122,6 +122,10 @@
                 <div class="streak-stat-num" id="stat-active-days">—</div>
                 <div class="streak-stat-label">Active days</div>
             </div>
+            <div class="streak-stat-card">
+                <div class="streak-stat-num" id="stat-learning-hours">—</div>
+                <div class="streak-stat-label">Learning hours</div>
+            </div>
         </div>
         <div class="heatmap-scroll">
             <div class="heatmap-grid" id="heatmap-grid"></div>
@@ -145,6 +149,8 @@
 </script>
 
 <script src="{{ url_for('static', filename='js/firebase-config.js') }}">
+</script>
+<script src="{{ url_for('static', filename='js/learning-timer.js') }}">
 </script>
 <script src="{{ url_for('static', filename='js/load-data.js') }}">
 </script>
