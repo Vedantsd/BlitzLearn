@@ -32,14 +32,14 @@ async function loadLearners() {
         const data = await response.json();
         learnersData = data.learners || [];
 
-        updateStats(learnersData);
+        updateStats(learnersData, data.total_learning_hours || 0);
         renderLearners(learnersData);
     } catch (error) {
         list.innerHTML = '<p class="empty-state">Failed to load learners.</p>';
     }
 }
 
-function updateStats(learners) {
+function updateStats(learners, totalHours) {
     const assessed = learners.filter(l => l.score_percent !== null);
     const avg = assessed.length > 0
         ? Math.round(assessed.reduce((sum, l) => sum + l.score_percent, 0) / assessed.length)
@@ -48,6 +48,7 @@ function updateStats(learners) {
     document.getElementById('stat-total').textContent = learners.length;
     document.getElementById('stat-assessed').textContent = assessed.length;
     document.getElementById('stat-avg').textContent = avg !== null ? `${avg}%` : '—';
+    document.getElementById('stat-total-hours').textContent = `${totalHours}h`;
 }
 
 function renderLearners(learners) {
@@ -62,7 +63,7 @@ function renderLearners(learners) {
         <div class="learner-row ${l.id === selectedLearnerId ? 'active' : ''}" onclick="selectLearner(${l.id})">
             <div>
                 <div class="learner-row-name">${escapeHtml(l.name)}</div>
-                <div class="learner-row-designation">${escapeHtml(l.designation || 'No designation')}</div>
+                <div class="learner-row-designation">${escapeHtml(l.designation || 'No designation')} · ${l.learning_hours || 0}h</div>
             </div>
             <div class="learner-row-score ${l.score_percent === null ? 'none' : ''}">
                 ${l.score_percent !== null ? l.score_percent + '%' : 'N/A'}
@@ -113,7 +114,7 @@ function matchesCurrentSearch(l) {
 function renderLearnerDetail(data) {
     document.getElementById('detail-name').textContent = data.name;
     document.getElementById('detail-meta').textContent =
-        `${data.email} · ${data.designation || 'No designation'} · ${data.department}`;
+        `${data.email} · ${data.designation || 'No designation'} · ${data.department} · ${data.total_learning_hours || 0}h learned`;
 
     const scoreBadge = document.getElementById('detail-score');
     if (data.latest_report && data.latest_report.overall_total) {
