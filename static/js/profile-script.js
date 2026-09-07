@@ -19,6 +19,7 @@ firebase.auth().onAuthStateChanged(user => {
 
         loadProfile();
         loadActivityHeatmap();
+        loadLearningHours();
     }
 });
 
@@ -247,6 +248,17 @@ async function loadActivityHeatmap() {
         renderHeatmap(weeks);
     } catch (error) {
         grid.innerHTML = '<p class="empty-state">Failed to load learning activity.</p>';
+    }
+}
+
+async function loadLearningHours() {
+    try {
+        const response = await fetch(`/api/learning_hours/${currentUid}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error();
+        document.getElementById('stat-learning-hours').textContent = `${data.total_hours}h`;
+    } catch (error) {
+        document.getElementById('stat-learning-hours').textContent = '—';
     }
 }
 
