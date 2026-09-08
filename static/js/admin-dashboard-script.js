@@ -578,7 +578,12 @@ function renderForecastDeptCard(dept) {
                         <span class="forecast-rank">#${i + 1}</span>
                         <div class="forecast-skill-info">
                             <div class="forecast-skill-name">${escapeHtml(s.skill)}</div>
-                            <div class="forecast-skill-meta">Now: ${s.current_gap.toFixed(1)} gap · Forecast: ${s.forecast_gap.toFixed(1)} gap</div>
+                            <div class="forecast-skill-meta">
+                                ${s.has_live_data
+                                    ? `Current: ${s.current_competency}% · Gap: ${s.current_gap.toFixed(1)} · ${s.assessed_learners}/${s.declared_learners} assessed`
+                                    : `<span class="forecast-no-data">Not yet assessed</span> · ${s.declared_learners} learner${s.declared_learners === 1 ? '' : 's'} declared`
+                                }
+                            </div>
                         </div>
                         <span class="forecast-trend ${s.trend_slope >= 0 ? 'worsening' : 'improving'}">
                             ${s.trend_slope >= 0 ? '▲' : '▼'}

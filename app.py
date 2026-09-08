@@ -466,6 +466,40 @@ def get_skill_forecast(force_refresh=False):
     _skill_forecast_cache = records
     return records
 
+def get_live_skill_competency_by_department():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT u.department AS department,
+               us.skill_name AS skill,
+               AVG(
+                   CASE WHEN sc.total_count > 0
+                        THEN (sc.correct_count::float / sc.total_count) * 100
+                        ELSE NULL END
+               ) AS avg_competency,
+               COUNT(DISTINCT CASE WHEN sc.total_count > 0 THEN u.id END) AS assessed_learners,
+               COUNT(DISTINCT u.id) AS declared_learners
+        FROM users u
+        JOIN user_skills us ON us.user_id = u.id
+        LEFT JOIN skill_competency sc
+            ON sc.user_id = u.id AND LOWER(sc.skill_name) = LOWER(us.skill_name)
+        WHERE u.department IS NOT NULL
+        GROUP BY u.department, us.skill_name
+    """)
+    rows = _fetchall(cur)
+    conn.close()
+
+    live_map = {}
+    for r in rows:
+        key = (r["department"].strip().lower(), r["skill"].strip().lower())
+        live_map[key] = {
+            "avg_competency": round(float(r["avg_competency"]), 1) if r["avg_competency"] is not None else None,
+            "assessed_learners": r["assessed_learners"],
+            "declared_learners": r["declared_learners"],
+        }
+    return live_map
+
+
 def _update_skill_competency_and_progress(user_id, test_id):
     conn = get_db()
     cur = conn.cursor()
@@ -1127,6 +1161,8 @@ def admin_skill_forecast():
     except Exception as e:
         return jsonify({"error": f"Failed to compute forecast: {str(e)}"}), 500
 
+    live_map = get_live_skill_competency_by_department()
+
     by_department = {}
     for r in records:
         by_department.setdefault(r["department"], []).append(r)
@@ -1135,23 +1171,40 @@ def admin_skill_forecast():
     for dept in FORECAST_DEPARTMENTS:
         dept_records = sorted(by_department.get(dept, []), key=lambda r: r.get(horizon_key, 0), reverse=True)
         top5 = dept_records[:5]
-        departments_out.append({
-            "department": dept,
-            "top_skills": [
-                {
-                    "skill": r["skill"],
-                    "forecast_gap": r.get(horizon_key, 0),
-                    "current_gap": r["latest_gap"],
-                    "current_competency": r["latest_competency"],
-                    "requirement": r.get(f"forecast_requirement_{horizon}m", r["latest_requirement"]),
-                    "trend_slope": r["gap_trend_slope"],
-                }
-                for r in top5
-            ]
-        })
+
+        top_skills = []
+        for r in top5:
+            requirement = r.get(f"forecast_requirement_{horizon}m", r["latest_requirement"])
+            live = live_map.get((dept.strip().lower(), r["skill"].strip().lower()))
+
+            if live and live["avg_competency"] is not None:
+                actual_competency = live["avg_competency"]
+                actual_gap = round(max(0, requirement - actual_competency), 2)
+                has_live_data = True
+                assessed_learners = live["assessed_learners"]
+                declared_learners = live["declared_learners"]
+            else:
+                actual_competency = None
+                actual_gap = r["latest_gap"]
+                has_live_data = False
+                assessed_learners = 0
+                declared_learners = live["declared_learners"] if live else 0
+
+            top_skills.append({
+                "skill": r["skill"],
+                "forecast_gap": r.get(horizon_key, 0),
+                "current_gap": actual_gap,
+                "current_competency": actual_competency,
+                "requirement": requirement,
+                "trend_slope": r["gap_trend_slope"],
+                "has_live_data": has_live_data,
+                "assessed_learners": assessed_learners,
+                "declared_learners": declared_learners,
+            })
+
+        departments_out.append({"department": dept, "top_skills": top_skills})
 
     return jsonify({"horizon": int(horizon), "departments": departments_out})
-
 
 @app.route('/admin/api/skill_forecast/refresh', methods=['POST'])
 @admin_required

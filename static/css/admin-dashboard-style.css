@@ -960,5 +960,10 @@ header h1 {
     flex-shrink: 0;
 }
 
+.forecast-no-data {
+    color: var(--warning);
+    font-weight: 600;
+}
+
 .forecast-trend.worsening { color: var(--error); }
 .forecast-trend.improving { color: var(--success); }
