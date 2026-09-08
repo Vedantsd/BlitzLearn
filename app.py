@@ -924,6 +924,7 @@ def _generate_lab_content(topic, category):
     Provide exactly 2 items in "examples". Keep the whole task solvable in 10-20 minutes.
     """
 
+
     try:
         model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, temperature=0.5)
         response = model.invoke(prompt)
