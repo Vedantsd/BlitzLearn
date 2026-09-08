@@ -90,6 +90,9 @@ function switchAdminView(view) {
     } else if (view === 'trainers' && !loadedViews.has('trainers')) {
         loadTrainersView();
         loadedViews.add('trainers');
+    } else if (view === 'forecast' && !loadedViews.has('forecast')) {
+        loadForecastView();
+        loadedViews.add('forecast');
     }
 }
 
@@ -527,5 +530,75 @@ function formatDateShort(iso) {
     if (isNaN(d.getTime())) return iso;
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
+
+let currentForecastHorizon = 1;
+
+async function loadForecastView() {
+    await loadForecastData(currentForecastHorizon);
+}
+
+function setForecastHorizon(horizon, buttonEl) {
+    currentForecastHorizon = horizon;
+    document.querySelectorAll('#forecast-view .pill').forEach(p => p.classList.remove('active'));
+    buttonEl.classList.add('active');
+    loadForecastData(horizon);
+}
+
+async function loadForecastData(horizon) {
+    const grid = document.getElementById('forecast-grid');
+    grid.innerHTML = '<p class="no-data-text">Loading forecast...</p>';
+
+    try {
+        const response = await fetch(`/admin/api/skill_forecast?horizon=${horizon}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to load forecast.');
+
+        grid.innerHTML = data.departments.map(renderForecastDeptCard).join('');
+    } catch (error) {
+        grid.innerHTML = `<p class="no-data-text">${escapeHtml(error.message || 'Failed to load forecast.')}</p>`;
+    }
+}
+
+function renderForecastDeptCard(dept) {
+    if (dept.top_skills.length === 0) {
+        return `
+            <div class="forecast-dept-card">
+                <h4>${escapeHtml(dept.department)}</h4>
+                <p class="no-data-text">No forecast data available for this department.</p>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="forecast-dept-card">
+            <h4>${escapeHtml(dept.department)}</h4>
+            <div class="forecast-skill-list">
+                ${dept.top_skills.map((s, i) => `
+                    <div class="forecast-skill-row">
+                        <span class="forecast-rank">#${i + 1}</span>
+                        <div class="forecast-skill-info">
+                            <div class="forecast-skill-name">${escapeHtml(s.skill)}</div>
+                            <div class="forecast-skill-meta">Now: ${s.current_gap.toFixed(1)} gap · Forecast: ${s.forecast_gap.toFixed(1)} gap</div>
+                        </div>
+                        <span class="forecast-trend ${s.trend_slope >= 0 ? 'worsening' : 'improving'}">
+                            ${s.trend_slope >= 0 ? '▲' : '▼'}
+                        </span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+async function refreshForecast() {
+    try {
+        await fetch('/admin/api/skill_forecast/refresh', { method: 'POST' });
+        showToast('Forecast recomputed from latest data.', 'success');
+        loadForecastData(currentForecastHorizon);
+    } catch (error) {
+        showToast('Failed to refresh forecast.', 'error');
+    }
+}
+
 
 updateThemeIcon();

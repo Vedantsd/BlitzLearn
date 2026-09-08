@@ -54,6 +54,7 @@
         <button class="admin-tab" data-view="performance" onclick="switchAdminView('performance')">Performance</button>
         <button class="admin-tab" data-view="departments" onclick="switchAdminView('departments')">Department Reports</button>
         <button class="admin-tab" data-view="trainers" onclick="switchAdminView('trainers')">Trainers</button>
+        <button class="admin-tab" data-view="forecast" onclick="switchAdminView('forecast')">Skill Forecast</button>
     </div>
 
     <div class="admin-view active" id="users-view">
@@ -164,6 +165,21 @@
                 <tr><td colspan="5" class="table-loading">Loading trainers...</td></tr>
             </tbody>
         </table>
+    </div>
+
+    <div class="admin-view" id="forecast-view">
+        <div class="forecast-toolbar">
+            <div class="forecast-horizon-row">
+                <span class="forecast-horizon-label">Forecast horizon:</span>
+                <button class="pill active" data-horizon="1" onclick="setForecastHorizon(1, this)">1 month</button>
+                <button class="pill" data-horizon="3" onclick="setForecastHorizon(3, this)">3 months</button>
+                <button class="pill" data-horizon="6" onclick="setForecastHorizon(6, this)">6 months</button>
+            </div>
+            <button class="action-button" onclick="refreshForecast()">Refresh Forecast</button>
+        </div>
+        <div class="forecast-grid" id="forecast-grid">
+            <p class="no-data-text">Loading forecast...</p>
+        </div>
     </div>
 </div>
 
