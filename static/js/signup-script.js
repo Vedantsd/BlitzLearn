@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
 const TOTAL_STEPS = 6;
 let currentStep = 1;
 
-let educationRows = [];   
-let experienceRows = [];  
-let skillsData = [];      
+let educationRows = [];
+let experienceRows = [];
+let skillsData = [];
 let rowIdCounter = 0;
 
 function showStep(step) {
@@ -163,6 +163,7 @@ function prevStep() {
     showStep(currentStep);
 }
 
+
 function addEducationRow() {
     const id = ++rowIdCounter;
     educationRows.push({ id, degree: '', institution: '', year: '' });
@@ -206,6 +207,7 @@ function renderEducationRows() {
         </div>
     `).join('');
 }
+
 
 function addSkill() {
     const nameInput = document.getElementById('skill-name-input');
@@ -251,9 +253,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+
 function addExperienceRow() {
     const id = ++rowIdCounter;
-    experienceRows.push({ id, role: '', organization: '', duration: '', description: '' });
+    experienceRows.push({ id, role: '', organization: '', startDate: '', endDate: '', currentlyWorking: false, description: '' });
     renderExperienceRows();
 }
 
@@ -267,8 +270,39 @@ function updateExperienceField(id, field, value) {
     if (row) row[field] = value;
 }
 
+function toggleCurrentlyWorking(id, checkbox) {
+    const row = experienceRows.find(r => r.id === id);
+    if (!row) return;
+    row.currentlyWorking = checkbox.checked;
+    const endInput = document.getElementById(`exp-end-${id}`);
+    if (endInput) {
+        endInput.disabled = checkbox.checked;
+        if (checkbox.checked) {
+            endInput.value = '';
+            row.endDate = '';
+        }
+    }
+}
+
+function buildDurationString(startDate, endDate, currentlyWorking) {
+    const fmt = (ym) => {
+        if (!ym) return '';
+        const [y, m] = ym.split('-');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${months[parseInt(m, 10) - 1]} ${y}`;
+    };
+    const start = fmt(startDate);
+    const end   = currentlyWorking ? 'Present' : fmt(endDate);
+    if (!start && !end) return '';
+    if (!start) return end;
+    if (!end)   return start;
+    return `${start} – ${end}`;
+}
+
 function renderExperienceRows() {
     const container = document.getElementById('experience-list');
+    const today = new Date().toISOString().slice(0, 7); 
+
     container.innerHTML = experienceRows.map(row => `
         <div class="dynamic-row">
             <button type="button" class="remove-row-button" onclick="removeExperienceRow(${row.id})">
@@ -286,10 +320,32 @@ function renderExperienceRows() {
                         oninput="updateExperienceField(${row.id}, 'organization', this.value)">
                 </div>
             </div>
-            <div class="form-group">
-                <label>Duration</label>
-                <input type="text" value="${escapeAttr(row.duration)}" placeholder="e.g. Jun 2022 - Aug 2022"
-                    oninput="updateExperienceField(${row.id}, 'duration', this.value)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input
+                        type="month"
+                        id="exp-start-${row.id}"
+                        value="${escapeAttr(row.startDate)}"
+                        max="${today}"
+                        oninput="updateExperienceField(${row.id}, 'startDate', this.value)">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input
+                        type="month"
+                        id="exp-end-${row.id}"
+                        value="${escapeAttr(row.endDate)}"
+                        max="${today}"
+                        ${row.currentlyWorking ? 'disabled' : ''}
+                        oninput="updateExperienceField(${row.id}, 'endDate', this.value)">
+                    <label class="checkbox-label" style="margin-top:8px; display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+                        <input type="checkbox"
+                            ${row.currentlyWorking ? 'checked' : ''}
+                            onchange="toggleCurrentlyWorking(${row.id}, this)">
+                        Currently working here
+                    </label>
+                </div>
             </div>
             <div class="form-group">
                 <label>Description</label>
@@ -305,12 +361,12 @@ async function completeSignup() {
     nextBtn.disabled = true;
     nextBtn.textContent = 'Creating your account...';
 
-    const name = document.getElementById('basic-name').value.trim();
-    const age = document.getElementById('basic-age').value;
-    const phone = document.getElementById('basic-phone').value.trim();
-    const email = document.getElementById('basic-email').value.trim();
-    const password = document.getElementById('basic-password').value;
-    const department = document.getElementById('role-department').value;
+    const name        = document.getElementById('basic-name').value.trim();
+    const age         = document.getElementById('basic-age').value;
+    const phone       = document.getElementById('basic-phone').value.trim();
+    const email       = document.getElementById('basic-email').value.trim();
+    const password    = document.getElementById('basic-password').value;
+    const department  = document.getElementById('role-department').value;
     const designation = document.getElementById('role-designation').value.trim();
 
     try {
@@ -330,7 +386,12 @@ async function completeSignup() {
                 department, designation,
                 education: educationRows.map(({ degree, institution, year }) => ({ degree, institution, year })),
                 skills: skillsData,
-                experience: experienceRows.map(({ role, organization, duration, description }) => ({ role, organization, duration, description }))
+                experience: experienceRows.map(({ role, organization, startDate, endDate, currentlyWorking, description }) => ({
+                    role,
+                    organization,
+                    duration: buildDurationString(startDate, endDate, currentlyWorking),
+                    description
+                }))
             })
         });
         const data = await response.json();
@@ -386,6 +447,247 @@ if (!isTouchDevice) {
             customCursor.style.backgroundColor = '#10B981';
         }
     });
+}
+
+let emailVerified = false;
+let otpVerifiedForEmail = null;
+let resendCountdownTimer = null;
+let otpHasBeenSent = false;
+
+function getSignupEmail() {
+    return document.getElementById('basic-email').value.trim();
+}
+
+function isValidEmailFormat(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getOtpBoxes() {
+    return Array.from(document.querySelectorAll('#verify-otp-row .otp-box'));
+}
+
+function setOtpUiEnabled(enabled) {
+    getOtpBoxes().forEach(box => {
+        box.disabled = !enabled;
+        if (!enabled) box.value = '';
+    });
+    document.getElementById('resend-otp-btn').disabled = !enabled;
+    updateVerifyButtonState();
+}
+
+function updateVerifyButtonState() {
+    const boxes = getOtpBoxes();
+    const complete = boxes.length === 6 && boxes.every(b => b.value.trim().length === 1);
+    document.getElementById('verify-otp-btn').disabled = !complete || emailVerified;
+}
+
+function collectOtpValue() {
+    return getOtpBoxes().map(b => b.value.trim()).join('');
+}
+
+function resetEmailVerifiedState() {
+    emailVerified = false;
+    otpVerifiedForEmail = null;
+    document.getElementById('email-verified-badge-step1').style.display = 'none';
+    document.getElementById('email-verified-badge-step6').style.display = 'none';
+    getOtpBoxes().forEach(b => { b.value = ''; b.classList.remove('otp-filled'); });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const emailInput = document.getElementById('basic-email');
+    emailInput.addEventListener('input', () => {
+        if (emailVerified && emailInput.value.trim() !== otpVerifiedForEmail) {
+            resetEmailVerifiedState();
+            setOtpUiEnabled(false);
+            if (resendCountdownTimer) clearInterval(resendCountdownTimer);
+            const resendBtn = document.getElementById('resend-otp-btn');
+            resendBtn.disabled = false;
+            resendBtn.textContent = 'Send OTP';
+            document.getElementById('verify-otp-status').textContent = '';
+        }
+    });
+
+    getOtpBoxes().forEach((box, index) => {
+        box.addEventListener('input', () => {
+            box.value = box.value.replace(/[^0-9]/g, '').slice(0, 1);
+            box.classList.toggle('otp-filled', box.value.length === 1);
+            if (box.value && index < 5) {
+                getOtpBoxes()[index + 1].focus();
+            }
+            updateVerifyButtonState();
+        });
+
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !box.value && index > 0) {
+                getOtpBoxes()[index - 1].focus();
+            }
+        });
+
+        box.addEventListener('paste', (e) => {
+            const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+            if (pasted.length >= 1) {
+                e.preventDefault();
+                const boxes = getOtpBoxes();
+                pasted.slice(0, 6).split('').forEach((digit, i) => {
+                    if (boxes[i]) {
+                        boxes[i].value = digit;
+                        boxes[i].classList.add('otp-filled');
+                    }
+                });
+                const nextEmpty = boxes.find(b => !b.value);
+                (nextEmpty || boxes[5]).focus();
+                updateVerifyButtonState();
+            }
+        });
+    });
+});
+
+function startResendCountdown(seconds) {
+    const resendBtn = document.getElementById('resend-otp-btn');
+    let remaining = seconds;
+
+    if (resendCountdownTimer) clearInterval(resendCountdownTimer);
+
+    const tick = () => {
+        if (remaining <= 0) {
+            clearInterval(resendCountdownTimer);
+            if (!emailVerified) {
+                resendBtn.disabled = false;
+            }
+            resendBtn.textContent = 'Resend OTP';
+            return;
+        }
+        resendBtn.textContent = `Resend OTP in ${remaining}s`;
+        resendBtn.disabled = true;
+        remaining -= 1;
+    };
+
+    tick();
+    resendCountdownTimer = setInterval(tick, 1000);
+}
+
+async function sendSignupOtp() {
+    const email = getSignupEmail();
+    const resendBtn = document.getElementById('resend-otp-btn');
+    const sendStatus = document.getElementById('otp-send-status');
+    const verifyStatus = document.getElementById('verify-otp-status');
+
+    sendStatus.textContent = '';
+    verifyStatus.textContent = '';
+
+    if (!email || !isValidEmailFormat(email)) {
+        sendStatus.textContent = 'Please enter a valid email address.';
+        showToast('Please enter a valid email address.', 'error');
+        return;
+    }
+
+    resetEmailVerifiedState();
+
+    resendBtn.disabled = true;
+    resendBtn.textContent = 'Sending OTP...';
+
+    try {
+        const response = await fetch('/api/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            sendStatus.textContent = data.message || 'Unable to send the verification email right now. Please try again.';
+            verifyStatus.textContent = sendStatus.textContent;
+            showToast(sendStatus.textContent, 'error');
+            resendBtn.disabled = false;
+            resendBtn.textContent = otpHasBeenSent ? 'Resend OTP' : 'Send OTP';
+            return;
+        }
+
+        otpHasBeenSent = true;
+        sendStatus.textContent = 'OTP sent successfully to your email.';
+        showToast('OTP sent successfully to your email.', 'success');
+        setOtpUiEnabled(true);
+        startResendCountdown(60);
+    } catch (err) {
+        sendStatus.textContent = 'Unable to send the verification email right now. Please try again.';
+        showToast(sendStatus.textContent, 'error');
+        resendBtn.disabled = false;
+        resendBtn.textContent = otpHasBeenSent ? 'Resend OTP' : 'Send OTP';
+    }
+}
+
+async function verifySignupOtp() {
+    const email = getSignupEmail();
+    const otp = collectOtpValue();
+    const verifyBtn = document.getElementById('verify-otp-btn');
+    const verifyStatus = document.getElementById('verify-otp-status');
+
+    if (otp.length !== 6) return;
+
+    verifyBtn.disabled = true;
+    const originalText = verifyBtn.textContent;
+    verifyBtn.textContent = 'Verifying...';
+    verifyStatus.textContent = '';
+
+    try {
+        const response = await fetch('/api/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp })
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            verifyStatus.textContent = data.message || 'Incorrect OTP. Please check the code and try again.';
+            showToast(verifyStatus.textContent, 'error');
+            verifyBtn.textContent = originalText;
+            verifyBtn.disabled = false;
+            if (/expired|too many/i.test(verifyStatus.textContent)) {
+                setOtpUiEnabled(false);
+                if (resendCountdownTimer) clearInterval(resendCountdownTimer);
+                const resendBtn = document.getElementById('resend-otp-btn');
+                resendBtn.disabled = false;
+                resendBtn.textContent = 'Send OTP';
+            }
+            return;
+        }
+
+        emailVerified = true;
+        otpVerifiedForEmail = email;
+        verifyStatus.textContent = '';
+        showToast('Email verified successfully.', 'success');
+
+        getOtpBoxes().forEach(b => { b.disabled = true; });
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = 'Verified';
+        document.getElementById('resend-otp-btn').disabled = true;
+        if (resendCountdownTimer) clearInterval(resendCountdownTimer);
+
+        document.getElementById('email-verified-badge-step1').style.display = 'inline-flex';
+        document.getElementById('email-verified-badge-step6').style.display = 'inline-flex';
+    } catch (err) {
+        verifyStatus.textContent = 'Something went wrong verifying your OTP. Please try again.';
+        showToast(verifyStatus.textContent, 'error');
+        verifyBtn.textContent = originalText;
+        verifyBtn.disabled = false;
+    }
+}
+
+function nextStep() {
+    if (!validateStep(currentStep)) return;
+
+    if (currentStep === TOTAL_STEPS) {
+        if (!emailVerified) {
+            document.getElementById('verify-otp-status').textContent = 'Please verify your email before continuing.';
+            showToast('Please verify your email before continuing.', 'error');
+            return;
+        }
+        completeSignup();
+        return;
+    }
+
+    currentStep += 1;
+    showStep(currentStep);
 }
 
 updateThemeIcon();

@@ -674,3 +674,49 @@ header h1 {
     transition: transform 0.2s ease-out, background-color 0.2s ease-out;
     transform: translate(-50%, -50%) scale(1);
 }
+
+.otp-send-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.otp-send-button {
+    padding: 9px 16px;
+    font-size: 13px;
+}
+
+.otp-verify-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.otp-inline-button {
+    padding: 10px 18px;
+    font-size: 13.5px;
+}
+
+.email-verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--success);
+}
+
+#verify-otp-row .otp-box {
+    opacity: 1;
+}
+
+#verify-otp-row .otp-box:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#verify-otp-row .otp-box.otp-filled {
+    border-color: var(--primary);
+}
