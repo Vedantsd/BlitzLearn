@@ -1,0 +1,1201 @@
+Month_Year,Department,Skill,Competency_Level,Skill_Requirement,Skill_Gap
+Jan-2026,Statistical Analysis Department,Statistical Analysis,50,69,19
+Feb-2026,Statistical Analysis Department,Statistical Analysis,53,70,17
+Mar-2026,Statistical Analysis Department,Statistical Analysis,57,71,14
+Apr-2026,Statistical Analysis Department,Statistical Analysis,61,71,10
+May-2026,Statistical Analysis Department,Statistical Analysis,64,73,9
+Jun-2026,Statistical Analysis Department,Statistical Analysis,67,73,6
+Jul-2026,Statistical Analysis Department,Statistical Analysis,70,74,4
+Aug-2026,Statistical Analysis Department,Statistical Analysis,74,74,0
+Sep-2026,Statistical Analysis Department,Statistical Analysis,75,76,1
+Oct-2026,Statistical Analysis Department,Statistical Analysis,75,77,2
+Nov-2026,Statistical Analysis Department,Statistical Analysis,76,79,3
+Dec-2026,Statistical Analysis Department,Statistical Analysis,77,80,3
+Jan-2027,Statistical Analysis Department,Statistical Analysis,77,80,3
+Feb-2027,Statistical Analysis Department,Statistical Analysis,78,80,2
+Mar-2027,Statistical Analysis Department,Statistical Analysis,78,81,3
+Apr-2027,Statistical Analysis Department,Statistical Analysis,80,81,1
+May-2027,Statistical Analysis Department,Statistical Analysis,81,82,1
+Jun-2027,Statistical Analysis Department,Statistical Analysis,81,82,1
+Jul-2027,Statistical Analysis Department,Statistical Analysis,81,83,2
+Aug-2027,Statistical Analysis Department,Statistical Analysis,83,83,0
+Sep-2027,Statistical Analysis Department,Statistical Analysis,84,85,1
+Oct-2027,Statistical Analysis Department,Statistical Analysis,85,86,1
+Nov-2027,Statistical Analysis Department,Statistical Analysis,85,87,2
+Dec-2027,Statistical Analysis Department,Statistical Analysis,86,88,2
+Jan-2026,Statistical Analysis Department,Survey Design,49,66,17
+Feb-2026,Statistical Analysis Department,Survey Design,50,69,19
+Mar-2026,Statistical Analysis Department,Survey Design,51,71,20
+Apr-2026,Statistical Analysis Department,Survey Design,52,73,21
+May-2026,Statistical Analysis Department,Survey Design,53,77,24
+Jun-2026,Statistical Analysis Department,Survey Design,54,79,25
+Jul-2026,Statistical Analysis Department,Survey Design,55,82,27
+Aug-2026,Statistical Analysis Department,Survey Design,56,86,30
+Sep-2026,Statistical Analysis Department,Survey Design,58,90,32
+Oct-2026,Statistical Analysis Department,Survey Design,59,93,34
+Nov-2026,Statistical Analysis Department,Survey Design,60,94,34
+Dec-2026,Statistical Analysis Department,Survey Design,61,95,34
+Jan-2027,Statistical Analysis Department,Survey Design,63,95,32
+Feb-2027,Statistical Analysis Department,Survey Design,64,95,31
+Mar-2027,Statistical Analysis Department,Survey Design,64,95,31
+Apr-2027,Statistical Analysis Department,Survey Design,65,96,31
+May-2027,Statistical Analysis Department,Survey Design,65,96,31
+Jun-2027,Statistical Analysis Department,Survey Design,67,97,30
+Jul-2027,Statistical Analysis Department,Survey Design,67,98,31
+Aug-2027,Statistical Analysis Department,Survey Design,68,98,30
+Sep-2027,Statistical Analysis Department,Survey Design,69,98,29
+Oct-2027,Statistical Analysis Department,Survey Design,71,99,28
+Nov-2027,Statistical Analysis Department,Survey Design,72,100,28
+Dec-2027,Statistical Analysis Department,Survey Design,72,100,28
+Jan-2026,Statistical Analysis Department,Sampling Techniques,76,77,1
+Feb-2026,Statistical Analysis Department,Sampling Techniques,76,77,1
+Mar-2026,Statistical Analysis Department,Sampling Techniques,76,77,1
+Apr-2026,Statistical Analysis Department,Sampling Techniques,77,77,0
+May-2026,Statistical Analysis Department,Sampling Techniques,78,78,0
+Jun-2026,Statistical Analysis Department,Sampling Techniques,79,78,-1
+Jul-2026,Statistical Analysis Department,Sampling Techniques,78,79,1
+Aug-2026,Statistical Analysis Department,Sampling Techniques,78,79,1
+Sep-2026,Statistical Analysis Department,Sampling Techniques,77,79,2
+Oct-2026,Statistical Analysis Department,Sampling Techniques,78,79,1
+Nov-2026,Statistical Analysis Department,Sampling Techniques,77,80,3
+Dec-2026,Statistical Analysis Department,Sampling Techniques,76,80,4
+Jan-2027,Statistical Analysis Department,Sampling Techniques,76,81,5
+Feb-2027,Statistical Analysis Department,Sampling Techniques,77,81,4
+Mar-2027,Statistical Analysis Department,Sampling Techniques,77,82,5
+Apr-2027,Statistical Analysis Department,Sampling Techniques,77,82,5
+May-2027,Statistical Analysis Department,Sampling Techniques,79,83,4
+Jun-2027,Statistical Analysis Department,Sampling Techniques,80,84,4
+Jul-2027,Statistical Analysis Department,Sampling Techniques,81,85,4
+Aug-2027,Statistical Analysis Department,Sampling Techniques,80,85,5
+Sep-2027,Statistical Analysis Department,Sampling Techniques,80,85,5
+Oct-2027,Statistical Analysis Department,Sampling Techniques,80,85,5
+Nov-2027,Statistical Analysis Department,Sampling Techniques,81,85,4
+Dec-2027,Statistical Analysis Department,Sampling Techniques,82,85,3
+Jan-2026,Statistical Analysis Department,Data Quality,35,68,33
+Feb-2026,Statistical Analysis Department,Data Quality,35,68,33
+Mar-2026,Statistical Analysis Department,Data Quality,35,68,33
+Apr-2026,Statistical Analysis Department,Data Quality,36,68,32
+May-2026,Statistical Analysis Department,Data Quality,38,68,30
+Jun-2026,Statistical Analysis Department,Data Quality,39,69,30
+Jul-2026,Statistical Analysis Department,Data Quality,40,69,29
+Aug-2026,Statistical Analysis Department,Data Quality,42,69,27
+Sep-2026,Statistical Analysis Department,Data Quality,44,70,26
+Oct-2026,Statistical Analysis Department,Data Quality,45,70,25
+Nov-2026,Statistical Analysis Department,Data Quality,46,70,24
+Dec-2026,Statistical Analysis Department,Data Quality,47,70,23
+Jan-2027,Statistical Analysis Department,Data Quality,47,71,24
+Feb-2027,Statistical Analysis Department,Data Quality,48,71,23
+Mar-2027,Statistical Analysis Department,Data Quality,49,71,22
+Apr-2027,Statistical Analysis Department,Data Quality,50,72,22
+May-2027,Statistical Analysis Department,Data Quality,50,73,23
+Jun-2027,Statistical Analysis Department,Data Quality,50,73,23
+Jul-2027,Statistical Analysis Department,Data Quality,51,74,23
+Aug-2027,Statistical Analysis Department,Data Quality,52,74,22
+Sep-2027,Statistical Analysis Department,Data Quality,53,74,21
+Oct-2027,Statistical Analysis Department,Data Quality,54,75,21
+Nov-2027,Statistical Analysis Department,Data Quality,55,75,20
+Dec-2027,Statistical Analysis Department,Data Quality,56,75,19
+Jan-2026,Statistical Analysis Department,National Accounts,44,75,31
+Feb-2026,Statistical Analysis Department,National Accounts,48,75,27
+Mar-2026,Statistical Analysis Department,National Accounts,53,75,22
+Apr-2026,Statistical Analysis Department,National Accounts,56,75,19
+May-2026,Statistical Analysis Department,National Accounts,59,76,17
+Jun-2026,Statistical Analysis Department,National Accounts,63,78,15
+Jul-2026,Statistical Analysis Department,National Accounts,68,80,12
+Aug-2026,Statistical Analysis Department,National Accounts,72,82,10
+Sep-2026,Statistical Analysis Department,National Accounts,75,83,8
+Oct-2026,Statistical Analysis Department,National Accounts,80,83,3
+Nov-2026,Statistical Analysis Department,National Accounts,82,84,2
+Dec-2026,Statistical Analysis Department,National Accounts,84,86,2
+Jan-2027,Statistical Analysis Department,National Accounts,85,87,2
+Feb-2027,Statistical Analysis Department,National Accounts,85,87,2
+Mar-2027,Statistical Analysis Department,National Accounts,85,87,2
+Apr-2027,Statistical Analysis Department,National Accounts,85,88,3
+May-2027,Statistical Analysis Department,National Accounts,85,89,4
+Jun-2027,Statistical Analysis Department,National Accounts,88,90,2
+Jul-2027,Statistical Analysis Department,National Accounts,89,90,1
+Aug-2027,Statistical Analysis Department,National Accounts,91,90,-1
+Sep-2027,Statistical Analysis Department,National Accounts,92,91,-1
+Oct-2027,Statistical Analysis Department,National Accounts,93,92,-1
+Nov-2027,Statistical Analysis Department,National Accounts,94,93,-1
+Dec-2027,Statistical Analysis Department,National Accounts,94,94,0
+Jan-2026,Statistical Analysis Department,Price Statistics,42,67,25
+Feb-2026,Statistical Analysis Department,Price Statistics,42,69,27
+Mar-2026,Statistical Analysis Department,Price Statistics,43,72,29
+Apr-2026,Statistical Analysis Department,Price Statistics,44,75,31
+May-2026,Statistical Analysis Department,Price Statistics,44,78,34
+Jun-2026,Statistical Analysis Department,Price Statistics,45,81,36
+Jul-2026,Statistical Analysis Department,Price Statistics,46,85,39
+Aug-2026,Statistical Analysis Department,Price Statistics,47,87,40
+Sep-2026,Statistical Analysis Department,Price Statistics,48,89,41
+Oct-2026,Statistical Analysis Department,Price Statistics,49,92,43
+Nov-2026,Statistical Analysis Department,Price Statistics,49,93,44
+Dec-2026,Statistical Analysis Department,Price Statistics,50,93,43
+Jan-2027,Statistical Analysis Department,Price Statistics,51,93,42
+Feb-2027,Statistical Analysis Department,Price Statistics,52,93,41
+Mar-2027,Statistical Analysis Department,Price Statistics,52,94,42
+Apr-2027,Statistical Analysis Department,Price Statistics,54,94,40
+May-2027,Statistical Analysis Department,Price Statistics,54,94,40
+Jun-2027,Statistical Analysis Department,Price Statistics,55,95,40
+Jul-2027,Statistical Analysis Department,Price Statistics,57,96,39
+Aug-2027,Statistical Analysis Department,Price Statistics,57,96,39
+Sep-2027,Statistical Analysis Department,Price Statistics,58,96,38
+Oct-2027,Statistical Analysis Department,Price Statistics,59,96,37
+Nov-2027,Statistical Analysis Department,Price Statistics,59,96,37
+Dec-2027,Statistical Analysis Department,Price Statistics,59,96,37
+Jan-2026,Statistical Analysis Department,Labour Statistics,71,78,7
+Feb-2026,Statistical Analysis Department,Labour Statistics,70,79,9
+Mar-2026,Statistical Analysis Department,Labour Statistics,71,80,9
+Apr-2026,Statistical Analysis Department,Labour Statistics,72,80,8
+May-2026,Statistical Analysis Department,Labour Statistics,72,80,8
+Jun-2026,Statistical Analysis Department,Labour Statistics,72,81,9
+Jul-2026,Statistical Analysis Department,Labour Statistics,71,81,10
+Aug-2026,Statistical Analysis Department,Labour Statistics,73,82,9
+Sep-2026,Statistical Analysis Department,Labour Statistics,74,82,8
+Oct-2026,Statistical Analysis Department,Labour Statistics,74,82,8
+Nov-2026,Statistical Analysis Department,Labour Statistics,76,82,6
+Dec-2026,Statistical Analysis Department,Labour Statistics,77,82,5
+Jan-2027,Statistical Analysis Department,Labour Statistics,78,82,4
+Feb-2027,Statistical Analysis Department,Labour Statistics,78,83,5
+Mar-2027,Statistical Analysis Department,Labour Statistics,78,84,6
+Apr-2027,Statistical Analysis Department,Labour Statistics,78,84,6
+May-2027,Statistical Analysis Department,Labour Statistics,77,84,7
+Jun-2027,Statistical Analysis Department,Labour Statistics,78,85,7
+Jul-2027,Statistical Analysis Department,Labour Statistics,78,85,7
+Aug-2027,Statistical Analysis Department,Labour Statistics,78,86,8
+Sep-2027,Statistical Analysis Department,Labour Statistics,80,87,7
+Oct-2027,Statistical Analysis Department,Labour Statistics,82,88,6
+Nov-2027,Statistical Analysis Department,Labour Statistics,81,88,7
+Dec-2027,Statistical Analysis Department,Labour Statistics,81,88,7
+Jan-2026,Statistical Analysis Department,Agricultural Statistics,39,68,29
+Feb-2026,Statistical Analysis Department,Agricultural Statistics,39,69,30
+Mar-2026,Statistical Analysis Department,Agricultural Statistics,40,69,29
+Apr-2026,Statistical Analysis Department,Agricultural Statistics,41,69,28
+May-2026,Statistical Analysis Department,Agricultural Statistics,43,70,27
+Jun-2026,Statistical Analysis Department,Agricultural Statistics,43,70,27
+Jul-2026,Statistical Analysis Department,Agricultural Statistics,45,70,25
+Aug-2026,Statistical Analysis Department,Agricultural Statistics,46,70,24
+Sep-2026,Statistical Analysis Department,Agricultural Statistics,47,70,23
+Oct-2026,Statistical Analysis Department,Agricultural Statistics,49,71,22
+Nov-2026,Statistical Analysis Department,Agricultural Statistics,50,71,21
+Dec-2026,Statistical Analysis Department,Agricultural Statistics,51,71,20
+Jan-2027,Statistical Analysis Department,Agricultural Statistics,52,72,20
+Feb-2027,Statistical Analysis Department,Agricultural Statistics,53,73,20
+Mar-2027,Statistical Analysis Department,Agricultural Statistics,53,74,21
+Apr-2027,Statistical Analysis Department,Agricultural Statistics,54,75,21
+May-2027,Statistical Analysis Department,Agricultural Statistics,55,76,21
+Jun-2027,Statistical Analysis Department,Agricultural Statistics,56,76,20
+Jul-2027,Statistical Analysis Department,Agricultural Statistics,57,77,20
+Aug-2027,Statistical Analysis Department,Agricultural Statistics,58,78,20
+Sep-2027,Statistical Analysis Department,Agricultural Statistics,59,78,19
+Oct-2027,Statistical Analysis Department,Agricultural Statistics,60,79,19
+Nov-2027,Statistical Analysis Department,Agricultural Statistics,61,80,19
+Dec-2027,Statistical Analysis Department,Agricultural Statistics,62,81,19
+Jan-2026,Statistical Analysis Department,SDG Indicators,49,72,23
+Feb-2026,Statistical Analysis Department,SDG Indicators,54,72,18
+Mar-2026,Statistical Analysis Department,SDG Indicators,58,73,15
+Apr-2026,Statistical Analysis Department,SDG Indicators,62,75,13
+May-2026,Statistical Analysis Department,SDG Indicators,66,77,11
+Jun-2026,Statistical Analysis Department,SDG Indicators,71,79,8
+Jul-2026,Statistical Analysis Department,SDG Indicators,75,81,6
+Aug-2026,Statistical Analysis Department,SDG Indicators,79,81,2
+Sep-2026,Statistical Analysis Department,SDG Indicators,79,82,3
+Oct-2026,Statistical Analysis Department,SDG Indicators,80,83,3
+Nov-2026,Statistical Analysis Department,SDG Indicators,80,84,4
+Dec-2026,Statistical Analysis Department,SDG Indicators,83,85,2
+Jan-2027,Statistical Analysis Department,SDG Indicators,85,85,0
+Feb-2027,Statistical Analysis Department,SDG Indicators,87,86,-1
+Mar-2027,Statistical Analysis Department,SDG Indicators,88,88,0
+Apr-2027,Statistical Analysis Department,SDG Indicators,88,88,0
+May-2027,Statistical Analysis Department,SDG Indicators,89,89,0
+Jun-2027,Statistical Analysis Department,SDG Indicators,90,89,-1
+Jul-2027,Statistical Analysis Department,SDG Indicators,91,91,0
+Aug-2027,Statistical Analysis Department,SDG Indicators,93,92,-1
+Sep-2027,Statistical Analysis Department,SDG Indicators,94,94,0
+Oct-2027,Statistical Analysis Department,SDG Indicators,95,96,1
+Nov-2027,Statistical Analysis Department,SDG Indicators,97,97,0
+Dec-2027,Statistical Analysis Department,SDG Indicators,99,98,-1
+Jan-2026,Statistical Analysis Department,Metadata Standards,43,64,21
+Feb-2026,Statistical Analysis Department,Metadata Standards,44,67,23
+Mar-2026,Statistical Analysis Department,Metadata Standards,45,70,25
+Apr-2026,Statistical Analysis Department,Metadata Standards,45,73,28
+May-2026,Statistical Analysis Department,Metadata Standards,46,76,30
+Jun-2026,Statistical Analysis Department,Metadata Standards,48,79,31
+Jul-2026,Statistical Analysis Department,Metadata Standards,49,81,32
+Aug-2026,Statistical Analysis Department,Metadata Standards,51,85,34
+Sep-2026,Statistical Analysis Department,Metadata Standards,52,89,37
+Oct-2026,Statistical Analysis Department,Metadata Standards,54,91,37
+Nov-2026,Statistical Analysis Department,Metadata Standards,55,95,40
+Dec-2026,Statistical Analysis Department,Metadata Standards,57,96,39
+Jan-2027,Statistical Analysis Department,Metadata Standards,59,96,37
+Feb-2027,Statistical Analysis Department,Metadata Standards,60,96,36
+Mar-2027,Statistical Analysis Department,Metadata Standards,62,96,34
+Apr-2027,Statistical Analysis Department,Metadata Standards,63,96,33
+May-2027,Statistical Analysis Department,Metadata Standards,65,96,31
+Jun-2027,Statistical Analysis Department,Metadata Standards,66,97,31
+Jul-2027,Statistical Analysis Department,Metadata Standards,67,97,30
+Aug-2027,Statistical Analysis Department,Metadata Standards,67,98,31
+Sep-2027,Statistical Analysis Department,Metadata Standards,67,99,32
+Oct-2027,Statistical Analysis Department,Metadata Standards,69,99,30
+Nov-2027,Statistical Analysis Department,Metadata Standards,70,99,29
+Dec-2027,Statistical Analysis Department,Metadata Standards,72,99,27
+Jan-2026,Data & Analytics Department,Python,47,73,26
+Feb-2026,Data & Analytics Department,Python,51,75,24
+Mar-2026,Data & Analytics Department,Python,55,77,22
+Apr-2026,Data & Analytics Department,Python,59,77,18
+May-2026,Data & Analytics Department,Python,64,77,13
+Jun-2026,Data & Analytics Department,Python,67,78,11
+Jul-2026,Data & Analytics Department,Python,71,78,7
+Aug-2026,Data & Analytics Department,Python,74,78,4
+Sep-2026,Data & Analytics Department,Python,78,79,1
+Oct-2026,Data & Analytics Department,Python,79,80,1
+Nov-2026,Data & Analytics Department,Python,79,82,3
+Dec-2026,Data & Analytics Department,Python,80,84,4
+Jan-2027,Data & Analytics Department,Python,84,85,1
+Feb-2027,Data & Analytics Department,Python,85,86,1
+Mar-2027,Data & Analytics Department,Python,86,86,0
+Apr-2027,Data & Analytics Department,Python,87,88,1
+May-2027,Data & Analytics Department,Python,87,89,2
+Jun-2027,Data & Analytics Department,Python,87,89,2
+Jul-2027,Data & Analytics Department,Python,88,91,3
+Aug-2027,Data & Analytics Department,Python,88,92,4
+Sep-2027,Data & Analytics Department,Python,93,94,1
+Oct-2027,Data & Analytics Department,Python,94,96,2
+Nov-2027,Data & Analytics Department,Python,96,97,1
+Dec-2027,Data & Analytics Department,Python,98,98,0
+Jan-2026,Data & Analytics Department,R Programming,49,66,17
+Feb-2026,Data & Analytics Department,R Programming,50,69,19
+Mar-2026,Data & Analytics Department,R Programming,51,71,20
+Apr-2026,Data & Analytics Department,R Programming,52,75,23
+May-2026,Data & Analytics Department,R Programming,53,79,26
+Jun-2026,Data & Analytics Department,R Programming,55,82,27
+Jul-2026,Data & Analytics Department,R Programming,55,86,31
+Aug-2026,Data & Analytics Department,R Programming,56,89,33
+Sep-2026,Data & Analytics Department,R Programming,58,92,34
+Oct-2026,Data & Analytics Department,R Programming,59,92,33
+Nov-2026,Data & Analytics Department,R Programming,60,93,33
+Dec-2026,Data & Analytics Department,R Programming,60,93,33
+Jan-2027,Data & Analytics Department,R Programming,61,93,32
+Feb-2027,Data & Analytics Department,R Programming,62,94,32
+Mar-2027,Data & Analytics Department,R Programming,64,94,30
+Apr-2027,Data & Analytics Department,R Programming,64,94,30
+May-2027,Data & Analytics Department,R Programming,66,94,28
+Jun-2027,Data & Analytics Department,R Programming,67,95,28
+Jul-2027,Data & Analytics Department,R Programming,68,96,28
+Aug-2027,Data & Analytics Department,R Programming,69,97,28
+Sep-2027,Data & Analytics Department,R Programming,71,97,26
+Oct-2027,Data & Analytics Department,R Programming,72,97,25
+Nov-2027,Data & Analytics Department,R Programming,73,97,24
+Dec-2027,Data & Analytics Department,R Programming,74,97,23
+Jan-2026,Data & Analytics Department,SQL,75,75,0
+Feb-2026,Data & Analytics Department,SQL,77,76,-1
+Mar-2026,Data & Analytics Department,SQL,76,76,0
+Apr-2026,Data & Analytics Department,SQL,76,76,0
+May-2026,Data & Analytics Department,SQL,76,76,0
+Jun-2026,Data & Analytics Department,SQL,76,76,0
+Jul-2026,Data & Analytics Department,SQL,78,76,-2
+Aug-2026,Data & Analytics Department,SQL,78,76,-2
+Sep-2026,Data & Analytics Department,SQL,77,77,0
+Oct-2026,Data & Analytics Department,SQL,79,77,-2
+Nov-2026,Data & Analytics Department,SQL,81,78,-3
+Dec-2026,Data & Analytics Department,SQL,80,78,-2
+Jan-2027,Data & Analytics Department,SQL,81,79,-2
+Feb-2027,Data & Analytics Department,SQL,82,80,-2
+Mar-2027,Data & Analytics Department,SQL,83,81,-2
+Apr-2027,Data & Analytics Department,SQL,83,81,-2
+May-2027,Data & Analytics Department,SQL,83,82,-1
+Jun-2027,Data & Analytics Department,SQL,82,82,0
+Jul-2027,Data & Analytics Department,SQL,83,83,0
+Aug-2027,Data & Analytics Department,SQL,82,83,1
+Sep-2027,Data & Analytics Department,SQL,82,83,1
+Oct-2027,Data & Analytics Department,SQL,83,84,1
+Nov-2027,Data & Analytics Department,SQL,82,84,2
+Dec-2027,Data & Analytics Department,SQL,81,85,4
+Jan-2026,Data & Analytics Department,Data Visualization,38,74,36
+Feb-2026,Data & Analytics Department,Data Visualization,40,74,34
+Mar-2026,Data & Analytics Department,Data Visualization,41,74,33
+Apr-2026,Data & Analytics Department,Data Visualization,42,75,33
+May-2026,Data & Analytics Department,Data Visualization,43,75,32
+Jun-2026,Data & Analytics Department,Data Visualization,45,76,31
+Jul-2026,Data & Analytics Department,Data Visualization,45,77,32
+Aug-2026,Data & Analytics Department,Data Visualization,45,77,32
+Sep-2026,Data & Analytics Department,Data Visualization,46,77,31
+Oct-2026,Data & Analytics Department,Data Visualization,46,77,31
+Nov-2026,Data & Analytics Department,Data Visualization,47,77,30
+Dec-2026,Data & Analytics Department,Data Visualization,49,77,28
+Jan-2027,Data & Analytics Department,Data Visualization,50,77,27
+Feb-2027,Data & Analytics Department,Data Visualization,51,77,26
+Mar-2027,Data & Analytics Department,Data Visualization,53,77,24
+Apr-2027,Data & Analytics Department,Data Visualization,54,77,23
+May-2027,Data & Analytics Department,Data Visualization,55,77,22
+Jun-2027,Data & Analytics Department,Data Visualization,56,78,22
+Jul-2027,Data & Analytics Department,Data Visualization,57,78,21
+Aug-2027,Data & Analytics Department,Data Visualization,58,78,20
+Sep-2027,Data & Analytics Department,Data Visualization,60,79,19
+Oct-2027,Data & Analytics Department,Data Visualization,61,79,18
+Nov-2027,Data & Analytics Department,Data Visualization,61,80,19
+Dec-2027,Data & Analytics Department,Data Visualization,62,81,19
+Jan-2026,Data & Analytics Department,Machine Learning,37,64,27
+Feb-2026,Data & Analytics Department,Machine Learning,39,67,28
+Mar-2026,Data & Analytics Department,Machine Learning,40,71,31
+Apr-2026,Data & Analytics Department,Machine Learning,42,75,33
+May-2026,Data & Analytics Department,Machine Learning,45,78,33
+Jun-2026,Data & Analytics Department,Machine Learning,48,82,34
+Jul-2026,Data & Analytics Department,Machine Learning,51,86,35
+Aug-2026,Data & Analytics Department,Machine Learning,54,91,37
+Sep-2026,Data & Analytics Department,Machine Learning,55,94,39
+Oct-2026,Data & Analytics Department,Machine Learning,58,98,40
+Nov-2026,Data & Analytics Department,Machine Learning,60,98,38
+Dec-2026,Data & Analytics Department,Machine Learning,62,99,37
+Jan-2027,Data & Analytics Department,Machine Learning,64,99,35
+Feb-2027,Data & Analytics Department,Machine Learning,67,99,32
+Mar-2027,Data & Analytics Department,Machine Learning,69,100,31
+Apr-2027,Data & Analytics Department,Machine Learning,72,100,28
+May-2027,Data & Analytics Department,Machine Learning,74,100,26
+Jun-2027,Data & Analytics Department,Machine Learning,76,100,24
+Jul-2027,Data & Analytics Department,Machine Learning,78,100,22
+Aug-2027,Data & Analytics Department,Machine Learning,81,100,19
+Sep-2027,Data & Analytics Department,Machine Learning,84,100,16
+Oct-2027,Data & Analytics Department,Machine Learning,85,100,15
+Nov-2027,Data & Analytics Department,Machine Learning,87,100,13
+Dec-2027,Data & Analytics Department,Machine Learning,88,100,12
+Jan-2026,Data & Analytics Department,Artificial Intelligence,35,63,28
+Feb-2026,Data & Analytics Department,Artificial Intelligence,37,68,31
+Mar-2026,Data & Analytics Department,Artificial Intelligence,40,71,31
+Apr-2026,Data & Analytics Department,Artificial Intelligence,42,75,33
+May-2026,Data & Analytics Department,Artificial Intelligence,44,79,35
+Jun-2026,Data & Analytics Department,Artificial Intelligence,47,84,37
+Jul-2026,Data & Analytics Department,Artificial Intelligence,48,87,39
+Aug-2026,Data & Analytics Department,Artificial Intelligence,50,91,41
+Sep-2026,Data & Analytics Department,Artificial Intelligence,52,94,42
+Oct-2026,Data & Analytics Department,Artificial Intelligence,55,97,42
+Nov-2026,Data & Analytics Department,Artificial Intelligence,57,97,40
+Dec-2026,Data & Analytics Department,Artificial Intelligence,58,97,39
+Jan-2027,Data & Analytics Department,Artificial Intelligence,60,97,37
+Feb-2027,Data & Analytics Department,Artificial Intelligence,63,97,34
+Mar-2027,Data & Analytics Department,Artificial Intelligence,66,97,31
+Apr-2027,Data & Analytics Department,Artificial Intelligence,68,97,29
+May-2027,Data & Analytics Department,Artificial Intelligence,70,97,27
+Jun-2027,Data & Analytics Department,Artificial Intelligence,72,97,25
+Jul-2027,Data & Analytics Department,Artificial Intelligence,74,97,23
+Aug-2027,Data & Analytics Department,Artificial Intelligence,77,97,20
+Sep-2027,Data & Analytics Department,Artificial Intelligence,79,97,18
+Oct-2027,Data & Analytics Department,Artificial Intelligence,81,98,17
+Nov-2027,Data & Analytics Department,Artificial Intelligence,83,98,15
+Dec-2027,Data & Analytics Department,Artificial Intelligence,86,98,12
+Jan-2026,Data & Analytics Department,Big Data Analytics,42,66,24
+Feb-2026,Data & Analytics Department,Big Data Analytics,45,70,25
+Mar-2026,Data & Analytics Department,Big Data Analytics,48,73,25
+Apr-2026,Data & Analytics Department,Big Data Analytics,50,77,27
+May-2026,Data & Analytics Department,Big Data Analytics,51,82,31
+Jun-2026,Data & Analytics Department,Big Data Analytics,52,87,35
+Jul-2026,Data & Analytics Department,Big Data Analytics,53,91,38
+Aug-2026,Data & Analytics Department,Big Data Analytics,56,95,39
+Sep-2026,Data & Analytics Department,Big Data Analytics,57,95,38
+Oct-2026,Data & Analytics Department,Big Data Analytics,59,96,37
+Nov-2026,Data & Analytics Department,Big Data Analytics,60,97,37
+Dec-2026,Data & Analytics Department,Big Data Analytics,63,98,35
+Jan-2027,Data & Analytics Department,Big Data Analytics,66,99,33
+Feb-2027,Data & Analytics Department,Big Data Analytics,67,100,33
+Mar-2027,Data & Analytics Department,Big Data Analytics,69,100,31
+Apr-2027,Data & Analytics Department,Big Data Analytics,70,100,30
+May-2027,Data & Analytics Department,Big Data Analytics,71,100,29
+Jun-2027,Data & Analytics Department,Big Data Analytics,73,100,27
+Jul-2027,Data & Analytics Department,Big Data Analytics,75,100,25
+Aug-2027,Data & Analytics Department,Big Data Analytics,77,100,23
+Sep-2027,Data & Analytics Department,Big Data Analytics,79,100,21
+Oct-2027,Data & Analytics Department,Big Data Analytics,82,100,18
+Nov-2027,Data & Analytics Department,Big Data Analytics,84,100,16
+Dec-2027,Data & Analytics Department,Big Data Analytics,87,100,13
+Jan-2026,Data & Analytics Department,Statistical Modelling,37,69,32
+Feb-2026,Data & Analytics Department,Statistical Modelling,38,70,32
+Mar-2026,Data & Analytics Department,Statistical Modelling,39,70,31
+Apr-2026,Data & Analytics Department,Statistical Modelling,40,71,31
+May-2026,Data & Analytics Department,Statistical Modelling,40,71,31
+Jun-2026,Data & Analytics Department,Statistical Modelling,41,72,31
+Jul-2026,Data & Analytics Department,Statistical Modelling,43,72,29
+Aug-2026,Data & Analytics Department,Statistical Modelling,43,72,29
+Sep-2026,Data & Analytics Department,Statistical Modelling,44,73,29
+Oct-2026,Data & Analytics Department,Statistical Modelling,45,74,29
+Nov-2026,Data & Analytics Department,Statistical Modelling,46,75,29
+Dec-2026,Data & Analytics Department,Statistical Modelling,47,75,28
+Jan-2027,Data & Analytics Department,Statistical Modelling,48,75,27
+Feb-2027,Data & Analytics Department,Statistical Modelling,49,75,26
+Mar-2027,Data & Analytics Department,Statistical Modelling,49,75,26
+Apr-2027,Data & Analytics Department,Statistical Modelling,50,76,26
+May-2027,Data & Analytics Department,Statistical Modelling,51,77,26
+Jun-2027,Data & Analytics Department,Statistical Modelling,52,78,26
+Jul-2027,Data & Analytics Department,Statistical Modelling,53,78,25
+Aug-2027,Data & Analytics Department,Statistical Modelling,54,78,24
+Sep-2027,Data & Analytics Department,Statistical Modelling,54,79,25
+Oct-2027,Data & Analytics Department,Statistical Modelling,54,80,26
+Nov-2027,Data & Analytics Department,Statistical Modelling,55,80,25
+Dec-2027,Data & Analytics Department,Statistical Modelling,56,81,25
+Jan-2026,Data & Analytics Department,Data Engineering,40,63,23
+Feb-2026,Data & Analytics Department,Data Engineering,42,67,25
+Mar-2026,Data & Analytics Department,Data Engineering,44,70,26
+Apr-2026,Data & Analytics Department,Data Engineering,45,74,29
+May-2026,Data & Analytics Department,Data Engineering,48,77,29
+Jun-2026,Data & Analytics Department,Data Engineering,50,81,31
+Jul-2026,Data & Analytics Department,Data Engineering,51,85,34
+Aug-2026,Data & Analytics Department,Data Engineering,53,90,37
+Sep-2026,Data & Analytics Department,Data Engineering,55,94,39
+Oct-2026,Data & Analytics Department,Data Engineering,57,98,41
+Nov-2026,Data & Analytics Department,Data Engineering,59,98,39
+Dec-2026,Data & Analytics Department,Data Engineering,62,99,37
+Jan-2027,Data & Analytics Department,Data Engineering,64,99,35
+Feb-2027,Data & Analytics Department,Data Engineering,65,99,34
+Mar-2027,Data & Analytics Department,Data Engineering,68,99,31
+Apr-2027,Data & Analytics Department,Data Engineering,71,99,28
+May-2027,Data & Analytics Department,Data Engineering,72,99,27
+Jun-2027,Data & Analytics Department,Data Engineering,74,100,26
+Jul-2027,Data & Analytics Department,Data Engineering,76,100,24
+Aug-2027,Data & Analytics Department,Data Engineering,78,100,22
+Sep-2027,Data & Analytics Department,Data Engineering,80,100,20
+Oct-2027,Data & Analytics Department,Data Engineering,81,100,19
+Nov-2027,Data & Analytics Department,Data Engineering,83,100,17
+Dec-2027,Data & Analytics Department,Data Engineering,85,100,15
+Jan-2026,Data & Analytics Department,Data Mining,46,67,21
+Feb-2026,Data & Analytics Department,Data Mining,46,69,23
+Mar-2026,Data & Analytics Department,Data Mining,47,72,25
+Apr-2026,Data & Analytics Department,Data Mining,49,76,27
+May-2026,Data & Analytics Department,Data Mining,50,80,30
+Jun-2026,Data & Analytics Department,Data Mining,51,84,33
+Jul-2026,Data & Analytics Department,Data Mining,51,88,37
+Aug-2026,Data & Analytics Department,Data Mining,53,91,38
+Sep-2026,Data & Analytics Department,Data Mining,53,94,41
+Oct-2026,Data & Analytics Department,Data Mining,54,94,40
+Nov-2026,Data & Analytics Department,Data Mining,55,94,39
+Dec-2026,Data & Analytics Department,Data Mining,56,94,38
+Jan-2027,Data & Analytics Department,Data Mining,58,94,36
+Feb-2027,Data & Analytics Department,Data Mining,58,94,36
+Mar-2027,Data & Analytics Department,Data Mining,59,94,35
+Apr-2027,Data & Analytics Department,Data Mining,60,94,34
+May-2027,Data & Analytics Department,Data Mining,61,95,34
+Jun-2027,Data & Analytics Department,Data Mining,62,95,33
+Jul-2027,Data & Analytics Department,Data Mining,63,96,33
+Aug-2027,Data & Analytics Department,Data Mining,63,96,33
+Sep-2027,Data & Analytics Department,Data Mining,64,96,32
+Oct-2027,Data & Analytics Department,Data Mining,64,96,32
+Nov-2027,Data & Analytics Department,Data Mining,64,96,32
+Dec-2027,Data & Analytics Department,Data Mining,65,96,31
+Jan-2026,IT & Digital Infrastructure Department,Cloud Computing,39,60,21
+Feb-2026,IT & Digital Infrastructure Department,Cloud Computing,41,65,24
+Mar-2026,IT & Digital Infrastructure Department,Cloud Computing,42,68,26
+Apr-2026,IT & Digital Infrastructure Department,Cloud Computing,45,73,28
+May-2026,IT & Digital Infrastructure Department,Cloud Computing,47,76,29
+Jun-2026,IT & Digital Infrastructure Department,Cloud Computing,50,80,30
+Jul-2026,IT & Digital Infrastructure Department,Cloud Computing,51,84,33
+Aug-2026,IT & Digital Infrastructure Department,Cloud Computing,54,87,33
+Sep-2026,IT & Digital Infrastructure Department,Cloud Computing,55,92,37
+Oct-2026,IT & Digital Infrastructure Department,Cloud Computing,58,97,39
+Nov-2026,IT & Digital Infrastructure Department,Cloud Computing,59,98,39
+Dec-2026,IT & Digital Infrastructure Department,Cloud Computing,62,98,36
+Jan-2027,IT & Digital Infrastructure Department,Cloud Computing,64,98,34
+Feb-2027,IT & Digital Infrastructure Department,Cloud Computing,66,99,33
+Mar-2027,IT & Digital Infrastructure Department,Cloud Computing,68,100,32
+Apr-2027,IT & Digital Infrastructure Department,Cloud Computing,70,100,30
+May-2027,IT & Digital Infrastructure Department,Cloud Computing,73,100,27
+Jun-2027,IT & Digital Infrastructure Department,Cloud Computing,74,100,26
+Jul-2027,IT & Digital Infrastructure Department,Cloud Computing,77,100,23
+Aug-2027,IT & Digital Infrastructure Department,Cloud Computing,79,100,21
+Sep-2027,IT & Digital Infrastructure Department,Cloud Computing,82,100,18
+Oct-2027,IT & Digital Infrastructure Department,Cloud Computing,85,100,15
+Nov-2027,IT & Digital Infrastructure Department,Cloud Computing,87,100,13
+Dec-2027,IT & Digital Infrastructure Department,Cloud Computing,90,100,10
+Jan-2026,IT & Digital Infrastructure Department,Cybersecurity,36,61,25
+Feb-2026,IT & Digital Infrastructure Department,Cybersecurity,39,64,25
+Mar-2026,IT & Digital Infrastructure Department,Cybersecurity,41,68,27
+Apr-2026,IT & Digital Infrastructure Department,Cybersecurity,42,72,30
+May-2026,IT & Digital Infrastructure Department,Cybersecurity,43,77,34
+Jun-2026,IT & Digital Infrastructure Department,Cybersecurity,45,82,37
+Jul-2026,IT & Digital Infrastructure Department,Cybersecurity,46,86,40
+Aug-2026,IT & Digital Infrastructure Department,Cybersecurity,48,90,42
+Sep-2026,IT & Digital Infrastructure Department,Cybersecurity,49,94,45
+Oct-2026,IT & Digital Infrastructure Department,Cybersecurity,51,99,48
+Nov-2026,IT & Digital Infrastructure Department,Cybersecurity,53,99,46
+Dec-2026,IT & Digital Infrastructure Department,Cybersecurity,55,99,44
+Jan-2027,IT & Digital Infrastructure Department,Cybersecurity,57,100,43
+Feb-2027,IT & Digital Infrastructure Department,Cybersecurity,58,100,42
+Mar-2027,IT & Digital Infrastructure Department,Cybersecurity,60,100,40
+Apr-2027,IT & Digital Infrastructure Department,Cybersecurity,62,100,38
+May-2027,IT & Digital Infrastructure Department,Cybersecurity,63,100,37
+Jun-2027,IT & Digital Infrastructure Department,Cybersecurity,66,100,34
+Jul-2027,IT & Digital Infrastructure Department,Cybersecurity,67,100,33
+Aug-2027,IT & Digital Infrastructure Department,Cybersecurity,69,100,31
+Sep-2027,IT & Digital Infrastructure Department,Cybersecurity,72,100,28
+Oct-2027,IT & Digital Infrastructure Department,Cybersecurity,74,100,26
+Nov-2027,IT & Digital Infrastructure Department,Cybersecurity,76,100,24
+Dec-2027,IT & Digital Infrastructure Department,Cybersecurity,78,100,22
+Jan-2026,IT & Digital Infrastructure Department,APIs & System Integration,35,61,26
+Feb-2026,IT & Digital Infrastructure Department,APIs & System Integration,37,66,29
+Mar-2026,IT & Digital Infrastructure Department,APIs & System Integration,40,71,31
+Apr-2026,IT & Digital Infrastructure Department,APIs & System Integration,43,76,33
+May-2026,IT & Digital Infrastructure Department,APIs & System Integration,45,80,35
+Jun-2026,IT & Digital Infrastructure Department,APIs & System Integration,46,84,38
+Jul-2026,IT & Digital Infrastructure Department,APIs & System Integration,49,87,38
+Aug-2026,IT & Digital Infrastructure Department,APIs & System Integration,51,92,41
+Sep-2026,IT & Digital Infrastructure Department,APIs & System Integration,53,95,42
+Oct-2026,IT & Digital Infrastructure Department,APIs & System Integration,55,96,41
+Nov-2026,IT & Digital Infrastructure Department,APIs & System Integration,56,96,40
+Dec-2026,IT & Digital Infrastructure Department,APIs & System Integration,58,96,38
+Jan-2027,IT & Digital Infrastructure Department,APIs & System Integration,60,96,36
+Feb-2027,IT & Digital Infrastructure Department,APIs & System Integration,61,96,35
+Mar-2027,IT & Digital Infrastructure Department,APIs & System Integration,64,96,32
+Apr-2027,IT & Digital Infrastructure Department,APIs & System Integration,67,97,30
+May-2027,IT & Digital Infrastructure Department,APIs & System Integration,69,97,28
+Jun-2027,IT & Digital Infrastructure Department,APIs & System Integration,70,97,27
+Jul-2027,IT & Digital Infrastructure Department,APIs & System Integration,73,97,24
+Aug-2027,IT & Digital Infrastructure Department,APIs & System Integration,76,98,22
+Sep-2027,IT & Digital Infrastructure Department,APIs & System Integration,79,98,19
+Oct-2027,IT & Digital Infrastructure Department,APIs & System Integration,82,98,16
+Nov-2027,IT & Digital Infrastructure Department,APIs & System Integration,84,99,15
+Dec-2027,IT & Digital Infrastructure Department,APIs & System Integration,86,99,13
+Jan-2026,IT & Digital Infrastructure Department,Government Cloud,36,69,33
+Feb-2026,IT & Digital Infrastructure Department,Government Cloud,37,70,33
+Mar-2026,IT & Digital Infrastructure Department,Government Cloud,38,71,33
+Apr-2026,IT & Digital Infrastructure Department,Government Cloud,38,71,33
+May-2026,IT & Digital Infrastructure Department,Government Cloud,39,72,33
+Jun-2026,IT & Digital Infrastructure Department,Government Cloud,40,72,32
+Jul-2026,IT & Digital Infrastructure Department,Government Cloud,41,72,31
+Aug-2026,IT & Digital Infrastructure Department,Government Cloud,41,73,32
+Sep-2026,IT & Digital Infrastructure Department,Government Cloud,41,74,33
+Oct-2026,IT & Digital Infrastructure Department,Government Cloud,43,74,31
+Nov-2026,IT & Digital Infrastructure Department,Government Cloud,44,74,30
+Dec-2026,IT & Digital Infrastructure Department,Government Cloud,45,74,29
+Jan-2027,IT & Digital Infrastructure Department,Government Cloud,45,74,29
+Feb-2027,IT & Digital Infrastructure Department,Government Cloud,46,74,28
+Mar-2027,IT & Digital Infrastructure Department,Government Cloud,47,75,28
+Apr-2027,IT & Digital Infrastructure Department,Government Cloud,48,76,28
+May-2027,IT & Digital Infrastructure Department,Government Cloud,48,76,28
+Jun-2027,IT & Digital Infrastructure Department,Government Cloud,49,76,27
+Jul-2027,IT & Digital Infrastructure Department,Government Cloud,51,77,26
+Aug-2027,IT & Digital Infrastructure Department,Government Cloud,52,78,26
+Sep-2027,IT & Digital Infrastructure Department,Government Cloud,54,79,25
+Oct-2027,IT & Digital Infrastructure Department,Government Cloud,56,79,23
+Nov-2027,IT & Digital Infrastructure Department,Government Cloud,57,79,22
+Dec-2027,IT & Digital Infrastructure Department,Government Cloud,58,79,21
+Jan-2026,IT & Digital Infrastructure Department,Database Management,47,75,28
+Feb-2026,IT & Digital Infrastructure Department,Database Management,51,76,25
+Mar-2026,IT & Digital Infrastructure Department,Database Management,54,77,23
+Apr-2026,IT & Digital Infrastructure Department,Database Management,57,78,21
+May-2026,IT & Digital Infrastructure Department,Database Management,62,80,18
+Jun-2026,IT & Digital Infrastructure Department,Database Management,65,80,15
+Jul-2026,IT & Digital Infrastructure Department,Database Management,69,81,12
+Aug-2026,IT & Digital Infrastructure Department,Database Management,72,81,9
+Sep-2026,IT & Digital Infrastructure Department,Database Management,77,83,6
+Oct-2026,IT & Digital Infrastructure Department,Database Management,80,85,5
+Nov-2026,IT & Digital Infrastructure Department,Database Management,84,86,2
+Dec-2026,IT & Digital Infrastructure Department,Database Management,84,87,3
+Jan-2027,IT & Digital Infrastructure Department,Database Management,85,87,2
+Feb-2027,IT & Digital Infrastructure Department,Database Management,85,88,3
+Mar-2027,IT & Digital Infrastructure Department,Database Management,87,90,3
+Apr-2027,IT & Digital Infrastructure Department,Database Management,88,91,3
+May-2027,IT & Digital Infrastructure Department,Database Management,90,93,3
+Jun-2027,IT & Digital Infrastructure Department,Database Management,91,93,2
+Jul-2027,IT & Digital Infrastructure Department,Database Management,91,94,3
+Aug-2027,IT & Digital Infrastructure Department,Database Management,92,95,3
+Sep-2027,IT & Digital Infrastructure Department,Database Management,92,96,4
+Oct-2027,IT & Digital Infrastructure Department,Database Management,96,97,1
+Nov-2027,IT & Digital Infrastructure Department,Database Management,97,99,2
+Dec-2027,IT & Digital Infrastructure Department,Database Management,99,100,1
+Jan-2026,IT & Digital Infrastructure Department,Network Administration,47,62,15
+Feb-2026,IT & Digital Infrastructure Department,Network Administration,47,66,19
+Mar-2026,IT & Digital Infrastructure Department,Network Administration,48,68,20
+Apr-2026,IT & Digital Infrastructure Department,Network Administration,49,71,22
+May-2026,IT & Digital Infrastructure Department,Network Administration,50,74,24
+Jun-2026,IT & Digital Infrastructure Department,Network Administration,51,78,27
+Jul-2026,IT & Digital Infrastructure Department,Network Administration,52,81,29
+Aug-2026,IT & Digital Infrastructure Department,Network Administration,53,84,31
+Sep-2026,IT & Digital Infrastructure Department,Network Administration,53,87,34
+Oct-2026,IT & Digital Infrastructure Department,Network Administration,53,89,36
+Nov-2026,IT & Digital Infrastructure Department,Network Administration,54,92,38
+Dec-2026,IT & Digital Infrastructure Department,Network Administration,56,92,36
+Jan-2027,IT & Digital Infrastructure Department,Network Administration,57,93,36
+Feb-2027,IT & Digital Infrastructure Department,Network Administration,59,93,34
+Mar-2027,IT & Digital Infrastructure Department,Network Administration,60,93,33
+Apr-2027,IT & Digital Infrastructure Department,Network Administration,61,93,32
+May-2027,IT & Digital Infrastructure Department,Network Administration,62,93,31
+Jun-2027,IT & Digital Infrastructure Department,Network Administration,63,94,31
+Jul-2027,IT & Digital Infrastructure Department,Network Administration,65,94,29
+Aug-2027,IT & Digital Infrastructure Department,Network Administration,67,94,27
+Sep-2027,IT & Digital Infrastructure Department,Network Administration,68,94,26
+Oct-2027,IT & Digital Infrastructure Department,Network Administration,68,94,26
+Nov-2027,IT & Digital Infrastructure Department,Network Administration,68,94,26
+Dec-2027,IT & Digital Infrastructure Department,Network Administration,68,94,26
+Jan-2026,IT & Digital Infrastructure Department,DevOps,75,77,2
+Feb-2026,IT & Digital Infrastructure Department,DevOps,75,78,3
+Mar-2026,IT & Digital Infrastructure Department,DevOps,74,78,4
+Apr-2026,IT & Digital Infrastructure Department,DevOps,75,79,4
+May-2026,IT & Digital Infrastructure Department,DevOps,74,80,6
+Jun-2026,IT & Digital Infrastructure Department,DevOps,73,81,8
+Jul-2026,IT & Digital Infrastructure Department,DevOps,74,82,8
+Aug-2026,IT & Digital Infrastructure Department,DevOps,74,83,9
+Sep-2026,IT & Digital Infrastructure Department,DevOps,73,84,11
+Oct-2026,IT & Digital Infrastructure Department,DevOps,73,84,11
+Nov-2026,IT & Digital Infrastructure Department,DevOps,73,84,11
+Dec-2026,IT & Digital Infrastructure Department,DevOps,75,85,10
+Jan-2027,IT & Digital Infrastructure Department,DevOps,75,85,10
+Feb-2027,IT & Digital Infrastructure Department,DevOps,74,86,12
+Mar-2027,IT & Digital Infrastructure Department,DevOps,75,86,11
+Apr-2027,IT & Digital Infrastructure Department,DevOps,77,87,10
+May-2027,IT & Digital Infrastructure Department,DevOps,78,87,9
+Jun-2027,IT & Digital Infrastructure Department,DevOps,77,87,10
+Jul-2027,IT & Digital Infrastructure Department,DevOps,77,87,10
+Aug-2027,IT & Digital Infrastructure Department,DevOps,77,88,11
+Sep-2027,IT & Digital Infrastructure Department,DevOps,76,89,13
+Oct-2027,IT & Digital Infrastructure Department,DevOps,76,90,14
+Nov-2027,IT & Digital Infrastructure Department,DevOps,75,90,15
+Dec-2027,IT & Digital Infrastructure Department,DevOps,75,91,16
+Jan-2026,IT & Digital Infrastructure Department,Digital Infrastructure,42,68,26
+Feb-2026,IT & Digital Infrastructure Department,Digital Infrastructure,42,68,26
+Mar-2026,IT & Digital Infrastructure Department,Digital Infrastructure,44,69,25
+Apr-2026,IT & Digital Infrastructure Department,Digital Infrastructure,44,70,26
+May-2026,IT & Digital Infrastructure Department,Digital Infrastructure,46,71,25
+Jun-2026,IT & Digital Infrastructure Department,Digital Infrastructure,47,72,25
+Jul-2026,IT & Digital Infrastructure Department,Digital Infrastructure,48,72,24
+Aug-2026,IT & Digital Infrastructure Department,Digital Infrastructure,49,72,23
+Sep-2026,IT & Digital Infrastructure Department,Digital Infrastructure,51,72,21
+Oct-2026,IT & Digital Infrastructure Department,Digital Infrastructure,52,73,21
+Nov-2026,IT & Digital Infrastructure Department,Digital Infrastructure,53,73,20
+Dec-2026,IT & Digital Infrastructure Department,Digital Infrastructure,53,74,21
+Jan-2027,IT & Digital Infrastructure Department,Digital Infrastructure,54,74,20
+Feb-2027,IT & Digital Infrastructure Department,Digital Infrastructure,56,75,19
+Mar-2027,IT & Digital Infrastructure Department,Digital Infrastructure,58,76,18
+Apr-2027,IT & Digital Infrastructure Department,Digital Infrastructure,60,76,16
+May-2027,IT & Digital Infrastructure Department,Digital Infrastructure,61,76,15
+Jun-2027,IT & Digital Infrastructure Department,Digital Infrastructure,61,77,16
+Jul-2027,IT & Digital Infrastructure Department,Digital Infrastructure,62,77,15
+Aug-2027,IT & Digital Infrastructure Department,Digital Infrastructure,63,78,15
+Sep-2027,IT & Digital Infrastructure Department,Digital Infrastructure,63,78,15
+Oct-2027,IT & Digital Infrastructure Department,Digital Infrastructure,63,78,15
+Nov-2027,IT & Digital Infrastructure Department,Digital Infrastructure,64,79,15
+Dec-2027,IT & Digital Infrastructure Department,Digital Infrastructure,64,80,16
+Jan-2026,IT & Digital Infrastructure Department,System Architecture,45,70,25
+Feb-2026,IT & Digital Infrastructure Department,System Architecture,48,71,23
+Mar-2026,IT & Digital Infrastructure Department,System Architecture,52,72,20
+Apr-2026,IT & Digital Infrastructure Department,System Architecture,57,74,17
+May-2026,IT & Digital Infrastructure Department,System Architecture,61,75,14
+Jun-2026,IT & Digital Infrastructure Department,System Architecture,64,77,13
+Jul-2026,IT & Digital Infrastructure Department,System Architecture,67,78,11
+Aug-2026,IT & Digital Infrastructure Department,System Architecture,71,78,7
+Sep-2026,IT & Digital Infrastructure Department,System Architecture,75,78,3
+Oct-2026,IT & Digital Infrastructure Department,System Architecture,77,79,2
+Nov-2026,IT & Digital Infrastructure Department,System Architecture,77,80,3
+Dec-2026,IT & Digital Infrastructure Department,System Architecture,78,81,3
+Jan-2027,IT & Digital Infrastructure Department,System Architecture,79,82,3
+Feb-2027,IT & Digital Infrastructure Department,System Architecture,81,83,2
+Mar-2027,IT & Digital Infrastructure Department,System Architecture,83,85,2
+Apr-2027,IT & Digital Infrastructure Department,System Architecture,85,86,1
+May-2027,IT & Digital Infrastructure Department,System Architecture,86,87,1
+Jun-2027,IT & Digital Infrastructure Department,System Architecture,86,89,3
+Jul-2027,IT & Digital Infrastructure Department,System Architecture,87,90,3
+Aug-2027,IT & Digital Infrastructure Department,System Architecture,87,90,3
+Sep-2027,IT & Digital Infrastructure Department,System Architecture,88,91,3
+Oct-2027,IT & Digital Infrastructure Department,System Architecture,89,93,4
+Nov-2027,IT & Digital Infrastructure Department,System Architecture,94,94,0
+Dec-2027,IT & Digital Infrastructure Department,System Architecture,95,94,-1
+Jan-2026,IT & Digital Infrastructure Department,IT Automation,48,64,16
+Feb-2026,IT & Digital Infrastructure Department,IT Automation,48,66,18
+Mar-2026,IT & Digital Infrastructure Department,IT Automation,50,69,19
+Apr-2026,IT & Digital Infrastructure Department,IT Automation,51,71,20
+May-2026,IT & Digital Infrastructure Department,IT Automation,52,75,23
+Jun-2026,IT & Digital Infrastructure Department,IT Automation,52,78,26
+Jul-2026,IT & Digital Infrastructure Department,IT Automation,52,81,29
+Aug-2026,IT & Digital Infrastructure Department,IT Automation,53,84,31
+Sep-2026,IT & Digital Infrastructure Department,IT Automation,55,86,31
+Oct-2026,IT & Digital Infrastructure Department,IT Automation,56,90,34
+Nov-2026,IT & Digital Infrastructure Department,IT Automation,57,93,36
+Dec-2026,IT & Digital Infrastructure Department,IT Automation,59,94,35
+Jan-2027,IT & Digital Infrastructure Department,IT Automation,60,94,34
+Feb-2027,IT & Digital Infrastructure Department,IT Automation,61,94,33
+Mar-2027,IT & Digital Infrastructure Department,IT Automation,61,95,34
+Apr-2027,IT & Digital Infrastructure Department,IT Automation,62,96,34
+May-2027,IT & Digital Infrastructure Department,IT Automation,64,96,32
+Jun-2027,IT & Digital Infrastructure Department,IT Automation,65,96,31
+Jul-2027,IT & Digital Infrastructure Department,IT Automation,66,96,30
+Aug-2027,IT & Digital Infrastructure Department,IT Automation,66,96,30
+Sep-2027,IT & Digital Infrastructure Department,IT Automation,68,97,29
+Oct-2027,IT & Digital Infrastructure Department,IT Automation,70,98,28
+Nov-2027,IT & Digital Infrastructure Department,IT Automation,71,99,28
+Dec-2027,IT & Digital Infrastructure Department,IT Automation,71,99,28
+Jan-2026,GIS & Data Dissemination Department,GIS,37,62,25
+Feb-2026,GIS & Data Dissemination Department,GIS,39,66,27
+Mar-2026,GIS & Data Dissemination Department,GIS,40,70,30
+Apr-2026,GIS & Data Dissemination Department,GIS,42,74,32
+May-2026,GIS & Data Dissemination Department,GIS,45,77,32
+Jun-2026,GIS & Data Dissemination Department,GIS,47,81,34
+Jul-2026,GIS & Data Dissemination Department,GIS,50,85,35
+Aug-2026,GIS & Data Dissemination Department,GIS,51,88,37
+Sep-2026,GIS & Data Dissemination Department,GIS,53,93,40
+Oct-2026,GIS & Data Dissemination Department,GIS,56,98,42
+Nov-2026,GIS & Data Dissemination Department,GIS,59,98,39
+Dec-2026,GIS & Data Dissemination Department,GIS,61,98,37
+Jan-2027,GIS & Data Dissemination Department,GIS,64,98,34
+Feb-2027,GIS & Data Dissemination Department,GIS,66,98,32
+Mar-2027,GIS & Data Dissemination Department,GIS,67,99,32
+Apr-2027,GIS & Data Dissemination Department,GIS,69,99,30
+May-2027,GIS & Data Dissemination Department,GIS,71,100,29
+Jun-2027,GIS & Data Dissemination Department,GIS,73,100,27
+Jul-2027,GIS & Data Dissemination Department,GIS,75,100,25
+Aug-2027,GIS & Data Dissemination Department,GIS,77,100,23
+Sep-2027,GIS & Data Dissemination Department,GIS,79,100,21
+Oct-2027,GIS & Data Dissemination Department,GIS,81,100,19
+Nov-2027,GIS & Data Dissemination Department,GIS,83,100,17
+Dec-2027,GIS & Data Dissemination Department,GIS,84,100,16
+Jan-2026,GIS & Data Dissemination Department,Spatial Data Analysis,46,63,17
+Feb-2026,GIS & Data Dissemination Department,Spatial Data Analysis,48,65,17
+Mar-2026,GIS & Data Dissemination Department,Spatial Data Analysis,50,68,18
+Apr-2026,GIS & Data Dissemination Department,Spatial Data Analysis,51,72,21
+May-2026,GIS & Data Dissemination Department,Spatial Data Analysis,52,76,24
+Jun-2026,GIS & Data Dissemination Department,Spatial Data Analysis,53,80,27
+Jul-2026,GIS & Data Dissemination Department,Spatial Data Analysis,53,82,29
+Aug-2026,GIS & Data Dissemination Department,Spatial Data Analysis,54,86,32
+Sep-2026,GIS & Data Dissemination Department,Spatial Data Analysis,56,90,34
+Oct-2026,GIS & Data Dissemination Department,Spatial Data Analysis,58,93,35
+Nov-2026,GIS & Data Dissemination Department,Spatial Data Analysis,59,93,34
+Dec-2026,GIS & Data Dissemination Department,Spatial Data Analysis,60,93,33
+Jan-2027,GIS & Data Dissemination Department,Spatial Data Analysis,61,94,33
+Feb-2027,GIS & Data Dissemination Department,Spatial Data Analysis,61,94,33
+Mar-2027,GIS & Data Dissemination Department,Spatial Data Analysis,63,94,31
+Apr-2027,GIS & Data Dissemination Department,Spatial Data Analysis,65,94,29
+May-2027,GIS & Data Dissemination Department,Spatial Data Analysis,65,94,29
+Jun-2027,GIS & Data Dissemination Department,Spatial Data Analysis,67,94,27
+Jul-2027,GIS & Data Dissemination Department,Spatial Data Analysis,68,95,27
+Aug-2027,GIS & Data Dissemination Department,Spatial Data Analysis,69,95,26
+Sep-2027,GIS & Data Dissemination Department,Spatial Data Analysis,71,95,24
+Oct-2027,GIS & Data Dissemination Department,Spatial Data Analysis,72,95,23
+Nov-2027,GIS & Data Dissemination Department,Spatial Data Analysis,72,96,24
+Dec-2027,GIS & Data Dissemination Department,Spatial Data Analysis,74,96,22
+Jan-2026,GIS & Data Dissemination Department,Remote Sensing,73,73,0
+Feb-2026,GIS & Data Dissemination Department,Remote Sensing,72,74,2
+Mar-2026,GIS & Data Dissemination Department,Remote Sensing,73,75,2
+Apr-2026,GIS & Data Dissemination Department,Remote Sensing,73,75,2
+May-2026,GIS & Data Dissemination Department,Remote Sensing,72,76,4
+Jun-2026,GIS & Data Dissemination Department,Remote Sensing,72,77,5
+Jul-2026,GIS & Data Dissemination Department,Remote Sensing,74,78,4
+Aug-2026,GIS & Data Dissemination Department,Remote Sensing,75,79,4
+Sep-2026,GIS & Data Dissemination Department,Remote Sensing,74,80,6
+Oct-2026,GIS & Data Dissemination Department,Remote Sensing,73,80,7
+Nov-2026,GIS & Data Dissemination Department,Remote Sensing,73,81,8
+Dec-2026,GIS & Data Dissemination Department,Remote Sensing,72,82,10
+Jan-2027,GIS & Data Dissemination Department,Remote Sensing,73,83,10
+Feb-2027,GIS & Data Dissemination Department,Remote Sensing,74,84,10
+Mar-2027,GIS & Data Dissemination Department,Remote Sensing,75,84,9
+Apr-2027,GIS & Data Dissemination Department,Remote Sensing,75,84,9
+May-2027,GIS & Data Dissemination Department,Remote Sensing,76,85,9
+Jun-2027,GIS & Data Dissemination Department,Remote Sensing,76,86,10
+Jul-2027,GIS & Data Dissemination Department,Remote Sensing,76,86,10
+Aug-2027,GIS & Data Dissemination Department,Remote Sensing,77,87,10
+Sep-2027,GIS & Data Dissemination Department,Remote Sensing,78,87,9
+Oct-2027,GIS & Data Dissemination Department,Remote Sensing,77,87,10
+Nov-2027,GIS & Data Dissemination Department,Remote Sensing,77,88,11
+Dec-2027,GIS & Data Dissemination Department,Remote Sensing,78,89,11
+Jan-2026,GIS & Data Dissemination Department,Data Visualization,37,72,35
+Feb-2026,GIS & Data Dissemination Department,Data Visualization,39,72,33
+Mar-2026,GIS & Data Dissemination Department,Data Visualization,40,73,33
+Apr-2026,GIS & Data Dissemination Department,Data Visualization,41,73,32
+May-2026,GIS & Data Dissemination Department,Data Visualization,42,74,32
+Jun-2026,GIS & Data Dissemination Department,Data Visualization,43,75,32
+Jul-2026,GIS & Data Dissemination Department,Data Visualization,44,76,32
+Aug-2026,GIS & Data Dissemination Department,Data Visualization,46,77,31
+Sep-2026,GIS & Data Dissemination Department,Data Visualization,47,78,31
+Oct-2026,GIS & Data Dissemination Department,Data Visualization,49,78,29
+Nov-2026,GIS & Data Dissemination Department,Data Visualization,50,78,28
+Dec-2026,GIS & Data Dissemination Department,Data Visualization,51,78,27
+Jan-2027,GIS & Data Dissemination Department,Data Visualization,51,78,27
+Feb-2027,GIS & Data Dissemination Department,Data Visualization,53,78,25
+Mar-2027,GIS & Data Dissemination Department,Data Visualization,53,79,26
+Apr-2027,GIS & Data Dissemination Department,Data Visualization,54,79,25
+May-2027,GIS & Data Dissemination Department,Data Visualization,56,80,24
+Jun-2027,GIS & Data Dissemination Department,Data Visualization,57,81,24
+Jul-2027,GIS & Data Dissemination Department,Data Visualization,57,82,25
+Aug-2027,GIS & Data Dissemination Department,Data Visualization,58,82,24
+Sep-2027,GIS & Data Dissemination Department,Data Visualization,60,83,23
+Oct-2027,GIS & Data Dissemination Department,Data Visualization,62,83,21
+Nov-2027,GIS & Data Dissemination Department,Data Visualization,63,84,21
+Dec-2027,GIS & Data Dissemination Department,Data Visualization,64,84,20
+Jan-2026,GIS & Data Dissemination Department,Open Data,49,69,20
+Feb-2026,GIS & Data Dissemination Department,Open Data,53,69,16
+Mar-2026,GIS & Data Dissemination Department,Open Data,58,70,12
+Apr-2026,GIS & Data Dissemination Department,Open Data,63,71,8
+May-2026,GIS & Data Dissemination Department,Open Data,68,72,4
+Jun-2026,GIS & Data Dissemination Department,Open Data,73,74,1
+Jul-2026,GIS & Data Dissemination Department,Open Data,74,75,1
+Aug-2026,GIS & Data Dissemination Department,Open Data,76,77,1
+Sep-2026,GIS & Data Dissemination Department,Open Data,78,78,0
+Oct-2026,GIS & Data Dissemination Department,Open Data,79,79,0
+Nov-2026,GIS & Data Dissemination Department,Open Data,80,80,0
+Dec-2026,GIS & Data Dissemination Department,Open Data,81,81,0
+Jan-2027,GIS & Data Dissemination Department,Open Data,82,82,0
+Feb-2027,GIS & Data Dissemination Department,Open Data,84,83,-1
+Mar-2027,GIS & Data Dissemination Department,Open Data,85,84,-1
+Apr-2027,GIS & Data Dissemination Department,Open Data,87,86,-1
+May-2027,GIS & Data Dissemination Department,Open Data,88,87,-1
+Jun-2027,GIS & Data Dissemination Department,Open Data,88,88,0
+Jul-2027,GIS & Data Dissemination Department,Open Data,89,90,1
+Aug-2027,GIS & Data Dissemination Department,Open Data,90,91,1
+Sep-2027,GIS & Data Dissemination Department,Open Data,91,92,1
+Oct-2027,GIS & Data Dissemination Department,Open Data,92,93,1
+Nov-2027,GIS & Data Dissemination Department,Open Data,93,94,1
+Dec-2027,GIS & Data Dissemination Department,Open Data,95,94,-1
+Jan-2026,GIS & Data Dissemination Department,Data Dissemination,47,67,20
+Feb-2026,GIS & Data Dissemination Department,Data Dissemination,47,70,23
+Mar-2026,GIS & Data Dissemination Department,Data Dissemination,47,73,26
+Apr-2026,GIS & Data Dissemination Department,Data Dissemination,49,77,28
+May-2026,GIS & Data Dissemination Department,Data Dissemination,51,80,29
+Jun-2026,GIS & Data Dissemination Department,Data Dissemination,52,83,31
+Jul-2026,GIS & Data Dissemination Department,Data Dissemination,53,85,32
+Aug-2026,GIS & Data Dissemination Department,Data Dissemination,53,88,35
+Sep-2026,GIS & Data Dissemination Department,Data Dissemination,53,91,38
+Oct-2026,GIS & Data Dissemination Department,Data Dissemination,55,94,39
+Nov-2026,GIS & Data Dissemination Department,Data Dissemination,55,94,39
+Dec-2026,GIS & Data Dissemination Department,Data Dissemination,56,94,38
+Jan-2027,GIS & Data Dissemination Department,Data Dissemination,56,95,39
+Feb-2027,GIS & Data Dissemination Department,Data Dissemination,56,95,39
+Mar-2027,GIS & Data Dissemination Department,Data Dissemination,58,95,37
+Apr-2027,GIS & Data Dissemination Department,Data Dissemination,60,95,35
+May-2027,GIS & Data Dissemination Department,Data Dissemination,60,95,35
+Jun-2027,GIS & Data Dissemination Department,Data Dissemination,62,96,34
+Jul-2027,GIS & Data Dissemination Department,Data Dissemination,63,97,34
+Aug-2027,GIS & Data Dissemination Department,Data Dissemination,64,98,34
+Sep-2027,GIS & Data Dissemination Department,Data Dissemination,65,99,34
+Oct-2027,GIS & Data Dissemination Department,Data Dissemination,67,100,33
+Nov-2027,GIS & Data Dissemination Department,Data Dissemination,68,100,32
+Dec-2027,GIS & Data Dissemination Department,Data Dissemination,68,100,32
+Jan-2026,GIS & Data Dissemination Department,Dashboard Development,42,65,23
+Feb-2026,GIS & Data Dissemination Department,Dashboard Development,44,68,24
+Mar-2026,GIS & Data Dissemination Department,Dashboard Development,46,73,27
+Apr-2026,GIS & Data Dissemination Department,Dashboard Development,48,78,30
+May-2026,GIS & Data Dissemination Department,Dashboard Development,50,82,32
+Jun-2026,GIS & Data Dissemination Department,Dashboard Development,52,85,33
+Jul-2026,GIS & Data Dissemination Department,Dashboard Development,54,89,35
+Aug-2026,GIS & Data Dissemination Department,Dashboard Development,56,92,36
+Sep-2026,GIS & Data Dissemination Department,Dashboard Development,57,97,40
+Oct-2026,GIS & Data Dissemination Department,Dashboard Development,59,97,38
+Nov-2026,GIS & Data Dissemination Department,Dashboard Development,61,98,37
+Dec-2026,GIS & Data Dissemination Department,Dashboard Development,63,99,36
+Jan-2027,GIS & Data Dissemination Department,Dashboard Development,65,99,34
+Feb-2027,GIS & Data Dissemination Department,Dashboard Development,68,99,31
+Mar-2027,GIS & Data Dissemination Department,Dashboard Development,70,100,30
+Apr-2027,GIS & Data Dissemination Department,Dashboard Development,73,100,27
+May-2027,GIS & Data Dissemination Department,Dashboard Development,74,100,26
+Jun-2027,GIS & Data Dissemination Department,Dashboard Development,76,100,24
+Jul-2027,GIS & Data Dissemination Department,Dashboard Development,77,100,23
+Aug-2027,GIS & Data Dissemination Department,Dashboard Development,79,100,21
+Sep-2027,GIS & Data Dissemination Department,Dashboard Development,81,100,19
+Oct-2027,GIS & Data Dissemination Department,Dashboard Development,83,100,17
+Nov-2027,GIS & Data Dissemination Department,Dashboard Development,86,100,14
+Dec-2027,GIS & Data Dissemination Department,Dashboard Development,88,100,12
+Jan-2026,GIS & Data Dissemination Department,Geospatial Statistics,44,60,16
+Feb-2026,GIS & Data Dissemination Department,Geospatial Statistics,47,64,17
+Mar-2026,GIS & Data Dissemination Department,Geospatial Statistics,48,69,21
+Apr-2026,GIS & Data Dissemination Department,Geospatial Statistics,50,72,22
+May-2026,GIS & Data Dissemination Department,Geospatial Statistics,52,75,23
+Jun-2026,GIS & Data Dissemination Department,Geospatial Statistics,53,80,27
+Jul-2026,GIS & Data Dissemination Department,Geospatial Statistics,55,83,28
+Aug-2026,GIS & Data Dissemination Department,Geospatial Statistics,56,86,30
+Sep-2026,GIS & Data Dissemination Department,Geospatial Statistics,59,89,30
+Oct-2026,GIS & Data Dissemination Department,Geospatial Statistics,61,94,33
+Nov-2026,GIS & Data Dissemination Department,Geospatial Statistics,63,98,35
+Dec-2026,GIS & Data Dissemination Department,Geospatial Statistics,66,98,32
+Jan-2027,GIS & Data Dissemination Department,Geospatial Statistics,69,98,29
+Feb-2027,GIS & Data Dissemination Department,Geospatial Statistics,70,99,29
+Mar-2027,GIS & Data Dissemination Department,Geospatial Statistics,72,99,27
+Apr-2027,GIS & Data Dissemination Department,Geospatial Statistics,75,100,25
+May-2027,GIS & Data Dissemination Department,Geospatial Statistics,77,100,23
+Jun-2027,GIS & Data Dissemination Department,Geospatial Statistics,79,100,21
+Jul-2027,GIS & Data Dissemination Department,Geospatial Statistics,82,100,18
+Aug-2027,GIS & Data Dissemination Department,Geospatial Statistics,84,100,16
+Sep-2027,GIS & Data Dissemination Department,Geospatial Statistics,86,100,14
+Oct-2027,GIS & Data Dissemination Department,Geospatial Statistics,87,100,13
+Nov-2027,GIS & Data Dissemination Department,Geospatial Statistics,90,100,10
+Dec-2027,GIS & Data Dissemination Department,Geospatial Statistics,92,100,8
+Jan-2026,GIS & Data Dissemination Department,Data APIs,44,60,16
+Feb-2026,GIS & Data Dissemination Department,Data APIs,47,63,16
+Mar-2026,GIS & Data Dissemination Department,Data APIs,49,66,17
+Apr-2026,GIS & Data Dissemination Department,Data APIs,52,71,19
+May-2026,GIS & Data Dissemination Department,Data APIs,54,75,21
+Jun-2026,GIS & Data Dissemination Department,Data APIs,55,79,24
+Jul-2026,GIS & Data Dissemination Department,Data APIs,57,83,26
+Aug-2026,GIS & Data Dissemination Department,Data APIs,59,87,28
+Sep-2026,GIS & Data Dissemination Department,Data APIs,61,91,30
+Oct-2026,GIS & Data Dissemination Department,Data APIs,63,95,32
+Nov-2026,GIS & Data Dissemination Department,Data APIs,66,95,29
+Dec-2026,GIS & Data Dissemination Department,Data APIs,67,96,29
+Jan-2027,GIS & Data Dissemination Department,Data APIs,70,96,26
+Feb-2027,GIS & Data Dissemination Department,Data APIs,72,97,25
+Mar-2027,GIS & Data Dissemination Department,Data APIs,74,97,23
+Apr-2027,GIS & Data Dissemination Department,Data APIs,76,97,21
+May-2027,GIS & Data Dissemination Department,Data APIs,78,97,19
+Jun-2027,GIS & Data Dissemination Department,Data APIs,80,98,18
+Jul-2027,GIS & Data Dissemination Department,Data APIs,82,98,16
+Aug-2027,GIS & Data Dissemination Department,Data APIs,85,99,14
+Sep-2027,GIS & Data Dissemination Department,Data APIs,87,99,12
+Oct-2027,GIS & Data Dissemination Department,Data APIs,89,99,10
+Nov-2027,GIS & Data Dissemination Department,Data APIs,90,99,9
+Dec-2027,GIS & Data Dissemination Department,Data APIs,91,99,8
+Jan-2026,GIS & Data Dissemination Department,Metadata Management,46,66,20
+Feb-2026,GIS & Data Dissemination Department,Metadata Management,46,68,22
+Mar-2026,GIS & Data Dissemination Department,Metadata Management,47,71,24
+Apr-2026,GIS & Data Dissemination Department,Metadata Management,49,74,25
+May-2026,GIS & Data Dissemination Department,Metadata Management,50,77,27
+Jun-2026,GIS & Data Dissemination Department,Metadata Management,50,80,30
+Jul-2026,GIS & Data Dissemination Department,Metadata Management,51,82,31
+Aug-2026,GIS & Data Dissemination Department,Metadata Management,53,85,32
+Sep-2026,GIS & Data Dissemination Department,Metadata Management,54,89,35
+Oct-2026,GIS & Data Dissemination Department,Metadata Management,55,92,37
+Nov-2026,GIS & Data Dissemination Department,Metadata Management,56,92,36
+Dec-2026,GIS & Data Dissemination Department,Metadata Management,57,92,35
+Jan-2027,GIS & Data Dissemination Department,Metadata Management,58,92,34
+Feb-2027,GIS & Data Dissemination Department,Metadata Management,58,92,34
+Mar-2027,GIS & Data Dissemination Department,Metadata Management,59,92,33
+Apr-2027,GIS & Data Dissemination Department,Metadata Management,61,93,32
+May-2027,GIS & Data Dissemination Department,Metadata Management,62,93,31
+Jun-2027,GIS & Data Dissemination Department,Metadata Management,63,93,30
+Jul-2027,GIS & Data Dissemination Department,Metadata Management,64,93,29
+Aug-2027,GIS & Data Dissemination Department,Metadata Management,65,94,29
+Sep-2027,GIS & Data Dissemination Department,Metadata Management,66,95,29
+Oct-2027,GIS & Data Dissemination Department,Metadata Management,67,95,28
+Nov-2027,GIS & Data Dissemination Department,Metadata Management,69,95,26
+Dec-2027,GIS & Data Dissemination Department,Metadata Management,70,95,25
+Jan-2026,Administration & Management Department,Leadership,48,75,27
+Feb-2026,Administration & Management Department,Leadership,52,75,23
+Mar-2026,Administration & Management Department,Leadership,55,75,20
+Apr-2026,Administration & Management Department,Leadership,58,75,17
+May-2026,Administration & Management Department,Leadership,63,76,13
+Jun-2026,Administration & Management Department,Leadership,67,76,9
+Jul-2026,Administration & Management Department,Leadership,71,76,5
+Aug-2026,Administration & Management Department,Leadership,75,78,3
+Sep-2026,Administration & Management Department,Leadership,77,78,1
+Oct-2026,Administration & Management Department,Leadership,77,78,1
+Nov-2026,Administration & Management Department,Leadership,77,78,1
+Dec-2026,Administration & Management Department,Leadership,77,79,2
+Jan-2027,Administration & Management Department,Leadership,77,80,3
+Feb-2027,Administration & Management Department,Leadership,78,81,3
+Mar-2027,Administration & Management Department,Leadership,79,82,3
+Apr-2027,Administration & Management Department,Leadership,79,84,5
+May-2027,Administration & Management Department,Leadership,83,86,3
+Jun-2027,Administration & Management Department,Leadership,84,87,3
+Jul-2027,Administration & Management Department,Leadership,84,87,3
+Aug-2027,Administration & Management Department,Leadership,86,89,3
+Sep-2027,Administration & Management Department,Leadership,86,91,5
+Oct-2027,Administration & Management Department,Leadership,89,92,3
+Nov-2027,Administration & Management Department,Leadership,91,94,3
+Dec-2027,Administration & Management Department,Leadership,91,94,3
+Jan-2026,Administration & Management Department,Project Management,45,63,18
+Feb-2026,Administration & Management Department,Project Management,47,66,19
+Mar-2026,Administration & Management Department,Project Management,47,68,21
+Apr-2026,Administration & Management Department,Project Management,48,70,22
+May-2026,Administration & Management Department,Project Management,49,73,24
+Jun-2026,Administration & Management Department,Project Management,49,76,27
+Jul-2026,Administration & Management Department,Project Management,50,80,30
+Aug-2026,Administration & Management Department,Project Management,50,83,33
+Sep-2026,Administration & Management Department,Project Management,51,86,35
+Oct-2026,Administration & Management Department,Project Management,53,89,36
+Nov-2026,Administration & Management Department,Project Management,55,92,37
+Dec-2026,Administration & Management Department,Project Management,55,92,37
+Jan-2027,Administration & Management Department,Project Management,55,92,37
+Feb-2027,Administration & Management Department,Project Management,55,93,38
+Mar-2027,Administration & Management Department,Project Management,57,93,36
+Apr-2027,Administration & Management Department,Project Management,58,93,35
+May-2027,Administration & Management Department,Project Management,59,94,35
+Jun-2027,Administration & Management Department,Project Management,61,94,33
+Jul-2027,Administration & Management Department,Project Management,63,95,32
+Aug-2027,Administration & Management Department,Project Management,64,96,32
+Sep-2027,Administration & Management Department,Project Management,64,96,32
+Oct-2027,Administration & Management Department,Project Management,65,97,32
+Nov-2027,Administration & Management Department,Project Management,66,97,31
+Dec-2027,Administration & Management Department,Project Management,67,97,30
+Jan-2026,Administration & Management Department,Communication,68,75,7
+Feb-2026,Administration & Management Department,Communication,69,76,7
+Mar-2026,Administration & Management Department,Communication,69,76,7
+Apr-2026,Administration & Management Department,Communication,69,76,7
+May-2026,Administration & Management Department,Communication,69,77,8
+Jun-2026,Administration & Management Department,Communication,70,78,8
+Jul-2026,Administration & Management Department,Communication,69,78,9
+Aug-2026,Administration & Management Department,Communication,68,79,11
+Sep-2026,Administration & Management Department,Communication,69,79,10
+Oct-2026,Administration & Management Department,Communication,70,80,10
+Nov-2026,Administration & Management Department,Communication,71,80,9
+Dec-2026,Administration & Management Department,Communication,71,81,10
+Jan-2027,Administration & Management Department,Communication,72,81,9
+Feb-2027,Administration & Management Department,Communication,74,81,7
+Mar-2027,Administration & Management Department,Communication,75,81,6
+Apr-2027,Administration & Management Department,Communication,77,82,5
+May-2027,Administration & Management Department,Communication,77,82,5
+Jun-2027,Administration & Management Department,Communication,77,83,6
+Jul-2027,Administration & Management Department,Communication,77,84,7
+Aug-2027,Administration & Management Department,Communication,77,84,7
+Sep-2027,Administration & Management Department,Communication,77,85,8
+Oct-2027,Administration & Management Department,Communication,77,86,9
+Nov-2027,Administration & Management Department,Communication,77,87,10
+Dec-2027,Administration & Management Department,Communication,76,88,12
+Jan-2026,Administration & Management Department,Decision Making,39,69,30
+Feb-2026,Administration & Management Department,Decision Making,40,70,30
+Mar-2026,Administration & Management Department,Decision Making,42,70,28
+Apr-2026,Administration & Management Department,Decision Making,43,70,27
+May-2026,Administration & Management Department,Decision Making,44,70,26
+Jun-2026,Administration & Management Department,Decision Making,44,70,26
+Jul-2026,Administration & Management Department,Decision Making,45,71,26
+Aug-2026,Administration & Management Department,Decision Making,46,71,25
+Sep-2026,Administration & Management Department,Decision Making,47,71,24
+Oct-2026,Administration & Management Department,Decision Making,48,72,24
+Nov-2026,Administration & Management Department,Decision Making,50,72,22
+Dec-2026,Administration & Management Department,Decision Making,51,72,21
+Jan-2027,Administration & Management Department,Decision Making,53,73,20
+Feb-2027,Administration & Management Department,Decision Making,54,73,19
+Mar-2027,Administration & Management Department,Decision Making,55,73,18
+Apr-2027,Administration & Management Department,Decision Making,56,73,17
+May-2027,Administration & Management Department,Decision Making,57,74,17
+Jun-2027,Administration & Management Department,Decision Making,58,75,17
+Jul-2027,Administration & Management Department,Decision Making,59,75,16
+Aug-2027,Administration & Management Department,Decision Making,60,75,15
+Sep-2027,Administration & Management Department,Decision Making,61,75,14
+Oct-2027,Administration & Management Department,Decision Making,61,76,15
+Nov-2027,Administration & Management Department,Decision Making,62,77,15
+Dec-2027,Administration & Management Department,Decision Making,64,77,13
+Jan-2026,Administration & Management Department,Change Management,50,68,18
+Feb-2026,Administration & Management Department,Change Management,55,69,14
+Mar-2026,Administration & Management Department,Change Management,60,70,10
+Apr-2026,Administration & Management Department,Change Management,63,72,9
+May-2026,Administration & Management Department,Change Management,68,73,5
+Jun-2026,Administration & Management Department,Change Management,72,74,2
+Jul-2026,Administration & Management Department,Change Management,74,75,1
+Aug-2026,Administration & Management Department,Change Management,76,75,-1
+Sep-2026,Administration & Management Department,Change Management,78,77,-1
+Oct-2026,Administration & Management Department,Change Management,78,78,0
+Nov-2026,Administration & Management Department,Change Management,79,79,0
+Dec-2026,Administration & Management Department,Change Management,81,79,-2
+Jan-2027,Administration & Management Department,Change Management,81,81,0
+Feb-2027,Administration & Management Department,Change Management,82,81,-1
+Mar-2027,Administration & Management Department,Change Management,84,82,-2
+Apr-2027,Administration & Management Department,Change Management,86,84,-2
+May-2027,Administration & Management Department,Change Management,86,85,-1
+Jun-2027,Administration & Management Department,Change Management,87,85,-2
+Jul-2027,Administration & Management Department,Change Management,87,85,-2
+Aug-2027,Administration & Management Department,Change Management,88,86,-2
+Sep-2027,Administration & Management Department,Change Management,89,88,-1
+Oct-2027,Administration & Management Department,Change Management,91,89,-2
+Nov-2027,Administration & Management Department,Change Management,93,91,-2
+Dec-2027,Administration & Management Department,Change Management,94,91,-3
+Jan-2026,Administration & Management Department,Team Management,42,61,19
+Feb-2026,Administration & Management Department,Team Management,42,64,22
+Mar-2026,Administration & Management Department,Team Management,42,67,25
+Apr-2026,Administration & Management Department,Team Management,43,70,27
+May-2026,Administration & Management Department,Team Management,44,73,29
+Jun-2026,Administration & Management Department,Team Management,46,77,31
+Jul-2026,Administration & Management Department,Team Management,47,81,34
+Aug-2026,Administration & Management Department,Team Management,48,84,36
+Sep-2026,Administration & Management Department,Team Management,50,88,38
+Oct-2026,Administration & Management Department,Team Management,50,91,41
+Nov-2026,Administration & Management Department,Team Management,52,95,43
+Dec-2026,Administration & Management Department,Team Management,54,96,42
+Jan-2027,Administration & Management Department,Team Management,55,96,41
+Feb-2027,Administration & Management Department,Team Management,55,97,42
+Mar-2027,Administration & Management Department,Team Management,56,97,41
+Apr-2027,Administration & Management Department,Team Management,57,97,40
+May-2027,Administration & Management Department,Team Management,58,98,40
+Jun-2027,Administration & Management Department,Team Management,59,99,40
+Jul-2027,Administration & Management Department,Team Management,61,99,38
+Aug-2027,Administration & Management Department,Team Management,62,100,38
+Sep-2027,Administration & Management Department,Team Management,63,100,37
+Oct-2027,Administration & Management Department,Team Management,63,100,37
+Nov-2027,Administration & Management Department,Team Management,63,100,37
+Dec-2027,Administration & Management Department,Team Management,63,100,37
+Jan-2026,Administration & Management Department,Ethics in Public Administration,70,77,7
+Feb-2026,Administration & Management Department,Ethics in Public Administration,71,78,7
+Mar-2026,Administration & Management Department,Ethics in Public Administration,72,78,6
+Apr-2026,Administration & Management Department,Ethics in Public Administration,73,79,6
+May-2026,Administration & Management Department,Ethics in Public Administration,74,79,5
+Jun-2026,Administration & Management Department,Ethics in Public Administration,75,79,4
+Jul-2026,Administration & Management Department,Ethics in Public Administration,76,79,3
+Aug-2026,Administration & Management Department,Ethics in Public Administration,77,80,3
+Sep-2026,Administration & Management Department,Ethics in Public Administration,77,80,3
+Oct-2026,Administration & Management Department,Ethics in Public Administration,77,81,4
+Nov-2026,Administration & Management Department,Ethics in Public Administration,78,81,3
+Dec-2026,Administration & Management Department,Ethics in Public Administration,78,81,3
+Jan-2027,Administration & Management Department,Ethics in Public Administration,79,81,2
+Feb-2027,Administration & Management Department,Ethics in Public Administration,79,82,3
+Mar-2027,Administration & Management Department,Ethics in Public Administration,80,83,3
+Apr-2027,Administration & Management Department,Ethics in Public Administration,81,84,3
+May-2027,Administration & Management Department,Ethics in Public Administration,82,85,3
+Jun-2027,Administration & Management Department,Ethics in Public Administration,83,85,2
+Jul-2027,Administration & Management Department,Ethics in Public Administration,82,85,3
+Aug-2027,Administration & Management Department,Ethics in Public Administration,82,86,4
+Sep-2027,Administration & Management Department,Ethics in Public Administration,81,87,6
+Oct-2027,Administration & Management Department,Ethics in Public Administration,81,88,7
+Nov-2027,Administration & Management Department,Ethics in Public Administration,81,89,8
+Dec-2027,Administration & Management Department,Ethics in Public Administration,82,90,8
+Jan-2026,Administration & Management Department,Data-Driven Decision Making,36,72,36
+Feb-2026,Administration & Management Department,Data-Driven Decision Making,36,72,36
+Mar-2026,Administration & Management Department,Data-Driven Decision Making,38,72,34
+Apr-2026,Administration & Management Department,Data-Driven Decision Making,40,72,32
+May-2026,Administration & Management Department,Data-Driven Decision Making,41,73,32
+Jun-2026,Administration & Management Department,Data-Driven Decision Making,42,73,31
+Jul-2026,Administration & Management Department,Data-Driven Decision Making,42,74,32
+Aug-2026,Administration & Management Department,Data-Driven Decision Making,43,74,31
+Sep-2026,Administration & Management Department,Data-Driven Decision Making,43,74,31
+Oct-2026,Administration & Management Department,Data-Driven Decision Making,44,74,30
+Nov-2026,Administration & Management Department,Data-Driven Decision Making,44,74,30
+Dec-2026,Administration & Management Department,Data-Driven Decision Making,44,74,30
+Jan-2027,Administration & Management Department,Data-Driven Decision Making,45,75,30
+Feb-2027,Administration & Management Department,Data-Driven Decision Making,47,76,29
+Mar-2027,Administration & Management Department,Data-Driven Decision Making,48,77,29
+Apr-2027,Administration & Management Department,Data-Driven Decision Making,50,78,28
+May-2027,Administration & Management Department,Data-Driven Decision Making,51,78,27
+Jun-2027,Administration & Management Department,Data-Driven Decision Making,53,78,25
+Jul-2027,Administration & Management Department,Data-Driven Decision Making,54,78,24
+Aug-2027,Administration & Management Department,Data-Driven Decision Making,54,79,25
+Sep-2027,Administration & Management Department,Data-Driven Decision Making,55,80,25
+Oct-2027,Administration & Management Department,Data-Driven Decision Making,56,81,25
+Nov-2027,Administration & Management Department,Data-Driven Decision Making,58,81,23
+Dec-2027,Administration & Management Department,Data-Driven Decision Making,59,82,23
+Jan-2026,Administration & Management Department,Digital Governance,39,64,25
+Feb-2026,Administration & Management Department,Digital Governance,41,67,26
+Mar-2026,Administration & Management Department,Digital Governance,43,72,29
+Apr-2026,Administration & Management Department,Digital Governance,44,76,32
+May-2026,Administration & Management Department,Digital Governance,46,80,34
+Jun-2026,Administration & Management Department,Digital Governance,48,84,36
+Jul-2026,Administration & Management Department,Digital Governance,50,88,38
+Aug-2026,Administration & Management Department,Digital Governance,53,93,40
+Sep-2026,Administration & Management Department,Digital Governance,55,97,42
+Oct-2026,Administration & Management Department,Digital Governance,58,97,39
+Nov-2026,Administration & Management Department,Digital Governance,59,97,38
+Dec-2026,Administration & Management Department,Digital Governance,61,97,36
+Jan-2027,Administration & Management Department,Digital Governance,64,98,34
+Feb-2027,Administration & Management Department,Digital Governance,65,99,34
+Mar-2027,Administration & Management Department,Digital Governance,68,99,31
+Apr-2027,Administration & Management Department,Digital Governance,71,99,28
+May-2027,Administration & Management Department,Digital Governance,73,99,26
+Jun-2027,Administration & Management Department,Digital Governance,75,99,24
+Jul-2027,Administration & Management Department,Digital Governance,77,99,22
+Aug-2027,Administration & Management Department,Digital Governance,78,99,21
+Sep-2027,Administration & Management Department,Digital Governance,81,99,18
+Oct-2027,Administration & Management Department,Digital Governance,83,99,16
+Nov-2027,Administration & Management Department,Digital Governance,84,99,15
+Dec-2027,Administration & Management Department,Digital Governance,86,99,13
+Jan-2026,Administration & Management Department,Data Privacy & Protection,39,61,22
+Feb-2026,Administration & Management Department,Data Privacy & Protection,41,65,24
+Mar-2026,Administration & Management Department,Data Privacy & Protection,42,69,27
+Apr-2026,Administration & Management Department,Data Privacy & Protection,44,72,28
+May-2026,Administration & Management Department,Data Privacy & Protection,47,76,29
+Jun-2026,Administration & Management Department,Data Privacy & Protection,49,81,32
+Jul-2026,Administration & Management Department,Data Privacy & Protection,50,84,34
+Aug-2026,Administration & Management Department,Data Privacy & Protection,51,88,37
+Sep-2026,Administration & Management Department,Data Privacy & Protection,54,91,37
+Oct-2026,Administration & Management Department,Data Privacy & Protection,56,95,39
+Nov-2026,Administration & Management Department,Data Privacy & Protection,59,95,36
+Dec-2026,Administration & Management Department,Data Privacy & Protection,61,95,34
+Jan-2027,Administration & Management Department,Data Privacy & Protection,63,95,32
+Feb-2027,Administration & Management Department,Data Privacy & Protection,65,95,30
+Mar-2027,Administration & Management Department,Data Privacy & Protection,66,95,29
+Apr-2027,Administration & Management Department,Data Privacy & Protection,68,95,27
+May-2027,Administration & Management Department,Data Privacy & Protection,71,96,25
+Jun-2027,Administration & Management Department,Data Privacy & Protection,73,97,24
+Jul-2027,Administration & Management Department,Data Privacy & Protection,74,97,23
+Aug-2027,Administration & Management Department,Data Privacy & Protection,76,98,22
+Sep-2027,Administration & Management Department,Data Privacy & Protection,78,99,21
+Oct-2027,Administration & Management Department,Data Privacy & Protection,81,99,18
+Nov-2027,Administration & Management Department,Data Privacy & Protection,82,99,17
+Dec-2027,Administration & Management Department,Data Privacy & Protection,85,99,14
