@@ -25,6 +25,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import date, datetime, timedelta
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 
 load_dotenv()
@@ -385,6 +388,83 @@ def init_db():
     conn.commit()
     conn.close()
 
+FORECAST_DATA_PATH = os.path.join(app.root_path, "skill_intelligence_dataset.csv")
+FORECAST_HORIZONS = [1, 3, 6]
+FORECAST_DEPARTMENTS = [
+    "Statistical Analysis Department",
+    "Data & Analytics Department",
+    "IT & Digital Infrastructure Department",
+    "GIS & Data Dissemination Department",
+    "Administration & Management Department",
+]
+
+_skill_forecast_cache = None
+
+
+def _load_forecast_dataset():
+    df = pd.read_csv(FORECAST_DATA_PATH)
+    df["Month_Date"] = pd.to_datetime(df["Month_Year"], format="%b-%Y")
+    df = df.sort_values(["Department", "Skill", "Month_Date"]).reset_index(drop=True)
+    return df
+
+
+def _forecast_series(x, y, horizons):
+    model = LinearRegression()
+    x_reshaped = np.array(x).reshape(-1, 1)
+    model.fit(x_reshaped, y)
+    last_x = x[-1]
+    future_x = np.array([last_x + h for h in horizons]).reshape(-1, 1)
+    predictions = model.predict(future_x)
+    slope = model.coef_[0]
+    return predictions, slope
+
+
+def _build_skill_forecasts(df):
+    records = []
+    grouped = df.groupby(["Department", "Skill"])
+    for (dept, skill), group in grouped:
+        group = group.sort_values("Month_Date").reset_index(drop=True)
+        x = list(range(len(group)))
+        y_gap = group["Skill_Gap"].values
+        y_comp = group["Competency_Level"].values
+        y_req = group["Skill_Requirement"].values
+
+        gap_preds, gap_slope = _forecast_series(x, y_gap, FORECAST_HORIZONS)
+        comp_preds, comp_slope = _forecast_series(x, y_comp, FORECAST_HORIZONS)
+        req_preds, req_slope = _forecast_series(x, y_req, FORECAST_HORIZONS)
+
+        comp_preds = np.clip(comp_preds, 0, 100)
+        req_preds = np.clip(req_preds, 0, 100)
+
+        record = {
+            "department": dept,
+            "skill": skill,
+            "latest_month": group["Month_Year"].iloc[-1],
+            "latest_competency": round(float(y_comp[-1]), 2),
+            "latest_requirement": round(float(y_req[-1]), 2),
+            "latest_gap": round(float(y_gap[-1]), 2),
+            "gap_trend_slope": round(float(gap_slope), 3),
+        }
+
+        for h, gp, cp, rp in zip(FORECAST_HORIZONS, gap_preds, comp_preds, req_preds):
+            record[f"forecast_competency_{h}m"] = round(float(cp), 2)
+            record[f"forecast_requirement_{h}m"] = round(float(rp), 2)
+            record[f"forecast_gap_{h}m"] = round(float(gp), 2)
+
+        records.append(record)
+
+    return records
+
+
+def get_skill_forecast(force_refresh=False):
+    global _skill_forecast_cache
+    if _skill_forecast_cache is not None and not force_refresh:
+        return _skill_forecast_cache
+
+    df = _load_forecast_dataset()
+    records = _build_skill_forecasts(df)
+    _skill_forecast_cache = records
+    return records
 
 def _update_skill_competency_and_progress(user_id, test_id):
     conn = get_db()
@@ -1031,13 +1111,61 @@ def admin_api_logout():
 def admin_dashboard_page():
     return render_template('admin-dashboard.html')
 
+@app.route('/admin/api/skill_forecast', methods=['GET'])
+@admin_required
+def admin_skill_forecast():
+    horizon = request.args.get('horizon', '1')
+    if horizon not in ('1', '3', '6'):
+        horizon = '1'
+    horizon_key = f"forecast_gap_{horizon}m"
+
+    try:
+        records = get_skill_forecast()
+    except FileNotFoundError:
+        return jsonify({"error": "skill_intelligence_dataset.csv not found on the server."}), 500
+    except Exception as e:
+        return jsonify({"error": f"Failed to compute forecast: {str(e)}"}), 500
+
+    by_department = {}
+    for r in records:
+        by_department.setdefault(r["department"], []).append(r)
+
+    departments_out = []
+    for dept in FORECAST_DEPARTMENTS:
+        dept_records = sorted(by_department.get(dept, []), key=lambda r: r.get(horizon_key, 0), reverse=True)
+        top5 = dept_records[:5]
+        departments_out.append({
+            "department": dept,
+            "top_skills": [
+                {
+                    "skill": r["skill"],
+                    "forecast_gap": r.get(horizon_key, 0),
+                    "current_gap": r["latest_gap"],
+                    "current_competency": r["latest_competency"],
+                    "requirement": r.get(f"forecast_requirement_{horizon}m", r["latest_requirement"]),
+                    "trend_slope": r["gap_trend_slope"],
+                }
+                for r in top5
+            ]
+        })
+
+    return jsonify({"horizon": int(horizon), "departments": departments_out})
+
+
+@app.route('/admin/api/skill_forecast/refresh', methods=['POST'])
+@admin_required
+def admin_skill_forecast_refresh():
+    try:
+        get_skill_forecast(force_refresh=True)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    return jsonify({"message": "Forecast recomputed"})
 
 def _is_valid_email(email):
     return bool(email) and bool(EMAIL_REGEX.match(email)) and len(email) <= 320
 
 
 def _generate_otp():
-    """Cryptographically secure 6-digit OTP (always 100000-999999)."""
     return str(secrets.randbelow(900000) + 100000)
 
 
@@ -3604,6 +3732,7 @@ def trainer_api_learner_detail(user_id):
     return jsonify({
         "id": user["id"], "name": user["name"], "email": user["email"],
         "designation": user["designation"] or "", "department": user["department"] or "",
+        "total_learning_hours": total_learning_hours,
         "latest_report": {
             "overall_score": report["overall_score"], "overall_total": report["overall_total"],
             "skills": json.loads(report["skills_breakdown"]) if report and report["skills_breakdown"] else []
