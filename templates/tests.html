@@ -63,6 +63,15 @@
             </div>
 
             <div class="setup-group">
+                <label>Test Format</label>
+                <div class="pill-row" id="format-pills">
+                    <button class="pill active" onclick="selectPill('format', 'mcq', this)">MCQ</button>
+                    <button class="pill" onclick="selectPill('format', 'quiz', this)">Quiz</button>
+                </div>
+                <p class="setup-hint" id="format-hint">Multiple choice questions with 4 options each.</p>
+            </div>
+
+            <div class="setup-group">
                 <label>Difficulty</label>
                 <div class="pill-group" id="difficulty-pills">
                     <button type="button" class="pill difficulty-easy active" data-value="easy" onclick="selectPill('difficulty', 'easy', this)">Easy</button>

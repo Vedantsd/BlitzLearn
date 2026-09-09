@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const testSetup = {
+    format: 'mcq',
     source: 'notes',
     difficulty: 'easy',
     count: 10
@@ -75,10 +76,15 @@ const sourceHints = {
     bank: 'Pulls previously generated questions from the shared question bank — great for quickly assessing new users.'
 };
 
+const formatHints = {
+    mcq: 'Multiple choice questions with 4 options each.',
+    quiz: 'True/false and fill-in-the-blank questions — no multiple choice.'
+};
+
 function selectPill(group, value, buttonEl) {
     testSetup[group] = value;
 
-    const groupIds = { source: 'source-pills', difficulty: 'difficulty-pills', count: 'count-pills' };
+    const groupIds = { format: 'format-pills', source: 'source-pills', difficulty: 'difficulty-pills', count: 'count-pills' };
     const container = document.getElementById(groupIds[group]);
     container.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     buttonEl.classList.add('active');
@@ -86,11 +92,15 @@ function selectPill(group, value, buttonEl) {
     if (group === 'source') {
         document.getElementById('source-hint').textContent = sourceHints[value];
     }
+    if (group === 'format') {
+        document.getElementById('format-hint').textContent = formatHints[value];
+    }
 }
+
 
 let currentTestId = null;
 let currentQuestions = [];
-let userAnswers = {};   
+let userAnswers = {};
 let proctor = null;
 let generatedTestData = null;
 
@@ -118,6 +128,7 @@ async function generateTest() {
                 difficulty: testSetup.difficulty,
                 num_questions: testSetup.count,
                 source: testSetup.source,
+                test_format: testSetup.format,
                 uid: currentUid
             })
         });
@@ -131,7 +142,8 @@ async function generateTest() {
         currentQuestions = data.questions;
         userAnswers = {};
 
-        document.getElementById('ready-title').textContent = `${capitalize(data.difficulty)} Test Ready`;
+        const formatLabel = data.test_format === 'quiz' ? 'Quiz' : 'Test';
+        document.getElementById('ready-title').textContent = `${capitalize(data.difficulty)} ${formatLabel} Ready`;
         document.getElementById('ready-subtitle').textContent = `Generated from: ${data.source_title || 'Your Notes'}`;
         document.getElementById('ready-question-count').textContent = data.questions.length;
         document.getElementById('ready-difficulty').textContent = capitalize(data.difficulty);
@@ -160,10 +172,10 @@ async function startTestNow() {
     if (!proctor) {
         proctor = new BlitzProctor({
             maxViolations: 3,
-            testType: 'mcq',
+            testType: testSetup.format,
             badgeContainer: document.getElementById('tests-proctor-container') || '#quiz-badge-slot',
             onDisqualify: async (violations) => {
-                await autoSubmitDisqualifiedMCQTest();
+                await autoSubmitDisqualifiedTest();
             }
         });
     }
@@ -171,39 +183,80 @@ async function startTestNow() {
 }
 
 function renderQuiz(data) {
+    const formatLabel = data.test_format === 'quiz' ? 'Quiz' : 'Test';
     document.getElementById('quiz-title').textContent =
-        `${capitalize(data.difficulty)} Test — ${data.questions.length} Questions`;
+        `${capitalize(data.difficulty)} ${formatLabel} — ${data.questions.length} Questions`;
     document.getElementById('quiz-subtitle').textContent = `Source: ${data.source_title}`;
 
     const list = document.getElementById('questions-list');
-    list.innerHTML = data.questions.map((q, index) => `
-        <div class="question-card" id="question-card-${q.id}">
-            <div class="question-card-header">
-                <span class="question-number">Question ${index + 1} of ${data.questions.length}</span>
-                <span class="question-topic-badge">${escapeHtml(q.topic || 'General')}</span>
-            </div>
-            <p class="question-text">${escapeHtml(q.question)}</p>
-            <div class="options-list" id="options-${q.id}">
-                ${['a', 'b', 'c', 'd'].map(letter => `
-                    <div class="option-row" onclick="selectAnswer(${q.id}, '${letter}')" id="option-${q.id}-${letter}">
-                        <span class="option-letter">${letter.toUpperCase()}</span>
-                        <span class="option-text">${escapeHtml(q.options[letter])}</span>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `).join('');
+    list.innerHTML = data.questions.map((q, index) => renderQuestionCard(q, index, data.questions.length)).join('');
 
     updateProgress();
 }
 
-function selectAnswer(questionId, letter) {
-    userAnswers[questionId] = letter;
+function renderQuestionCard(q, index, total) {
+    const type = q.question_type || 'mcq';
+    return `
+        <div class="question-card" id="question-card-${q.id}">
+            <div class="question-card-header">
+                <span class="question-number">Question ${index + 1} of ${total}</span>
+                <span class="question-topic-badge">${escapeHtml(q.topic || 'General')}</span>
+            </div>
+            <p class="question-text">${escapeHtml(q.question)}</p>
+            ${renderQuestionInput(q, type)}
+        </div>
+    `;
+}
 
-    document.querySelectorAll(`#options-${questionId} .option-row`).forEach(row => {
-        row.classList.remove('selected');
-    });
-    document.getElementById(`option-${questionId}-${letter}`).classList.add('selected');
+function renderQuestionInput(q, type) {
+    if (type === 'true_false') {
+        return `
+            <div class="tf-options" id="options-${q.id}">
+                <button class="tf-option-btn" onclick="selectAnswer(${q.id}, 'True')" id="option-${q.id}-True">True</button>
+                <button class="tf-option-btn" onclick="selectAnswer(${q.id}, 'False')" id="option-${q.id}-False">False</button>
+            </div>
+        `;
+    }
+    if (type === 'fill_blank') {
+        return `
+            <input type="text" class="fill-blank-input" id="input-${q.id}" placeholder="Type your answer..."
+                   oninput="selectAnswer(${q.id}, this.value)">
+        `;
+    }
+    return `
+        <div class="options-list" id="options-${q.id}">
+            ${['a', 'b', 'c', 'd'].map(letter => `
+                <div class="option-row" onclick="selectAnswer(${q.id}, '${letter}')" id="option-${q.id}-${letter}">
+                    <span class="option-letter">${letter.toUpperCase()}</span>
+                    <span class="option-text">${escapeHtml(q.options[letter])}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function selectAnswer(questionId, value) {
+    if (value === '') {
+        delete userAnswers[questionId];
+    } else {
+        userAnswers[questionId] = value;
+    }
+
+    const question = currentQuestions.find(q => q.id === questionId);
+    const type = question ? (question.question_type || 'mcq') : 'mcq';
+
+    if (type === 'mcq') {
+        document.querySelectorAll(`#options-${questionId} .option-row`).forEach(row => {
+            row.classList.remove('selected');
+        });
+        document.getElementById(`option-${questionId}-${value}`).classList.add('selected');
+    } else if (type === 'true_false') {
+        document.querySelectorAll(`#options-${questionId} .tf-option-btn`).forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        const btn = document.getElementById(`option-${questionId}-${value}`);
+        if (btn) btn.classList.add('selected');
+    }
 
     updateProgress();
 }
@@ -219,6 +272,16 @@ function cancelTest() {
     resetToSetup();
 }
 
+function isAnswerCorrect(q, userAnswer) {
+    const type = q.question_type || 'mcq';
+    if (userAnswer == null) return false;
+
+    if (type === 'mcq') {
+        return userAnswer === q.correct_option;
+    }
+    return userAnswer.trim().toLowerCase() === (q.correct_answer || '').trim().toLowerCase();
+}
+
 async function submitTest() {
     const unanswered = currentQuestions.length - Object.keys(userAnswers).length;
     if (unanswered > 0) {
@@ -230,7 +293,7 @@ async function submitTest() {
 
     let score = 0;
     currentQuestions.forEach(q => {
-        if (userAnswers[q.id] === q.correct_option) score += 1;
+        if (isAnswerCorrect(q, userAnswers[q.id])) score += 1;
     });
     const total = currentQuestions.length;
 
@@ -243,13 +306,13 @@ async function submitTest() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ test_id: currentTestId, score, total, uid: currentUid, answers: userAnswers })
         });
-        BLData.invalidate();
+        if (typeof BLData !== 'undefined') BLData.invalidate();
     } catch (error) {
         console.error('Failed to save test result:', error);
     }
 }
 
-async function autoSubmitDisqualifiedMCQTest() {
+async function autoSubmitDisqualifiedTest() {
     if (proctor) proctor.stop();
 
     const total = currentQuestions.length;
@@ -271,7 +334,7 @@ async function autoSubmitDisqualifiedMCQTest() {
                 disqualified: true
             })
         });
-        BLData.invalidate();
+        if (typeof BLData !== 'undefined') BLData.invalidate();
     } catch (error) {
         console.error('Failed to save disqualified test result:', error);
     }
@@ -310,15 +373,16 @@ function renderResults(score, total, isDisqualified = false) {
         : resultMessage(percent);
 
     const list = document.getElementById('results-list');
-    list.innerHTML = currentQuestions.map((q, index) => {
-        const userAnswer = userAnswers[q.id];
-        return `
-        <div class="question-card">
-            <div class="question-card-header">
-                <span class="question-number">Question ${index + 1} of ${currentQuestions.length}</span>
-                <span class="question-topic-badge">${escapeHtml(q.topic || 'General')}</span>
-            </div>
-            <p class="question-text">${escapeHtml(q.question)}</p>
+    list.innerHTML = currentQuestions.map((q, index) => renderResultCard(q, index)).join('');
+}
+
+function renderResultCard(q, index) {
+    const type = q.question_type || 'mcq';
+    const userAnswer = userAnswers[q.id];
+
+    let body;
+    if (type === 'mcq') {
+        body = `
             <div class="options-list">
                 ${['a', 'b', 'c', 'd'].map(letter => {
                     let cls = 'option-row locked';
@@ -332,6 +396,37 @@ function renderResults(score, total, isDisqualified = false) {
                     `;
                 }).join('')}
             </div>
+        `;
+    } else if (type === 'true_false') {
+        body = `
+            <div class="tf-options">
+                ${['True', 'False'].map(val => {
+                    let cls = 'tf-option-btn locked';
+                    if (val === q.correct_answer) cls += ' correct-answer';
+                    else if (val === userAnswer) cls += ' wrong-answer';
+                    return `<button class="${cls}" disabled>${val}</button>`;
+                }).join('')}
+            </div>
+        `;
+    } else {
+        const correct = isAnswerCorrect(q, userAnswer);
+        const cls = correct ? 'correct-answer' : 'wrong-answer';
+        body = `
+            <div class="fill-blank-review ${cls}">
+                <span class="review-label">Your answer:</span>${escapeHtml(userAnswer || '(no answer)')}<br>
+                <span class="review-label">Correct answer:</span>${escapeHtml(q.correct_answer)}
+            </div>
+        `;
+    }
+
+    return `
+        <div class="question-card">
+            <div class="question-card-header">
+                <span class="question-number">Question ${index + 1} of ${currentQuestions.length}</span>
+                <span class="question-topic-badge">${escapeHtml(q.topic || 'General')}</span>
+            </div>
+            <p class="question-text">${escapeHtml(q.question)}</p>
+            ${body}
             ${q.explanation ? `
                 <div class="explanation-box">
                     <strong>Explanation:</strong> ${escapeHtml(q.explanation)}
@@ -339,7 +434,6 @@ function renderResults(score, total, isDisqualified = false) {
             ` : ''}
         </div>
     `;
-    }).join('');
 }
 
 function resultMessage(percent) {
@@ -370,6 +464,7 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+
 const customCursor = document.getElementById('custom-cursor');
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
@@ -379,7 +474,7 @@ if (!isTouchDevice) {
         customCursor.style.top = `${e.clientY}px`;
 
         const target = e.target;
-        const isInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' || target.closest('a') || target.closest('button') || target.closest('.option-row') || target.closest('.pill');
+        const isInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.closest('a') || target.closest('button') || target.closest('.option-row') || target.closest('.pill');
 
         if (isInteractive) {
             customCursor.style.transform = 'translate(-50%, -50%) scale(2.2)';
