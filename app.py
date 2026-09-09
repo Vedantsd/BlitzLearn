@@ -385,6 +385,15 @@ def init_db():
     cur.execute("ALTER TABLE tests ADD COLUMN IF NOT EXISTS user_id INTEGER")
     cur.execute("ALTER TABLE test_attempts ADD COLUMN IF NOT EXISTS user_id INTEGER")
     cur.execute("ALTER TABLE tests ADD COLUMN IF NOT EXISTS competency_applied INTEGER DEFAULT 0")
+    cur.execute("ALTER TABLE questions ALTER COLUMN option_a DROP NOT NULL")
+    cur.execute("ALTER TABLE questions ALTER COLUMN option_b DROP NOT NULL")
+    cur.execute("ALTER TABLE questions ALTER COLUMN option_c DROP NOT NULL")
+    cur.execute("ALTER TABLE questions ALTER COLUMN option_d DROP NOT NULL")
+    cur.execute("ALTER TABLE questions ALTER COLUMN correct_option DROP NOT NULL")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS question_type VARCHAR(20) DEFAULT 'mcq'")
+    cur.execute("ALTER TABLE questions ADD COLUMN IF NOT EXISTS correct_answer VARCHAR(4000)")
+    cur.execute("ALTER TABLE tests ADD COLUMN IF NOT EXISTS test_format VARCHAR(20) DEFAULT 'mcq'")
+    cur.execute("ALTER TABLE user_answers ALTER COLUMN selected_option TYPE VARCHAR(4000)")
     conn.commit()
     conn.close()
 
@@ -1926,7 +1935,14 @@ def _gather_test_context(store, num_questions):
     return "\n\n".join(doc.page_content for doc in good_docs)
 
 
-def _generate_questions_from_notes(uid, difficulty, num_questions):
+QUIZ_TYPE_GUIDES = {
+    "easy": "Straightforward true/false statements and fill-in-the-blank questions testing direct recall of definitions and key terms.",
+    "medium": "True/false statements that require understanding a concept (not just memorizing it), and fill-in-the-blanks testing applied terminology.",
+    "hard": "Subtly worded true/false statements where the false ones contain a plausible-sounding but incorrect detail, and fill-in-the-blanks requiring precise technical terms."
+}
+
+
+def _generate_questions_from_notes(uid, difficulty, num_questions, test_format="mcq"):
     store = get_user_vector_store(uid)
     if store is None:
         return None, ("Please process your notes first from the Dashboard.", 400)
@@ -1938,61 +1954,101 @@ def _generate_questions_from_notes(uid, difficulty, num_questions):
 
     generation_target = num_questions + max(3, num_questions // 3)
 
-    prompt = f"""
-    You are an exam-setter creating a multiple choice question (MCQ) test for Indian college
-    students, based ONLY on the SUBJECT MATTER in the context below.
+    if test_format == "quiz":
+        prompt = f"""
+        You are an exam-setter creating a QUIZ for Indian college students, based ONLY on the
+        SUBJECT MATTER in the context below. This quiz uses ONLY two question types: true/false
+        and fill-in-the-blank — NO multiple choice.
 
-    Difficulty: {difficulty.upper()} — {DIFFICULTY_GUIDES[difficulty]}
-    Number of questions to generate: {generation_target}
+        Difficulty: {difficulty.upper()} — {QUIZ_TYPE_GUIDES[difficulty]}
+        Number of questions to generate: {generation_target}
+        Mix roughly half true_false and half fill_blank questions.
 
-    STRICT RULES — read carefully:
-    1. Test the SUBJECT CONTENT only — concepts, definitions, processes, comparisons,
-       applications, examples, advantages/disadvantages, cause-and-effect, classifications.
-    2. NEVER ask about the book itself or how it is packaged/organized/taught from. This
-       includes (but is not limited to) questions like:
-       - "What is the primary purpose of 'Review questions' in a practice set?"
-       - "What do 'Exercises' in a practice set typically require from the student?"
-       - "What significant change was made to Chapter 8 in the Fourth Edition?"
-       - anything about the author, publisher, title, edition, ISBN, chapter/page numbers,
-         table of contents, preface, "review questions", "exercises", "practice sets",
-         "learning objectives", or "according to the book/author...".
-       If a piece of context is about the book's structure, pedagogy, or publishing history
-       rather than the actual subject, IGNORE that piece of context entirely — do not
-       write a question from it, even a "quick"/"easy" one.
-    3. Write questions the way a professor would ask them in a real subject exam, for example:
-       - "Which of the following is NOT a system call?"
-       - "Where can ring topology be used?"
-       - "Which of the following is not an application of reinforcement learning?"
-       - "What is the primary purpose of X?" — where X is a real technical concept
-         (e.g. "a semaphore", "a firewall", "normalization"), never a book section.
-       - "Which technique is best suited for Y?"
-       Mix straightforward "what is / which of these" questions with a good number of
-       negative-form questions ("which of the following is NOT...", "all of the following
-       EXCEPT...") and applied/scenario questions, matching the {difficulty} difficulty.
-    4. All 4 options must be plausible and in the same category as each other (e.g. don't
-       mix a real system call with three obviously made-up words) so the question actually
-       requires understanding, not guessing by elimination.
-    5. For EACH question, also give a short topic tag (2-4 words) naming the specific
-       technical concept being tested (e.g. "System Calls", "Ring Topology", "Reinforcement
-       Learning Applications") — never use the book title, "General", or "Chapter 1" as
-       the topic.
-    6. Before finalizing each question, double-check: could this question be answered by
-       someone who has never read this material but knows how textbooks are structured?
-       If yes, discard it and write a different question about the actual subject instead.
+        STRICT RULES:
+        1. Test the SUBJECT CONTENT only — concepts, definitions, processes, comparisons,
+           applications, examples, advantages/disadvantages, cause-and-effect, classifications.
+        2. NEVER ask about the book itself, its structure, editions, author, publisher, or any
+           of its pedagogical apparatus (review questions, exercises, chapter numbers, etc.).
+           If a piece of context is about the book rather than the subject, ignore it entirely.
+        3. For "true_false" questions: "question" is a single factual statement about the
+           subject that is entirely true or entirely false. "correct_answer" must be exactly
+           the string "True" or "False".
+        4. For "fill_blank" questions: "question" must contain exactly one blank written as
+           "_____" in place of a key term or short phrase. "correct_answer" is that missing
+           term or phrase, written exactly as it would appear in the notes — a single word or
+           short phrase, never a full sentence.
+        5. For EACH question, also give a short topic tag (2-4 words) naming the specific
+           technical concept being tested — never "General" or a book/chapter reference.
 
-    Return ONLY a valid JSON array (no markdown fences, no commentary) where every item has
-    exactly this shape:
-    {{
-      "topic": "short topic name",
-      "question": "the question text",
-      "options": {{"a": "...", "b": "...", "c": "...", "d": "..."}},
-      "correct_option": "a",
-      "explanation": "1-2 sentence explanation of why the correct answer is correct"
-    }}
+        Return ONLY a valid JSON array (no markdown fences, no commentary) where every item has
+        exactly this shape:
+        {{
+          "topic": "short topic name",
+          "question_type": "true_false" | "fill_blank",
+          "question": "the question text",
+          "correct_answer": "True" | "False" | "the missing term/phrase",
+          "explanation": "1-2 sentence explanation of why the correct answer is correct"
+        }}
 
-    Context:
-    {context}
-    """
+        Context:
+        {context}
+        """
+    else:
+        prompt = f"""
+        You are an exam-setter creating a multiple choice question (MCQ) test for Indian college
+        students, based ONLY on the SUBJECT MATTER in the context below.
+
+        Difficulty: {difficulty.upper()} — {DIFFICULTY_GUIDES[difficulty]}
+        Number of questions to generate: {generation_target}
+
+        STRICT RULES — read carefully:
+        1. Test the SUBJECT CONTENT only — concepts, definitions, processes, comparisons,
+           applications, examples, advantages/disadvantages, cause-and-effect, classifications.
+        2. NEVER ask about the book itself or how it is packaged/organized/taught from. This
+           includes (but is not limited to) questions like:
+           - "What is the primary purpose of 'Review questions' in a practice set?"
+           - "What do 'Exercises' in a practice set typically require from the student?"
+           - "What significant change was made to Chapter 8 in the Fourth Edition?"
+           - anything about the author, publisher, title, edition, ISBN, chapter/page numbers,
+             table of contents, preface, "review questions", "exercises", "practice sets",
+             "learning objectives", or "according to the book/author...".
+           If a piece of context is about the book's structure, pedagogy, or publishing history
+           rather than the actual subject, IGNORE that piece of context entirely — do not
+           write a question from it, even a "quick"/"easy" one.
+        3. Write questions the way a professor would ask them in a real subject exam, for example:
+           - "Which of the following is NOT a system call?"
+           - "Where can ring topology be used?"
+           - "Which of the following is not an application of reinforcement learning?"
+           - "What is the primary purpose of X?" — where X is a real technical concept
+             (e.g. "a semaphore", "a firewall", "normalization"), never a book section.
+           - "Which technique is best suited for Y?"
+           Mix straightforward "what is / which of these" questions with a good number of
+           negative-form questions ("which of the following is NOT...", "all of the following
+           EXCEPT...") and applied/scenario questions, matching the {difficulty} difficulty.
+        4. All 4 options must be plausible and in the same category as each other (e.g. don't
+           mix a real system call with three obviously made-up words) so the question actually
+           requires understanding, not guessing by elimination.
+        5. For EACH question, also give a short topic tag (2-4 words) naming the specific
+           technical concept being tested (e.g. "System Calls", "Ring Topology", "Reinforcement
+           Learning Applications") — never use the book title, "General", or "Chapter 1" as
+           the topic.
+        6. Before finalizing each question, double-check: could this question be answered by
+           someone who has never read this material but knows how textbooks are structured?
+           If yes, discard it and write a different question about the actual subject instead.
+
+        Return ONLY a valid JSON array (no markdown fences, no commentary) where every item has
+        exactly this shape:
+        {{
+          "topic": "short topic name",
+          "question": "the question text",
+          "options": {{"a": "...", "b": "...", "c": "...", "d": "..."}},
+          "correct_option": "a",
+          "explanation": "1-2 sentence explanation of why the correct answer is correct"
+        }}
+
+        Context:
+        {context}
+        """
 
     try:
         model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key, temperature=0.5)
@@ -2015,6 +2071,11 @@ def _generate_questions_from_notes(uid, difficulty, num_questions):
         and not any(phrase in q["question"].lower() for phrase in banned_phrases)
     ]
 
+    if test_format == "quiz":
+        questions = [q for q in questions if q.get("question_type") in ("true_false", "fill_blank") and q.get("correct_answer")]
+    else:
+        questions = [q for q in questions if q.get("options") and q.get("correct_option")]
+
     if not questions:
         return None, ("Generated questions didn't pass quality checks. Please try again.", 500)
 
@@ -2026,39 +2087,56 @@ def _generate_questions_from_notes(uid, difficulty, num_questions):
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO tests (difficulty, num_questions, source_title) VALUES (%s, %s, %s) RETURNING id",
-        (difficulty, len(questions), source_title)
+        "INSERT INTO tests (difficulty, num_questions, source_title, test_format) VALUES (%s, %s, %s, %s) RETURNING id",
+        (difficulty, len(questions), source_title, test_format)
     )
     test_id = cur.fetchone()["id"]
 
     saved_questions = []
     for i, q in enumerate(questions):
         try:
-            options = q["options"]
-            cur.execute(
-                """INSERT INTO questions
-                   (topic, difficulty, question_text, option_a, option_b, option_c, option_d,
-                    correct_option, explanation, source_title)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
-                (
-                    q.get("topic", "General"), difficulty, q["question"],
-                    options["a"], options["b"], options["c"], options["d"],
-                    q["correct_option"], q.get("explanation", ""), source_title
+            if test_format == "quiz":
+                cur.execute(
+                    """INSERT INTO questions
+                       (topic, difficulty, question_text, question_type, correct_answer, explanation, source_title)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+                    (
+                        q.get("topic", "General"), difficulty, q["question"],
+                        q["question_type"], q["correct_answer"], q.get("explanation", ""), source_title
+                    )
                 )
-            )
+            else:
+                options = q["options"]
+                cur.execute(
+                    """INSERT INTO questions
+                       (topic, difficulty, question_text, question_type, option_a, option_b, option_c, option_d,
+                        correct_option, explanation, source_title)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id""",
+                    (
+                        q.get("topic", "General"), difficulty, q["question"], "mcq",
+                        options["a"], options["b"], options["c"], options["d"],
+                        q["correct_option"], q.get("explanation", ""), source_title
+                    )
+                )
             question_id = cur.fetchone()["id"]
             cur.execute(
                 "INSERT INTO test_questions (test_id, question_id, question_order) VALUES (%s, %s, %s)",
                 (test_id, question_id, i)
             )
-            saved_questions.append({
+
+            saved_q = {
                 "id": question_id,
                 "topic": q.get("topic", "General"),
                 "question": q["question"],
-                "options": options,
-                "correct_option": q["correct_option"],
+                "question_type": q.get("question_type", "mcq"),
                 "explanation": q.get("explanation", "")
-            })
+            }
+            if test_format == "quiz":
+                saved_q["correct_answer"] = q["correct_answer"]
+            else:
+                saved_q["options"] = q["options"]
+                saved_q["correct_option"] = q["correct_option"]
+            saved_questions.append(saved_q)
         except (KeyError, TypeError):
             continue
 
@@ -2068,30 +2146,38 @@ def _generate_questions_from_notes(uid, difficulty, num_questions):
     return {
         "test_id": test_id,
         "difficulty": difficulty,
+        "test_format": test_format,
         "source_title": source_title,
         "questions": saved_questions
     }, None
 
 
-def _generate_test_from_bank(difficulty, num_questions):
+def _generate_test_from_bank(difficulty, num_questions, test_format="mcq"):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT * FROM questions WHERE difficulty = %s ORDER BY RANDOM() LIMIT %s",
-        (difficulty, num_questions)
-    )
+
+    if test_format == "quiz":
+        cur.execute(
+            "SELECT * FROM questions WHERE difficulty = %s AND question_type IN ('true_false', 'fill_blank') ORDER BY RANDOM() LIMIT %s",
+            (difficulty, num_questions)
+        )
+    else:
+        cur.execute(
+            "SELECT * FROM questions WHERE difficulty = %s AND COALESCE(question_type, 'mcq') = 'mcq' ORDER BY RANDOM() LIMIT %s",
+            (difficulty, num_questions)
+        )
     rows = _fetchall(cur)
 
     if not rows:
         conn.close()
         return None, (
-            f"No stored {difficulty} questions in the bank yet. "
+            f"No stored {difficulty} {'quiz' if test_format == 'quiz' else 'MCQ'} questions in the bank yet. "
             "Generate a test from notes first to build up the bank.", 400
         )
 
     cur.execute(
-        "INSERT INTO tests (difficulty, num_questions, source_title) VALUES (%s, %s, %s) RETURNING id",
-        (difficulty, len(rows), "Question Bank")
+        "INSERT INTO tests (difficulty, num_questions, source_title, test_format) VALUES (%s, %s, %s, %s) RETURNING id",
+        (difficulty, len(rows), "Question Bank", test_format)
     )
     test_id = cur.fetchone()["id"]
 
@@ -2101,17 +2187,22 @@ def _generate_test_from_bank(difficulty, num_questions):
             "INSERT INTO test_questions (test_id, question_id, question_order) VALUES (%s, %s, %s)",
             (test_id, row["id"], i)
         )
-        saved_questions.append({
+        saved_q = {
             "id": row["id"],
             "topic": row["topic"],
             "question": row["question_text"],
-            "options": {
+            "question_type": row.get("question_type") or "mcq",
+            "explanation": row["explanation"]
+        }
+        if test_format == "quiz":
+            saved_q["correct_answer"] = row["correct_answer"]
+        else:
+            saved_q["options"] = {
                 "a": row["option_a"], "b": row["option_b"],
                 "c": row["option_c"], "d": row["option_d"]
-            },
-            "correct_option": row["correct_option"],
-            "explanation": row["explanation"]
-        })
+            }
+            saved_q["correct_option"] = row["correct_option"]
+        saved_questions.append(saved_q)
 
     conn.commit()
     conn.close()
@@ -2119,6 +2210,7 @@ def _generate_test_from_bank(difficulty, num_questions):
     return {
         "test_id": test_id,
         "difficulty": difficulty,
+        "test_format": test_format,
         "source_title": "Question Bank",
         "questions": saved_questions
     }, None
@@ -2130,10 +2222,13 @@ def generate_test():
     difficulty = data.get("difficulty", "medium")
     num_questions = data.get("num_questions", 10)
     source = data.get("source", "notes")
+    test_format = data.get("test_format", "mcq")
     uid = data.get("uid")
 
     if difficulty not in VALID_DIFFICULTIES:
         difficulty = "medium"
+    if test_format not in ("mcq", "quiz"):
+        test_format = "mcq"
     try:
         num_questions = int(num_questions)
     except (TypeError, ValueError):
@@ -2142,11 +2237,11 @@ def generate_test():
         num_questions = 10
 
     if source == "bank":
-        result, error = _generate_test_from_bank(difficulty, num_questions)
+        result, error = _generate_test_from_bank(difficulty, num_questions, test_format)
     else:
         if not uid:
             return jsonify({"error": "Missing uid — please sign in again."}), 400
-        result, error = _generate_questions_from_notes(uid, difficulty, num_questions)
+        result, error = _generate_questions_from_notes(uid, difficulty, num_questions, test_format)
 
     if error:
         message, status_code = error
@@ -2645,8 +2740,9 @@ def get_test_detail(test_id):
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        """SELECT q.id, q.topic, q.difficulty, q.question_text, q.option_a, q.option_b,
-                  q.option_c, q.option_d, q.correct_option, q.explanation, ua.selected_option
+        """SELECT q.id, q.topic, q.difficulty, q.question_text, q.question_type,
+                  q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option,
+                  q.correct_answer, q.explanation, ua.selected_option
            FROM test_questions tq
            JOIN questions q ON q.id = tq.question_id
            LEFT JOIN user_answers ua ON ua.test_id = tq.test_id AND ua.question_id = q.id
@@ -2665,8 +2761,10 @@ def get_test_detail(test_id):
         "topic": r["topic"],
         "difficulty": r["difficulty"],
         "question": r["question_text"],
+        "question_type": r["question_type"] or "mcq",
         "options": {"a": r["option_a"], "b": r["option_b"], "c": r["option_c"], "d": r["option_d"]},
         "correct_option": r["correct_option"],
+        "correct_answer": r["correct_answer"],
         "explanation": r["explanation"],
         "selected_option": r["selected_option"],
     } for r in rows]
