@@ -24,7 +24,7 @@ firebase.auth().onAuthStateChanged(user => {
 function logout() {
     firebase.auth().signOut().then(() => {
         window.location.href = '/login';
-    }).catch(err => alert("Error logging out"));
+    }).catch(err => showAlert("Error logging out"));
 }
 
 if (localStorage.getItem('theme') === 'dark') {
@@ -284,11 +284,11 @@ async function setStudyMode() {
         }
 
         console.log(data);
-        alert(modeMessage);
+        showAlert(modeMessage);
 
     } catch (error) {
         console.error('Error setting mode:', error);
-        alert('Failed to set mode. Please try again.');
+        showAlert('Failed to set mode. Please try again.');
     }
 }
 
@@ -319,7 +319,7 @@ async function prioritizeTopics() {
         const data = await response.json();
 
         if (data.error) {
-            alert(data.error);
+            showAlert(data.error);
             prioritizeBtn.style.display = 'flex';
             topicsLoading.style.display = 'none';
             return;
@@ -331,7 +331,7 @@ async function prioritizeTopics() {
 
     } catch (error) {
         console.error('Error prioritizing topics:', error);
-        alert('Failed to prioritize topics. Please try again.');
+        showAlert('Failed to prioritize topics. Please try again.');
         prioritizeBtn.style.display = 'flex';
         topicsLoading.style.display = 'none';
     }
@@ -397,6 +397,41 @@ if (!isTouchDevice) {
             customCursor.style.backgroundColor = '#10B981';
         }
     });
+}
+
+function showAlert(message, type = 'info') {
+    let container = document.getElementById('universal-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'universal-toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `universal-toast ${type}`;
+
+    const icon = document.createElement('span');
+    icon.className = 'universal-toast-icon';
+    const icons = {
+        success: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>',
+        warning: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-8.18 14.18A2 2 0 004 21h16a2 2 0 001.89-3l-8.18-14.14a2 2 0 00-3.42 0z"/></svg>',
+        info: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+    icon.innerHTML = icons[type] || icons.info;
+
+    const text = document.createElement('span');
+    text.className = 'universal-toast-message';
+    text.textContent = message;
+
+    toast.appendChild(icon);
+    toast.appendChild(text);
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 250);
+    }, 3500);
 }
 
 updateThemeIcon();

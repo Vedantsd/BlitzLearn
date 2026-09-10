@@ -205,7 +205,7 @@ async function assignCourse(course, buttonEl) {
     } catch (error) {
         buttonEl.disabled = false;
         buttonEl.textContent = 'Assign';
-        alert(error.message || 'Failed to assign course.');
+        showAlert(error.message || 'Failed to assign course.');
     }
 }
 
@@ -246,7 +246,7 @@ async function removeAssignedCourse(assignmentId, userId) {
         if (!response.ok) throw new Error(data.error || 'Failed to remove.');
         loadAssignedCourses(userId);
     } catch (error) {
-        alert(error.message || 'Failed to remove course.');
+        showAlert(error.message || 'Failed to remove course.');
     }
 }
 
@@ -264,4 +264,39 @@ function escapeHtml(str) {
 function capitalize(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function showAlert(message, type = 'info') {
+    let container = document.getElementById('universal-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'universal-toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `universal-toast ${type}`;
+
+    const icon = document.createElement('span');
+    icon.className = 'universal-toast-icon';
+    const icons = {
+        success: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>',
+        warning: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-8.18 14.18A2 2 0 004 21h16a2 2 0 001.89-3l-8.18-14.14a2 2 0 00-3.42 0z"/></svg>',
+        info: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+    icon.innerHTML = icons[type] || icons.info;
+
+    const text = document.createElement('span');
+    text.className = 'universal-toast-message';
+    text.textContent = message;
+
+    toast.appendChild(icon);
+    toast.appendChild(text);
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 250);
+    }, 3500);
 }
