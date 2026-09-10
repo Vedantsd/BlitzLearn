@@ -212,16 +212,19 @@ function renderEducationRows() {
 function addSkill() {
     const nameInput = document.getElementById('skill-name-input');
     const levelInput = document.getElementById('skill-level-input');
-    const name = nameInput.value.trim();
+    const name = nameInput.value;
 
-    if (!name) return;
+    if (!name) {
+        showToast('Please select a skill from the list.', 'error');
+        return;
+    }
     if (skillsData.some(s => s.name.toLowerCase() === name.toLowerCase())) {
         showToast('That skill is already added.', 'error');
         return;
     }
 
     skillsData.push({ name, level: levelInput.value });
-    nameInput.value = '';
+    nameInput.selectedIndex = 0;
     nameInput.focus();
     renderSkillsChips();
 }
@@ -243,15 +246,6 @@ function renderSkillsChips() {
         </div>
     `).join('');
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('skill-name-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addSkill();
-        }
-    });
-});
 
 
 function addExperienceRow() {
