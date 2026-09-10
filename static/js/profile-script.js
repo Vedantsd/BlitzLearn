@@ -176,9 +176,12 @@ async function addSkill() {
     const nameInput = document.getElementById('skill-name-input');
     const levelInput = document.getElementById('skill-level-input');
     const button = document.querySelector('.add-chip-button');
-    const name = nameInput.value.trim();
+    const name = nameInput.value;
 
-    if (!name) return;
+    if (!name) {
+        showToast('Please select a skill from the list.', 'error');
+        return;
+    }
 
     button.disabled = true;
 
@@ -194,7 +197,7 @@ async function addSkill() {
 
         profileSkills.push({ id: data.id, skill_name: data.skill_name, self_rated_level: data.self_rated_level });
         renderSkills();
-        nameInput.value = '';
+        nameInput.selectedIndex = 0;
         nameInput.focus();
         showToast(`${data.skill_name} added.`, 'success');
         BLData.invalidate();
@@ -220,15 +223,6 @@ async function removeSkill(skillId) {
         showToast(error.message || 'Failed to remove skill.', 'error');
     }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('skill-name-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addSkill();
-        }
-    });
-});
 
 async function loadActivityHeatmap() {
     const grid = document.getElementById('heatmap-grid');
