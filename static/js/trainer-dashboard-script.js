@@ -1,9 +1,17 @@
 let learnersData = [];
 let selectedLearnerId = null;
+let allCoursesData = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     loadTrainerInfo();
     loadLearners();
+
+    document.getElementById('course-search').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchCourses();
+        }
+    });
 });
 
 async function loadTrainerInfo() {
@@ -90,7 +98,6 @@ async function selectLearner(userId) {
 
     document.getElementById('no-learner-selected').style.display = 'none';
     document.getElementById('learner-detail').style.display = 'block';
-    document.getElementById('course-results').innerHTML = '';
     document.getElementById('course-search').value = '';
 
     try {
@@ -102,6 +109,7 @@ async function selectLearner(userId) {
         document.getElementById('detail-name').textContent = 'Failed to load learner';
     }
 
+    loadAllCourses();
     loadAssignedCourses(userId);
 }
 
@@ -150,6 +158,59 @@ function renderLearnerDetail(data) {
     }
 }
 
+async function loadAllCourses() {
+    const resultsEl = document.getElementById('course-results');
+    resultsEl.innerHTML = '<p class="empty-state">Loading courses...</p>';
+
+    try {
+        const response = await fetch('/api/courses');
+        const courses = await response.json();
+        allCoursesData = courses || [];
+        renderCoursePane(allCoursesData);
+    } catch (error) {
+        resultsEl.innerHTML = '<p class="empty-state">Failed to load courses.</p>';
+    }
+}
+
+function renderCoursePane(courses) {
+    const resultsEl = document.getElementById('course-results');
+
+    if (!courses || courses.length === 0) {
+        resultsEl.innerHTML = '<p class="empty-state">No courses found.</p>';
+        return;
+    }
+
+    resultsEl.innerHTML = courses.map(renderCourseCard).join('');
+}
+
+function renderCourseCard(c) {
+    return `
+        <div class="course-result-card">
+            <div class="course-result-info">
+                <div class="course-result-title">${escapeHtml(c.course_name || 'Untitled Course')}</div>
+                <div class="course-result-meta">${[c.organisation, c.duration].filter(Boolean).map(escapeHtml).join(' · ') || 'iGOT Karmayogi'}</div>
+            </div>
+            <button class="course-assign-btn" onclick='assignCourse(${JSON.stringify(c)}, this)'>Assign</button>
+        </div>
+    `;
+}
+
+function filterCoursesLive() {
+    const q = document.getElementById('course-search').value.trim().toLowerCase();
+
+    if (!q) {
+        renderCoursePane(allCoursesData);
+        return;
+    }
+
+    const filtered = allCoursesData.filter(c =>
+        (c.course_name || '').toLowerCase().includes(q) ||
+        (c.organisation || '').toLowerCase().includes(q) ||
+        (c.category || '').toLowerCase().includes(q)
+    );
+    renderCoursePane(filtered);
+}
+
 async function searchCourses() {
     const q = document.getElementById('course-search').value.trim();
     const resultsEl = document.getElementById('course-results');
@@ -158,21 +219,8 @@ async function searchCourses() {
     try {
         const response = await fetch(`/api/courses?q=${encodeURIComponent(q)}`);
         const courses = await response.json();
-
-        if (courses.length === 0) {
-            resultsEl.innerHTML = '<p class="empty-state">No courses found.</p>';
-            return;
-        }
-
-        resultsEl.innerHTML = courses.map(c => `
-            <div class="course-result-card">
-                <div class="course-result-info">
-                    <div class="course-result-title">${escapeHtml(c.course_name || 'Untitled Course')}</div>
-                    <div class="course-result-meta">${[c.organisation, c.duration].filter(Boolean).map(escapeHtml).join(' · ') || 'iGOT Karmayogi'}</div>
-                </div>
-                <button class="course-assign-btn" onclick='assignCourse(${JSON.stringify(c)}, this)'>Assign</button>
-            </div>
-        `).join('');
+        allCoursesData = courses || [];
+        renderCoursePane(allCoursesData);
     } catch (error) {
         resultsEl.innerHTML = '<p class="empty-state">Failed to search courses.</p>';
     }

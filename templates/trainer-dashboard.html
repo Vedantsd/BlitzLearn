@@ -75,10 +75,12 @@
                 <div class="detail-section">
                     <h3>Assign a Course</h3>
                     <div class="course-search-row">
-                        <input type="text" id="course-search" placeholder="Search iGOT course catalogue...">
+                        <input type="text" id="course-search" placeholder="Search iGOT course catalogue..." oninput="filterCoursesLive()">
                         <button class="trainer-btn-primary" onclick="searchCourses()">Search</button>
                     </div>
-                    <div id="course-results" class="course-results"></div>
+                    <div class="course-pane-scroll">
+                        <div id="course-results" class="course-pane"></div>
+                    </div>
                 </div>
 
                 <div class="detail-section">

@@ -649,3 +649,36 @@ header h1 {
         width: 100%;
     }
 }
+
+.course-pane-scroll {
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+}
+
+.course-pane {
+    display: flex;
+    gap: 12px;
+    width: max-content;
+}
+
+.course-pane .course-result-card {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 220px;
+    flex-shrink: 0;
+    gap: 10px;
+}
+
+.course-pane .course-result-info {
+    width: 100%;
+}
+
+.course-pane .course-assign-btn {
+    width: 100%;
+    text-align: center;
+}
+
+.course-pane .empty-state {
+    width: 100%;
+}
