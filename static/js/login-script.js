@@ -22,7 +22,7 @@ async function handleLogin(e) {
 
     const clientAuth = getAuthInstance();
     if (!clientAuth) {
-        alert("Authentication is not ready yet. Please refresh the page.");
+        showAlert("Authentication is not ready yet. Please refresh the page.");
         return;
     }
 
@@ -32,7 +32,7 @@ async function handleLogin(e) {
     try {
         await clientAuth.signInWithEmailAndPassword(email, password);
     } catch (error) {
-        alert("Login Error: " + error.message);
+        showAlert("Login Error: " + error.message);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Login';
     }
@@ -41,7 +41,7 @@ async function handleLogin(e) {
 async function handleSocialLogin(provider) {
     const clientAuth = getAuthInstance();
     if (!clientAuth) {
-        alert("Authentication is not ready yet. Please refresh the page.");
+        showAlert("Authentication is not ready yet. Please refresh the page.");
         return;
     }
     if (provider === 'Google') {
@@ -49,7 +49,7 @@ async function handleSocialLogin(provider) {
         try {
             await clientAuth.signInWithPopup(googleProvider);
         } catch (error) {
-            alert("Google Login Error: " + error.message);
+            showAlert("Google Login Error: " + error.message);
         }
     }
 }
@@ -112,8 +112,8 @@ function handleForgotPassword(e) {
     const clientAuth = getAuthInstance();
     if (email && clientAuth) {
         clientAuth.sendPasswordResetEmail(email)
-            .then(() => alert("Reset link sent!"))
-            .catch(err => alert(err.message));
+            .then(() => showAlert("Reset link sent!"))
+            .catch(err => showAlert(err.message));
     }
 }
 
