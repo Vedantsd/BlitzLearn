@@ -25,7 +25,7 @@ firebase.auth().onAuthStateChanged(user => {
 function logout() {
     firebase.auth().signOut().then(() => {
         window.location.href = '/login';
-    }).catch(err => alert("Error logging out"));
+    }).catch(err => showAlert("Error logging out"));
 }
 
 if (localStorage.getItem('theme') === 'dark') {

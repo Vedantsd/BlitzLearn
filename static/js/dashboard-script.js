@@ -220,7 +220,7 @@ async function handleFileUpload() {
     }
 
     if (hasOversizedFile) {
-        alert("One or more files exceed the 20MB limit and were removed.");
+        showAlert("One or more files exceed the 20MB limit and were removed.");
     }
 
     const dataTransfer = new DataTransfer();
@@ -384,7 +384,7 @@ async function selectBook(bookId, buttonEl) {
     } catch (error) {
         buttonEl.disabled = false;
         buttonEl.textContent = 'Add to My Notes';
-        alert(error.message || 'Failed to add this book. Please try again.');
+        showAlert(error.message || 'Failed to add this book. Please try again.');
     }
 }
 
@@ -428,7 +428,7 @@ function goToTile(target) {
     }
 
     if (!notesProcessed) {
-        alert('Please process your notes first using "Process Content" at the bottom of the sidebar.');
+        showAlert('Please process your notes first using "Process Content" at the bottom of the sidebar.');
         return;
     }
 
@@ -442,7 +442,7 @@ function goToTile(target) {
 }
 
 function comingSoon(featureName) {
-    alert(`${featureName} is coming soon!`);
+    showAlert(`${featureName} is coming soon!`);
 }
 
 const customCursor = document.getElementById('custom-cursor');
