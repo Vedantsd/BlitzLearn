@@ -21,17 +21,65 @@
             <span id="user-initial" style="font-weight: bold; font-size: 14px;">?</span>
         </div>
 
-        <button class="icon-button" onclick="logout()" title="Logout" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-        </button>
-
         <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
             <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
             </svg>
         </button>
+
+        <div class="kebab-menu-wrap" id="kebab-menu-wrap">
+            <button class="icon-button" onclick="toggleKebabMenu()" title="More options" id="kebab-toggle">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 6h.01M12 12h.01M12 18h.01"/>
+                </svg>
+            </button>
+
+            <div class="kebab-dropdown" id="kebab-dropdown">
+                <a class="kebab-item" href="/profile">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    View Profile
+                </a>
+
+                <a class="kebab-item" href="/trainers">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Know your trainers
+                </a>
+
+                <a class="kebab-item" href="/training-calendar">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    NSSTA Training Calendar
+                </a>
+
+                <div class="kebab-divider"></div>
+
+                <a class="kebab-item" href="/terms">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a2 2 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Terms &amp; Conditions
+                </a>
+
+                <a class="kebab-item" href="/about">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 21a9 9 0 100-18 9 9 0 000 18z"/>
+                    </svg>
+                    About BlitzLearn
+                </a>
+
+                <div class="kebab-divider"></div>
+
+                <button class="kebab-item" onclick="logout()" style="color: #ef4444;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
     </div>
 </header>
 
