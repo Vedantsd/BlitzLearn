@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BlitzLearn - About</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/about-style.css') }}">
+</head>
+
+<body>
+<div id="custom-cursor"></div>
+<header>
+    <div class="header-left">
+        <a href="/" class="icon-button" title="Back to home">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+        </a>
+        <img src="{{ url_for('static', filename='logo/blitz-logo-dark.png') }}" alt="BlitzLearn Logo" class="header-logo" id="header-logo"/>
+        <h1>BlitzLearn</h1>
+    </div>
+    <div class="header-actions">
+        <button id="theme-toggle" class="icon-button" onclick="toggleTheme()" title="Toggle theme">
+            <svg id="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+        </button>
+    </div>
+</header>
+
+<div class="about-main">
+    <div class="about-content">
+
+        <div class="about-card about-hero">
+            <h2>About BlitzLearn</h2>
+            <p class="subhead">
+                BlitzLearn is an AI-powered learning platform that turns your own notes into
+                an interactive study assistant, tests what you know, and helps you close the
+                gaps in your skills with hands-on practice and a personalized learning path.
+            </p>
+            <div class="fact-strip">
+                <span class="fact-pill"><strong>15 languages</strong> supported in chat</span>
+                <span class="fact-pill"><strong>2 quiz formats</strong> — MCQ and quiz-style</span>
+                <span class="fact-pill"><strong>4 lab types</strong> — Code, Cloud, Finance, General</span>
+            </div>
+        </div>
+
+        <div class="about-card">
+            <h3>Chat with your own notes</h3>
+            <p>
+                Upload a PDF, pick from pre-loaded books, or point BlitzLearn at a YouTube
+                lecture, and ask it questions the way you would a tutor who has actually read
+                the material.
+            </p>
+            <ul class="plain-list">
+                <li><strong>Bloom's-level tuning</strong> — get answers pitched at the level of understanding you're working on, from basic recall to deeper analysis.</li>
+                <li><strong>Study modes</strong> — switch between a formal, exam-focused explanation style or a casual, regional Hinglish "Vibe" mode.</li>
+                <li><strong>15 languages</strong> — chat in the Indian language you're most comfortable with.</li>
+                <li><strong>Topic prioritization</strong> — see which topics in your material are most likely to matter for exams.</li>
+            </ul>
+        </div>
+
+        <div class="about-card">
+            <h3>Test yourself</h3>
+            <p>
+                Generate practice tests and quizzes directly from your notes, in whichever
+                format suits how you want to revise:
+            </p>
+            <ul class="plain-list">
+                <li><strong>MCQ tests</strong> — classic four-option multiple choice questions.</li>
+                <li><strong>Quizzes</strong> — true/false and fill-in-the-blank questions for quick recall practice.</li>
+                <li><strong>Difficulty and length control</strong> — choose how hard the questions are and how many you want.</li>
+                <li><strong>Full answer review</strong> — go back through any past test or quiz, question by question.</li>
+            </ul>
+        </div>
+
+        <div class="about-card">
+            <h3>Know where you actually stand</h3>
+            <p>
+                Right after you sign up, BlitzLearn runs a skill assessment based on the skills
+                you declared, and keeps a running competency score for each one after that —
+                updated by every test, quiz, and lab you complete.
+            </p>
+            <ul class="plain-list">
+                <li><strong>Skill radar chart</strong> — see your current standing across every skill at a glance.</li>
+                <li><strong>Gap analysis</strong> — compare where you are against where you're expected to be.</li>
+                <li><strong>Progress over time</strong> — track how your overall competency has moved across every assessment you've taken.</li>
+                <li><strong>Test history</strong> — revisit every past attempt and answer whenever you want.</li>
+            </ul>
+        </div>
+
+        <div class="about-card">
+            <h3>Practice with hands-on labs</h3>
+            <p>
+                When a skill needs work, BlitzLearn queues up a lab for it — your lowest-scoring,
+                highest-priority skills come first. Each lab is shaped to match the skill:
+            </p>
+            <ul class="plain-list">
+                <li><strong>Code labs</strong> — write and run a working solution in an in-browser editor.</li>
+                <li><strong>Cloud labs</strong> — describe the steps or configuration for an infrastructure task.</li>
+                <li><strong>Finance labs</strong> — work through a real calculation to a final answer.</li>
+                <li><strong>General labs</strong> — write up an applied, practical response.</li>
+            </ul>
+            <p>
+                Every lab opens with a short theory section and worked examples before the task
+                itself, and your submission is graded with a score, feedback on mistakes, and
+                suggestions for what to improve.
+            </p>
+        </div>
+
+        <div class="about-card">
+            <h3>Follow a roadmap built around you</h3>
+            <p>
+                Your skill gaps are matched against real course recommendations, so you always
+                know what to study next. If nothing matches a particular gap, BlitzLearn
+                suggests practical sub-topics instead — your roadmap is always prioritized by
+                whichever gap needs closing most.
+            </p>
+        </div>
+
+        <div class="about-card">
+            <h3>Stay consistent</h3>
+            <p>
+                Your profile keeps a day-by-day activity heatmap of your tests, quizzes, and
+                labs, along with your current streak, longest streak, total active days, and
+                learning hours — so you can see your consistency building up over time, not
+                just your scores.
+            </p>
+        </div>
+
+        <div class="about-card">
+            <h3>Meet the team — Aarambh</h3>
+            <p>BlitzLearn is built by Aarambh.</p>
+            <div class="team-grid">
+                <div class="member-card">
+                    <div class="member-avatar">VD</div>
+                    <div class="member-info">
+                        <div class="member-name">Vedant Desai <span class="lead-badge">Lead</span></div>
+                        <div class="member-role">Backend Developer</div>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-avatar">AB</div>
+                    <div class="member-info">
+                        <div class="member-name">Aniket Bhujad</div>
+                        <div class="member-role">AI Developer</div>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-avatar">BT</div>
+                    <div class="member-info">
+                        <div class="member-name">Bhoomi Tiple</div>
+                        <div class="member-role">Frontend Developer</div>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-avatar">KY</div>
+                    <div class="member-info">
+                        <div class="member-name">Komal Yerkal</div>
+                        <div class="member-role">Frontend Developer</div>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-avatar">SI</div>
+                    <div class="member-info">
+                        <div class="member-name">Swapnil Ingole</div>
+                        <div class="member-role">Data Analyst</div>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <div class="member-avatar">RA</div>
+                    <div class="member-info">
+                        <div class="member-name">Rushikesh Ambilwade</div>
+                        <div class="member-role">QA Engineer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-card about-footer-card">
+            <p>BlitzLearn &mdash; learn from your notes, know your skills, close the gap.</p>
+            <a href="/login" class="primary-button">Log in</a>
+        </div>
+
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/about-script.js') }}"></script>
+</body>
+</html>
