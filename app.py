@@ -25,6 +25,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import date, datetime, timedelta
+from calendar import monthrange
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -3558,6 +3559,84 @@ def labs_select_page():
 def labs_page():
     return render_template('labs.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/trainers-directory')
+def trainers_directory_page():
+    return render_template('trainers-directory.html')
+
+
+@app.route('/api/my_department_trainers/<uid>', methods=['GET'])
+def api_my_department_trainers(uid):
+    user = _get_user_row(uid)
+    if not user:
+        return jsonify({"error": "Profile not found."}), 404
+
+    department = user["department"] or ""
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT name, department, created_at FROM trainers WHERE department = %s ORDER BY name",
+        (department,)
+    )
+    trainers = _fetchall(cur)
+    conn.close()
+
+    return jsonify({"department": department, "trainers": trainers})
+
+
+@app.route('/training-calendar')
+def training_calendar_page():
+    return render_template('training-calendar.html')
+
+
+@app.route('/api/nssta_calendar', methods=['GET'])
+def api_nssta_calendar():
+    month_param = request.args.get('month')
+    try:
+        if month_param:
+            year, month = [int(p) for p in month_param.split('-')]
+        else:
+            today = date.today()
+            year, month = today.year, today.month
+    except (ValueError, TypeError):
+        today = date.today()
+        year, month = today.year, today.month
+
+    start = date(year, month, 1)
+    last_day = monthrange(year, month)[1]
+    end = date(year, month, last_day)
+
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            """SELECT reference_id, subject, start_date, document_type, document_url
+               FROM tpac_documents
+               WHERE start_date >= %s AND start_date <= %s
+               ORDER BY start_date""",
+            (start, end)
+        )
+        rows = _fetchall(cur)
+        conn.close()
+    except Exception:
+        rows = []
+
+    events = [
+        {
+            "reference_id": r["reference_id"],
+            "subject": r["subject"],
+            "start_date": r["start_date"].isoformat() if hasattr(r["start_date"], "isoformat") else r["start_date"],
+            "document_type": r["document_type"],
+            "document_url": r["document_url"],
+        }
+        for r in rows
+    ]
+
+    return jsonify({"year": year, "month": month, "events": events})
 
 @app.route('/api/lab_content', methods=['POST'])
 def api_lab_content():
