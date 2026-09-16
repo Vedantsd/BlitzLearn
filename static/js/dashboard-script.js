@@ -501,4 +501,23 @@ function showAlert(message, type = 'info') {
     }, 3500);
 }
 
+function toggleKebabMenu() {
+    document.getElementById('kebab-dropdown').classList.toggle('active');
+}
+
+document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('kebab-menu-wrap');
+    const dropdown = document.getElementById('kebab-dropdown');
+    if (wrap && dropdown && dropdown.classList.contains('active') && !wrap.contains(e.target)) {
+        dropdown.classList.remove('active');
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const dropdown = document.getElementById('kebab-dropdown');
+        if (dropdown) dropdown.classList.remove('active');
+    }
+});
+
 updateThemeIcon();

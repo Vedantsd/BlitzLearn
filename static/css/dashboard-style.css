@@ -919,3 +919,64 @@ body.dark .profile-circle {
         width: 100%;
     }
 }
+
+.kebab-menu-wrap {
+    position: relative;
+}
+
+.kebab-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    min-width: 210px;
+    max-width: calc(100vw - 32px);
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px var(--shadow);
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 200;
+}
+
+.kebab-dropdown.active {
+    display: flex;
+    animation: kebabSlide 0.15s ease;
+}
+
+@keyframes kebabSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.kebab-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    transition: background-color 0.15s ease;
+}
+
+.kebab-item:hover {
+    background: var(--secondary);
+}
+
+.kebab-item svg {
+    width: 17px;
+    height: 17px;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.kebab-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 2px;
+}
