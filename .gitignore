@@ -8,3 +8,4 @@ firebase-service-account.json
 scrapers/
 /venv
 /venv311
+/temp
