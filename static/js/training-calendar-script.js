@@ -2,6 +2,8 @@ let currentYear = null;
 let currentMonth = null;
 let selectedDateIso = null;
 let monthEvents = [];
+let unscheduledEvents = [];
+let unscheduledLoaded = false;
 
 firebase.auth().onAuthStateChanged(user => {
     if (!user) {
@@ -71,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.toggle('dark', isDark);
     updateThemeIcon(isDark);
     updateHeaderLogo(isDark);
+
+    document.getElementById('tc-toggle-unscheduled').addEventListener('click', toggleUnscheduled);
 });
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -107,6 +111,16 @@ async function loadCalendar() {
     }
 }
 
+function isoDate(y, m, d) {
+    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+function eventCoversDay(event, iso) {
+    const start = event.start_date;
+    const end = event.end_date || event.start_date;
+    return iso >= start && iso <= end;
+}
+
 function renderGrid() {
     const grid = document.getElementById('tc-grid');
     const firstOfMonth = new Date(currentYear, currentMonth - 1, 1);
@@ -114,7 +128,6 @@ function renderGrid() {
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
 
     const todayIso = new Date().toISOString().slice(0, 10);
-    const eventDates = new Set(monthEvents.map(e => e.start_date));
 
     let cells = '';
     for (let i = 0; i < startWeekday; i++) {
@@ -122,11 +135,11 @@ function renderGrid() {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-        const iso = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const iso = isoDate(currentYear, currentMonth, day);
         const classes = ['tc-day'];
         if (iso === todayIso) classes.push('today');
         if (iso === selectedDateIso) classes.push('selected');
-        const hasEvent = eventDates.has(iso);
+        const hasEvent = monthEvents.some(e => eventCoversDay(e, iso));
 
         cells += `
             <div class="${classes.join(' ')}" onclick="selectDay('${iso}')">
@@ -150,15 +163,15 @@ function renderEventsForSelection() {
     const list = document.getElementById('tc-events-list');
 
     const filtered = selectedDateIso
-        ? monthEvents.filter(e => e.start_date === selectedDateIso)
+        ? monthEvents.filter(e => eventCoversDay(e, selectedDateIso))
         : monthEvents;
 
     title.textContent = selectedDateIso
-        ? `Trainings on ${formatDateLong(selectedDateIso)}`
+        ? `Trainings covering ${formatDateLong(selectedDateIso)}`
         : `Trainings this month`;
 
     if (filtered.length === 0) {
-        list.innerHTML = `<p class="empty-state">${selectedDateIso ? 'No trainings on this day.' : 'No trainings scheduled this month.'}</p>`;
+        list.innerHTML = `<p class="empty-state">${selectedDateIso ? 'No trainings cover this day.' : 'No trainings scheduled this month.'}</p>`;
         return;
     }
 
@@ -169,17 +182,31 @@ function renderEventRow(e) {
     const d = new Date(e.start_date + 'T00:00:00');
     const day = d.getDate();
     const mon = MONTH_NAMES[d.getMonth()].slice(0, 3);
+    const dateRangeLabel = formatEventRange(e);
 
     return `
         <div class="tc-event-row">
             <div class="tc-event-date">${mon}<br>${day}</div>
             <div class="tc-event-info">
-                <div class="tc-event-subject">${escapeHtml(e.subject || 'NSSTA Training')}</div>
-                <div class="tc-event-meta">${[e.reference_id, e.document_type].filter(Boolean).map(escapeHtml).join(' · ') || 'NSSTA TPAC'}</div>
+                <div class="tc-event-top">
+                    <span class="tc-category-badge">${escapeHtml(e.category)}</span>
+                </div>
+                <div class="tc-event-subject">${escapeHtml(e.module_topic)}</div>
+                <div class="tc-event-meta">${[e.level_of_participants, dateRangeLabel, e.duration_text, e.venue].filter(Boolean).map(escapeHtml).join(' · ')}</div>
             </div>
-            ${e.document_url ? `<a class="tc-event-link" href="${escapeAttr(e.document_url)}" target="_blank" rel="noopener">View</a>` : ''}
         </div>
     `;
+}
+
+function formatEventRange(e) {
+    if (!e.start_date) return '';
+    if (!e.end_date || e.end_date === e.start_date) return formatDateShort(e.start_date);
+    return `${formatDateShort(e.start_date)} – ${formatDateShort(e.end_date)}`;
+}
+
+function formatDateShort(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function formatDateLong(iso) {
@@ -187,14 +214,50 @@ function formatDateLong(iso) {
     return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+async function toggleUnscheduled() {
+    const panel = document.getElementById('tc-unscheduled-panel');
+    const arrow = document.getElementById('tc-unscheduled-arrow');
+    const isOpening = !panel.classList.contains('open');
+
+    panel.classList.toggle('open');
+    arrow.classList.toggle('open');
+
+    if (isOpening && !unscheduledLoaded) {
+        await loadUnscheduled();
+    }
+}
+
+async function loadUnscheduled() {
+    const list = document.getElementById('tc-unscheduled-list');
+    list.innerHTML = '<p class="empty-state">Loading...</p>';
+
+    try {
+        const response = await fetch('/api/nssta_calendar/unscheduled');
+        const data = await response.json();
+        unscheduledEvents = data.events || [];
+        unscheduledLoaded = true;
+
+        if (unscheduledEvents.length === 0) {
+            list.innerHTML = '<p class="empty-state">Nothing pending confirmation right now.</p>';
+            return;
+        }
+
+        list.innerHTML = unscheduledEvents.map(e => `
+            <div class="tc-unscheduled-row">
+                <span class="tc-category-badge">${escapeHtml(e.category)}</span>
+                <div class="tc-unscheduled-subject">${escapeHtml(e.module_topic)}</div>
+                <div class="tc-event-meta">${[e.level_of_participants, e.duration_text, e.venue].filter(Boolean).map(escapeHtml).join(' · ')}</div>
+            </div>
+        `).join('');
+    } catch (error) {
+        list.innerHTML = '<p class="empty-state">Failed to load unscheduled programmes.</p>';
+    }
+}
+
 function escapeHtml(str) {
     const div = document.createElement('div');
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
-}
-
-function escapeAttr(str) {
-    return escapeHtml(str).replace(/"/g, '&quot;');
 }
 
 const customCursor = document.getElementById('custom-cursor');

@@ -66,6 +66,18 @@
             <p class="empty-state">Loading calendar...</p>
         </div>
     </div>
+
+    <div class="tc-unscheduled-card">
+        <button class="tc-unscheduled-toggle" id="tc-toggle-unscheduled">
+            <span>Programmes without confirmed dates</span>
+            <svg id="tc-unscheduled-arrow" class="tc-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+            </svg>
+        </button>
+        <div class="tc-unscheduled-panel" id="tc-unscheduled-panel">
+            <div class="tc-unscheduled-list" id="tc-unscheduled-list"></div>
+        </div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
