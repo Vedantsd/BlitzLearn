@@ -1313,3 +1313,76 @@ a.demo-row-link:hover {
         max-width: calc(100vw - 32px);
     }
 }
+
+@property --border-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+.demo-toggle {
+    position: relative;
+    z-index: 1;
+    border: 2.5px solid transparent;
+    background:
+        linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
+        conic-gradient(
+            from var(--border-angle),
+            #7C3AED,
+            #9F67F0,
+            #D58A32,
+            #D04F68,
+            #9F67F0,
+            #3F8F6B,
+            #7C3AED
+        ) border-box;
+    animation: spin-border 4s linear infinite;
+}
+
+.demo-toggle:hover {
+    background:
+        linear-gradient(var(--secondary), var(--secondary)) padding-box,
+        conic-gradient(
+            from var(--border-angle),
+            #7C3AED,
+            #9F67F0,
+            #D58A32,
+            #D04F68,
+            #9F67F0,
+            #3F8F6B,
+            #7C3AED
+        ) border-box;
+}
+
+@keyframes spin-border {
+    to {
+        --border-angle: 360deg;
+    }
+}
+
+.demo-toggle::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 14px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.30), transparent 70%);
+    z-index: -1;
+    opacity: 0;
+    animation: glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .demo-toggle {
+        animation: none;
+        border-color: var(--primary);
+    }
+    .demo-toggle::after {
+        animation: none;
+        display: none;
+    }
+}
