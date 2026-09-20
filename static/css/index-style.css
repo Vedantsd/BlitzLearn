@@ -1123,8 +1123,28 @@ footer {
     z-index: 200;
 }
 
+.demo-toggle svg {
+    width: 15px;
+    height: 15px;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
 .demo-toggle {
-    display: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px var(--shadow);
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
 }
 
 .demo-toggle:hover {
@@ -1133,20 +1153,23 @@ footer {
     transform: translateY(-1px);
 }
 
-.demo-toggle svg {
-    width: 15px;
-    height: 15px;
-    color: var(--primary);
+.demo-chevron {
+    display: block;
+    width: 14px;
+    height: 14px;
+    color: var(--muted);
+    transition: transform 0.25s ease;
     flex-shrink: 0;
 }
 
-.demo-chevron {
-    display: none;
+.demo-access.open .demo-chevron {
+    transform: rotate(180deg);
+    color: var(--primary);
 }
 
 .demo-panel {
     position: absolute;
-    top: 0;
+    top: calc(100% + 10px);
     right: 0;
     width: 300px;
     max-width: calc(100vw - 32px);
@@ -1156,16 +1179,18 @@ footer {
     box-shadow: 0 20px 50px var(--shadow);
     padding: 16px;
 
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-    pointer-events: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
 }
 
 .demo-access.open .demo-panel {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    pointer-events: auto;
 }
 
 .demo-panel-head {

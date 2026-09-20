@@ -1,3 +1,28 @@
+function toggleDemoPanel() {
+    const demoAccess = document.getElementById('demo-access');
+    const toggleBtn = document.getElementById('demo-toggle');
+    const isOpen = demoAccess.classList.toggle('open');
+    toggleBtn.setAttribute('aria-expanded', String(isOpen));
+}
+
+document.addEventListener('click', (e) => {
+    const demoAccess = document.getElementById('demo-access');
+    if (demoAccess.classList.contains('open') && !demoAccess.contains(e.target)) {
+        demoAccess.classList.remove('open');
+        document.getElementById('demo-toggle').setAttribute('aria-expanded', 'false');
+    }
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const demoAccess = document.getElementById('demo-access');
+        if (demoAccess.classList.contains('open')) {
+            demoAccess.classList.remove('open');
+            document.getElementById('demo-toggle').setAttribute('aria-expanded', 'false');
+        }
+    }
+});
+
 function copyDemoValue(buttonEl, value) {
     const restoreIcon = buttonEl.innerHTML;
 

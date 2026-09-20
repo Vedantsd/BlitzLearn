@@ -38,10 +38,10 @@
 </header>
 
 <div class="demo-access" id="demo-access">
-  <button class="demo-panel" id="demo-panel" onclick="toggleDemoPanel()" aria-expanded="false" aria-controls="demo-panel">
+  <button class="demo-toggle" id="demo-toggle" onclick="toggleDemoPanel()" aria-expanded="false" aria-controls="demo-panel">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7a4 4 0 0 1 0 8H8l-4 4V7a4 4 0 0 1 4-4h7a4 4 0 0 1 4 4Z"/><circle cx="9" cy="11" r="1"/><circle cx="13" cy="11" r="1"/></svg>
-    <span>Demo Access</span>
-    <svg class="demo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    <span>Demo Credentials</span>
+    <svg class="demo-chevron" id="demo-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
   </button>
 
   <div class="demo-panel" id="demo-panel">
@@ -73,9 +73,9 @@
     <div class="demo-row">
       <div class="demo-row-text">
         <span class="demo-row-label">Login URL</span>
-        <a class="demo-row-value demo-row-link" href="https://blitz-learn.up.railway.app/admin/login" target="_blank" rel="noopener">blitz-learn.up.railway.app/admin/login</a>
+        <a class="demo-row-value demo-row-link" href="https://blitzlearn.tech/admin/login" target="_blank" rel="noopener">blitzlearn.tech/admin/login</a>
       </div>
-      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'https://blitz-learn.up.railway.app/admin/login')" aria-label="Copy admin login URL">
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'https://blitzlearn.tech/admin/login')" aria-label="Copy admin login URL">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </button>
     </div>
@@ -97,13 +97,14 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </button>
     </div>
+
     <div class="demo-group-label">Trainer dashboard</div>
     <div class="demo-row">
       <div class="demo-row-text">
         <span class="demo-row-label">Login URL</span>
-        <a class="demo-row-value demo-row-link" href="https://blitz-learn.up.railway.app/trainer/login" target="_blank" rel="noopener">blitz-learn.up.railway.app/trainer/login</a>
+          <a class="demo-row-value demo-row-link" href="https://blitzlearn.tech/trainer/login" target="_blank" rel="noopener">blitzlearn.tech/trainer/login</a>
       </div>
-      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'https://blitz-learn.up.railway.app/trainer/login')" aria-label="Copy trainer login URL">
+      <button class="demo-copy" type="button" onclick="copyDemoValue(this, 'https://blitzlearn.tech/trainer/login')" aria-label="Copy trainer login URL">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </button>
     </div>
